@@ -1,0 +1,144 @@
+{
+  "identity": {
+    "name": "TradeLife v2",
+    "archetype": "The Site Foreman",
+    "emotional_tone": "Reliable, High-Visibility, Tactical, Efficient",
+    "core_principles": [
+      "Clarity over Style: If it doesn't help the quote, remove it.",
+      "Mobile First: Every input must work with a thumb in a van.",
+      "Big Targets: 48px minimum touch targets.",
+      "High Contrast: Readability in sunlight is non-negotiable."
+    ]
+  },
+  "typography": {
+    "headings": {
+      "family": "Chivo, sans-serif",
+      "weights": ["700", "900"],
+      "usage": "Section titles, Quote Totals, Hero text",
+      "letter_spacing": "tracking-tight"
+    },
+    "body": {
+      "family": "Manrope, sans-serif",
+      "weights": ["400", "500", "600"],
+      "usage": "Form labels, inputs, descriptions, line items",
+      "letter_spacing": "tracking-normal"
+    },
+    "mono": {
+      "family": "JetBrains Mono, monospace",
+      "weights": ["500"],
+      "usage": "Reference numbers, precise data values"
+    }
+  },
+  "colors": {
+    "primary": {
+      "name": "Blueprint Blue",
+      "hex": "#0047AB",
+      "usage": "Primary buttons, active states, key branding"
+    },
+    "accent": {
+      "name": "Safety Orange",
+      "hex": "#FF5F00",
+      "usage": "Call to Action (Save, Send), Alerts, High-value highlights"
+    },
+    "neutral": {
+      "background": "#F8FAFC",
+      "surface": "#FFFFFF",
+      "border": "#E2E8F0",
+      "text_primary": "#0F172A",
+      "text_secondary": "#64748B"
+    },
+    "semantic": {
+      "success": "#16A34A",
+      "warning": "#D97706",
+      "error": "#DC2626",
+      "info": "#2563EB"
+    }
+  },
+  "layout": {
+    "structure": "Single Column (Mobile) -> Two Column (Desktop)",
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "grid_system": {
+      "mobile": "flex flex-col gap-6",
+      "desktop": "grid grid-cols-12 gap-8"
+    },
+    "spacing": {
+      "section_gap": "gap-8",
+      "input_gap": "gap-4",
+      "internal_padding": "p-6"
+    }
+  },
+  "components": {
+    "MoneyInput": {
+      "description": "Custom input handling BigInt conversion.",
+      "behavior": "Displays '£150.50', stores '15050'. On blur: parses float, converts to pence. On focus: shows raw float.",
+      "visuals": "Start adornment '£'. Mono font for value. Right-aligned text.",
+      "path": "/components/ui/money-input.tsx"
+    },
+    "PercentageInput": {
+      "description": "Custom input handling x100 integer percentage.",
+      "behavior": "Displays '20.00', stores '2000'. Limit 0-100.",
+      "visuals": "End adornment '%'.",
+      "path": "/components/ui/percentage-input.tsx"
+    },
+    "QuoteSectionCard": {
+      "description": "Card component for a single quote section.",
+      "structure": "Header (Title + Remove), Body (Inputs), Footer (Summary).",
+      "visuals": "White bg, 1px border-slate-200, rounded-xl. Shadow-sm. Header bg-slate-50.",
+      "interaction": "Collapsible body (optional but recommended for long quotes)."
+    },
+    "TotalsPanel": {
+      "description": "Sticky summary of costs and profit.",
+      "structure": "Grid of metrics: Cost, Revenue, Margin %, VAT, Gross.",
+      "visuals": "Blueprint Blue background (text-white) or High-contrast Slate-900. Fixed bottom on mobile, sticky sidebar on desktop.",
+      "z_index": "z-50"
+    }
+  },
+  "logic": {
+    "math_strategy": "Optimistic Client-Side Mirroring",
+    "rules": [
+      "Client MUST implement exact replica of `calculateSection` and `calculateQuoteTotals` from `/lib/actions/quotes.ts`.",
+      "Input changes trigger local state update and immediate recalculation.",
+      "Final submission sends raw inputs to server.",
+      "Server acts as source of truth."
+    ],
+    "state_management": "React Hook Form + useFieldArray for sections."
+  },
+  "assets": {
+    "icons": {
+      "library": "lucide-react",
+      "mapping": {
+        "section_add": "PlusCircle",
+        "section_remove": "Trash2",
+        "labour": "Hammer",
+        "materials": "Package",
+        "subcontract": "HardHat",
+        "margin": "TrendingUp",
+        "save": "Save",
+        "send": "Send"
+      }
+    },
+    "images": [
+       {
+         "category": "texture",
+         "url": "https://images.unsplash.com/photo-1651573652576-5d407dbe48d1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2OTV8MHwxfHNlYXJjaHwyfHxzdWJ0bGUlMjBjb25jcmV0ZSUyMHRleHR1cmUlMjB3aGl0ZXxlbnwwfHx8fDE3NzI1NDY1OTZ8MA&ixlib=rb-4.1.0&q=85",
+         "usage": "Subtle background texture for the main container or hero section (optional)."
+       }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "1. CREATE `MoneyInput` and `PercentageInput` first. These are critical for the BigInt logic.",
+    "2. IMPLEMENT `useQuoteCalculator` hook that mirrors `lib/actions/quotes.ts` logic exactly.",
+    "3. BUILD `QuoteSectionCard` with comprehensive error states.",
+    "4. ASSEMBLE the `CreateQuotePage` using a Responsive Two-Column layout (Left: Form, Right: Sticky Totals).",
+    "5. ENSURE mobile view places Totals in a fixed bottom bar or easily accessible drawer.",
+    "6. USE `zod` schema that matches `SectionInput` interface.",
+    "7. DO NOT use floating point math for storage. Always round to nearest integer immediately after calculation."
+  ],
+  "UNIVERSAL_GUIDELINES": [
+    "Do not use generic 'Inter' for headings. Use 'Chivo'.",
+    "Buttons must have `h-12` (48px) on mobile.",
+    "Inputs must have `text-base` (16px) to prevent iOS zoom.",
+    "Use 'Blueprint Blue' (#0047AB) for primary actions.",
+    "Always check contrast ratios. The audience works outdoors."
+  ]
+}
