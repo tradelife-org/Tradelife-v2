@@ -32,10 +32,12 @@ export function PercentageInput({
     }
   }, [value, isFocused])
 
-  const handleFocus = () => {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(true)
     const pct = value / 100
     setDisplayValue(pct === 0 ? '' : String(pct))
+    // Select all on focus so typing replaces the value
+    requestAnimationFrame(() => e.target.select())
   }
 
   const handleBlur = () => {

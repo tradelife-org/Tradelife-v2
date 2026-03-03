@@ -34,11 +34,13 @@ export function MoneyInput({
     }
   }, [value, isFocused])
 
-  const handleFocus = () => {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(true)
     // Show clean number for editing
     const pounds = value / 100
     setDisplayValue(pounds === 0 ? '' : String(pounds))
+    // Select all on focus so typing replaces the value
+    requestAnimationFrame(() => e.target.select())
   }
 
   const handleBlur = () => {

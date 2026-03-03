@@ -50,8 +50,8 @@ Build the Foundation Layer of TradeLife v2: a Next.js + Supabase trade managemen
 ## Prioritized Backlog
 
 ### P0 — Core Flow
-- [ ] Supabase Auth integration (sign up, login, org creation)
-- [ ] Connect Create Quote page to Supabase (save/load quotes)
+- [x] Supabase Auth integration (sign up, login, org creation)
+- [x] Connect Create Quote page to Supabase (save/load quotes)
 - [ ] Quote list page (dashboard)
 - [ ] Client share link (public quote view + accept flow)
 - [ ] Quote -> Job conversion
@@ -73,8 +73,22 @@ Build the Foundation Layer of TradeLife v2: a Next.js + Supabase trade managemen
 - [ ] Cashflow entries & allocation
 - [ ] Open Banking integration
 
+## Session 2 — Auth + Persistence (January 2026)
+- [x] Supabase Auth: Login + Signup pages with JWT session management via middleware
+- [x] Auth auto-seed: App-level fallback creates org+profile on signup (DB trigger 00002 also available)
+- [x] Save Draft persistence: Server Action writes quote+sections+line_items to Supabase
+- [x] BigInt conversion verified: UI pounds -> pence, percentages -> x100 before persistence
+- [x] Middleware: Protects /quotes/* routes, redirects unauth users to /login
+- [x] Cross-origin fix: next.config.js allowedOrigins for Emergent preview environment
+- [x] Select-on-focus UX: Inputs auto-select on focus preventing value append issues
+- [x] DB verification: All values correctly stored as BigInt (confirmed via REST API)
+- [x] Test user: builder@test.com / builder123
+
+## Pending User Action
+- Apply `/app/supabase/migrations/00002_auth_auto_seed.sql` in Supabase SQL Editor
+
 ## Next Tasks
-1. Apply SQL migration to Supabase (user runs manually)
-2. Set up Supabase Auth
-3. Wire Create Quote page to Supabase persistence
-4. Build Quote list/dashboard page
+1. Apply 00002 migration (auto-seed trigger)
+2. Build Quote list/dashboard page
+3. Client share link (public quote view + accept flow)
+4. Quote -> Job conversion
