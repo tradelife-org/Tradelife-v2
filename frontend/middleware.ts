@@ -13,7 +13,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           )
           supabaseResponse = NextResponse.next({ request })
@@ -29,12 +29,18 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Redirect unauthenticated users to login (except public routes)
+  // Public routes — no auth required
   const isPublicRoute =
     request.nextUrl.pathname === '/' ||
     request.nextUrl.pathname === '/login' ||
     request.nextUrl.pathname === '/signup' ||
-    request.nextUrl.pathname.startsWith('/quote/') // public share links
+    request.nextUrl.pathname.startsWith('/view/') ||   // public quote share links
+    request.nextUrl.pathname.startsWith('/auth/') ||    // auth callbacks
+    request.nextUrl.pathname.startsWith('/rpc/') ||     // public API endpoints
+    request.nextUrl.pathname === '/accept-quote' ||     // public quote accept
+    request.nextUrl.pathname === '/public-accept'      // public quote accept alt
+
+  console.log(`[MW] path=${request.nextUrl.pathname} user=${!!user} isPublic=${isPublicRoute}`)
 
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone()
@@ -45,7 +51,7 @@ export async function middleware(request: NextRequest) {
   // Redirect authenticated users away from auth pages
   if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup')) {
     const url = request.nextUrl.clone()
-    url.pathname = '/quotes/create'
+    url.pathname = '/quotes'
     return NextResponse.redirect(url)
   }
 

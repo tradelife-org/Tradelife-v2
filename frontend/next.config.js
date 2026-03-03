@@ -3,6 +3,8 @@ const nextConfig = {
   experimental: {
     serverActions: {
       allowedOrigins: [
+        'tradelife.app',
+        'www.tradelife.app',
         'c6ae184b-4e10-4851-aa38-34ab1d88652f.preview.emergentagent.com',
         'c6ae184b-4e10-4851-aa38-34ab1d88652f.cluster-0.preview.emergentcf.cloud',
         'pricing-layer-v2.cluster-0.preview.emergentcf.cloud',

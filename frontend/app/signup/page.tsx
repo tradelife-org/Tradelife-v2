@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ensureOrgAndProfile } from '@/lib/actions/auth'
+import { getAuthCallbackUrl } from '@/lib/utils/url'
 import { UserPlus, Mail, Lock, User, ArrowRight } from 'lucide-react'
 
 export default function SignupPage() {
@@ -27,6 +28,7 @@ export default function SignupPage() {
       password,
       options: {
         data: { full_name: fullName },
+        emailRedirectTo: getAuthCallbackUrl(),
       },
     })
 
