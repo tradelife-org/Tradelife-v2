@@ -34,13 +34,9 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname === '/' ||
     request.nextUrl.pathname === '/login' ||
     request.nextUrl.pathname === '/signup' ||
-    request.nextUrl.pathname.startsWith('/view/') ||   // public quote share links
-    request.nextUrl.pathname.startsWith('/auth/') ||    // auth callbacks
-    request.nextUrl.pathname.startsWith('/rpc/') ||     // public API endpoints
-    request.nextUrl.pathname === '/accept-quote' ||     // public quote accept
-    request.nextUrl.pathname === '/public-accept'      // public quote accept alt
-
-  console.log(`[MW] path=${request.nextUrl.pathname} user=${!!user} isPublic=${isPublicRoute}`)
+    request.nextUrl.pathname.startsWith('/view/') ||
+    request.nextUrl.pathname.startsWith('/auth/') ||
+    request.nextUrl.pathname.startsWith('/api/')
 
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone()
@@ -48,7 +44,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Redirect authenticated users away from auth pages
   if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup')) {
     const url = request.nextUrl.clone()
     url.pathname = '/quotes'

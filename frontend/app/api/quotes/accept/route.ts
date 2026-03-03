@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing share_token' }, { status: 400 })
     }
 
-    // Use service role to bypass RLS — this is a public action
+    // Use service role to bypass RLS — this is a public system action
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
