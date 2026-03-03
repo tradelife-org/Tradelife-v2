@@ -54,12 +54,43 @@ export function useQuoteCalculator(vatRate: number = 2000) {
     )
   }, [])
 
+  const importTemplate = React.useCallback((template: {
+    name: string
+    trade_type: string
+    is_subcontract: boolean
+    labour_days: number
+    labour_day_rate: number
+    subcontract_cost: number
+    material_cost_total: number
+    margin_percentage: number
+  }) => {
+    setSections((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        title: template.name,
+        trade_type: template.trade_type,
+        is_subcontract: template.is_subcontract,
+        labour_days: template.labour_days,
+        labour_day_rate: template.labour_day_rate,
+        subcontract_cost: template.subcontract_cost,
+        material_cost_total: template.material_cost_total,
+        margin_percentage: template.margin_percentage,
+        labour_cost: 0,
+        section_cost_total: 0,
+        section_revenue_total: 0,
+        section_profit: 0,
+      },
+    ])
+  }, [])
+
   return {
     sections: calculatedSections,
     totals,
     addSection,
     removeSection,
     updateSection,
+    importTemplate,
   }
 }
 

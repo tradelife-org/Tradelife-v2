@@ -3,12 +3,13 @@
 import * as React from 'react'
 import { MoneyInput } from '@/components/ui/money-input'
 import { PercentageInput } from '@/components/ui/percentage-input'
+import { saveTemplate } from '@/lib/actions/templates'
 import {
   Trash2, ChevronDown, ChevronUp,
   Hammer, HardHat, Package, TrendingUp,
+  BookmarkPlus, Check,
 } from 'lucide-react'
 
-// Trade type options
 const TRADE_TYPES = [
   'General', 'Electrical', 'Plumbing', 'Carpentry', 'Plastering',
   'Painting', 'Roofing', 'Tiling', 'Flooring', 'Landscaping', 'Other',
@@ -20,11 +21,10 @@ export interface SectionData {
   trade_type: string
   is_subcontract: boolean
   labour_days: number
-  labour_day_rate: number   // pence
-  subcontract_cost: number  // pence
-  material_cost_total: number // pence
-  margin_percentage: number  // x100
-  // Calculated (from hook)
+  labour_day_rate: number
+  subcontract_cost: number
+  material_cost_total: number
+  margin_percentage: number
   labour_cost: number
   section_cost_total: number
   section_revenue_total: number
@@ -47,10 +47,32 @@ export function QuoteSectionCard({
   canRemove,
 }: QuoteSectionCardProps) {
   const [collapsed, setCollapsed] = React.useState(false)
+  const [savingTemplate, setSavingTemplate] = React.useState(false)
+  const [templateSaved, setTemplateSaved] = React.useState(false)
 
-  const formatPence = (pence: number) => {
-    const pounds = pence / 100
-    return pounds.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const formatPence = (pence: number) =>
+    (pence / 100).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+  const handleSaveAsTemplate = async () => {
+    const hasData = section.labour_days > 0 || section.subcontract_cost > 0 || section.material_cost_total > 0
+    if (!hasData) return
+
+    setSavingTemplate(true)
+    const result = await saveTemplate({
+      name: section.title || `${section.trade_type} Template`,
+      trade_type: section.trade_type,
+      is_subcontract: section.is_subcontract,
+      labour_days: section.labour_days,
+      labour_day_rate: section.labour_day_rate,
+      subcontract_cost: section.subcontract_cost,
+      material_cost_total: section.material_cost_total,
+      margin_percentage: section.margin_percentage,
+    })
+    setSavingTemplate(false)
+    if (result.success) {
+      setTemplateSaved(true)
+      setTimeout(() => setTemplateSaved(false), 2500)
+    }
   }
 
   return (
@@ -73,12 +95,25 @@ export function QuoteSectionCard({
             className="flex-1 bg-transparent font-heading font-bold text-lg text-slate-900 placeholder:text-slate-300 focus:outline-none min-w-0"
           />
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
+          {/* Save as Template */}
+          <button
+            onClick={handleSaveAsTemplate}
+            disabled={savingTemplate}
+            data-testid={`section-save-template-${index}`}
+            className={`p-2 rounded-lg transition-colors ${
+              templateSaved
+                ? 'text-green-500 bg-green-50'
+                : 'text-slate-400 hover:text-blueprint hover:bg-blueprint-50'
+            }`}
+            title="Save as template"
+          >
+            {templateSaved ? <Check className="w-4 h-4" /> : <BookmarkPlus className="w-4 h-4" />}
+          </button>
           <button
             onClick={() => setCollapsed(!collapsed)}
             data-testid={`section-collapse-${index}`}
             className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-            aria-label={collapsed ? 'Expand section' : 'Collapse section'}
           >
             {collapsed ? <ChevronDown className="w-5 h-5" /> : <ChevronUp className="w-5 h-5" />}
           </button>
@@ -87,7 +122,6 @@ export function QuoteSectionCard({
               onClick={() => onRemove(section.id)}
               data-testid={`section-remove-${index}`}
               className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-              aria-label="Remove section"
             >
               <Trash2 className="w-5 h-5" />
             </button>
@@ -95,7 +129,6 @@ export function QuoteSectionCard({
         </div>
       </div>
 
-      {/* Body (collapsible) */}
       {!collapsed && (
         <div className="p-5 space-y-5">
           {/* Trade Type + Subcontract Toggle */}
@@ -134,14 +167,12 @@ export function QuoteSectionCard({
 
           {/* Labour Inputs */}
           {section.is_subcontract ? (
-            <div className="grid grid-cols-1 gap-4">
-              <MoneyInput
-                label="Subcontract Cost"
-                value={section.subcontract_cost}
-                onChange={(v) => onUpdate(section.id, 'subcontract_cost', v)}
-                data-testid={`section-subcontract-cost-${index}`}
-              />
-            </div>
+            <MoneyInput
+              label="Subcontract Cost"
+              value={section.subcontract_cost}
+              onChange={(v) => onUpdate(section.id, 'subcontract_cost', v)}
+              data-testid={`section-subcontract-cost-${index}`}
+            />
           ) : (
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
@@ -150,10 +181,7 @@ export function QuoteSectionCard({
                   type="number"
                   min={0}
                   value={section.labour_days || ''}
-                  onChange={(e) => {
-                    const v = parseInt(e.target.value) || 0
-                    onUpdate(section.id, 'labour_days', Math.max(0, v))
-                  }}
+                  onChange={(e) => onUpdate(section.id, 'labour_days', Math.max(0, parseInt(e.target.value) || 0))}
                   data-testid={`section-labour-days-${index}`}
                   className="w-full h-12 px-3 text-right font-mono text-base bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blueprint/30 focus:border-blueprint"
                   placeholder="0"
@@ -170,18 +198,16 @@ export function QuoteSectionCard({
 
           {/* Materials + Margin */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex items-end">
-              <div className="w-full">
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <Package className="w-3.5 h-3.5 text-slate-400" />
-                  <span className="text-sm font-medium text-slate-600">Materials</span>
-                </div>
-                <MoneyInput
-                  value={section.material_cost_total}
-                  onChange={(v) => onUpdate(section.id, 'material_cost_total', v)}
-                  data-testid={`section-materials-${index}`}
-                />
+            <div>
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Package className="w-3.5 h-3.5 text-slate-400" />
+                <span className="text-sm font-medium text-slate-600">Materials</span>
               </div>
+              <MoneyInput
+                value={section.material_cost_total}
+                onChange={(v) => onUpdate(section.id, 'material_cost_total', v)}
+                data-testid={`section-materials-${index}`}
+              />
             </div>
             <div>
               <div className="flex items-center gap-1.5 mb-1.5">
