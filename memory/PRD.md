@@ -52,7 +52,7 @@ Build the Foundation Layer of TradeLife v2: a Next.js + Supabase trade managemen
 ### P0 — Core Flow
 - [x] Supabase Auth integration (sign up, login, org creation)
 - [x] Connect Create Quote page to Supabase (save/load quotes)
-- [ ] Quote list page (dashboard)
+- [x] Quote list page (dashboard)
 - [ ] Client share link (public quote view + accept flow)
 - [ ] Quote -> Job conversion
 
@@ -84,11 +84,21 @@ Build the Foundation Layer of TradeLife v2: a Next.js + Supabase trade managemen
 - [x] DB verification: All values correctly stored as BigInt (confirmed via REST API)
 - [x] Test user: builder@test.com / builder123
 
+## Session 3 — Dashboard & Efficiency Engine (January 2026)
+- [x] Quote Dashboard: /quotes page with data table, stats cards (Pipeline Value, Drafts, Sent, Accepted)
+- [x] BigInt Formatting: All dashboard values formatted from pence to £0.00 (confirmed: £6,825.00 pipeline)
+- [x] Navigation: AppShell component - top nav with Quotes/Jobs/Settings + mobile dropdown
+- [x] Quote Templates: Save as Template button on section cards + Import Template dropdown
+- [x] Data fetching: Direct Supabase client for reads (avoids server action CSRF)
+- [x] Search: Dashboard search filters by client name, reference, status
+- [x] Placeholder pages: Jobs (coming soon), Settings (coming soon)
+- [x] Testing: 100% pass rate (iteration_3.json - 16/16 tests)
+
 ## Pending User Action
-- Apply `/app/supabase/migrations/00002_auth_auto_seed.sql` in Supabase SQL Editor
+- Apply `/app/supabase/migrations/00003_quote_templates.sql` in Supabase SQL Editor (enables template persistence)
 
 ## Next Tasks
-1. Apply 00002 migration (auto-seed trigger)
-2. Build Quote list/dashboard page
-3. Client share link (public quote view + accept flow)
-4. Quote -> Job conversion
+1. Apply 00003 migration (quote_templates table)
+2. Client share link (public quote view + accept flow)
+3. Quote -> Job conversion
+4. Job detail page with variations
