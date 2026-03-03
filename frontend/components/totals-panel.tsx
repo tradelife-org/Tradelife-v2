@@ -10,6 +10,8 @@ interface TotalsPanelProps {
   quoteGross: number     // pence
   vatRate: number        // x100
   sectionCount: number
+  onSave?: () => void
+  saving?: boolean
 }
 
 export function TotalsPanel({
@@ -20,6 +22,8 @@ export function TotalsPanel({
   quoteGross,
   vatRate,
   sectionCount,
+  onSave,
+  saving = false,
 }: TotalsPanelProps) {
   const fmt = (pence: number) =>
     (pence / 100).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -112,10 +116,12 @@ export function TotalsPanel({
       {/* Actions */}
       <div className="px-6 pb-6 space-y-3">
         <button
+          onClick={onSave}
+          disabled={saving}
           data-testid="save-quote-btn"
-          className="w-full h-12 bg-safety text-white font-semibold rounded-xl hover:bg-safety-600 transition-colors duration-200 shadow-lg shadow-safety/25"
+          className="w-full h-12 bg-safety text-white font-semibold rounded-xl hover:bg-safety-600 transition-colors duration-200 shadow-lg shadow-safety/25 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Save Draft
+          {saving ? 'Saving...' : 'Save Draft'}
         </button>
       </div>
     </div>

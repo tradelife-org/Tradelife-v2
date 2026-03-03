@@ -1,0 +1,45 @@
+{
+  "summary": "Completed comprehensive testing of TradeLife v2 authentication and persistence features. All auth flows working correctly, quote calculations functional, Save Draft persistence successful. Found one calculation algorithm issue requiring review.",
+  "backend_issues": {},
+  "frontend_issues": {
+    "calculation_issues": [
+      {
+        "component": "Quote calculation algorithm",
+        "issue": "Margin calculation producing incorrect results - expected Cost=£1,750, Revenue=£2,187.50, Profit=£437.50, but got Cost=£1,750, Revenue=£3,500, Profit=£1,750",
+        "impact": "Quote totals are significantly higher than expected, affecting business calculations",
+        "test_data": "5 days × £250 + £500 materials + 25% margin",
+        "fix_priority": "HIGH"
+      }
+    ]
+  },
+  "passed_tests": [
+    "Homepage loads with TradeLife branding and Create Quote/Sign In buttons",
+    "Unauthenticated users accessing /quotes/create are redirected to /login",
+    "Login page loads with email, password, submit button, and signup link",
+    "Signup page loads with name, email, password fields and login link",
+    "Login with builder@test.com / builder123 successfully redirects to /quotes/create",
+    "User email 'builder@test.com' displayed correctly in header after login",
+    "Sign out button works and redirects to /login",
+    "Quote creation form accepts all input types (section title, labour days, day rate, materials, margin)",
+    "Trade type dropdown has all options available",
+    "Direct Labour / Subcontract toggle switches input fields correctly",
+    "MoneyInput and PercentageInput components accept user input",
+    "Add Section button creates additional quote sections",
+    "Multiple sections can be filled and managed independently",
+    "Subcontract toggle shows/hides appropriate input fields",
+    "Save Draft button triggers save operation",
+    "Save Draft success banner displays 'Saved! Quote ID: ...' message",
+    "Quote persistence to Supabase database working correctly",
+    "All data-testid attributes implemented for robust testing",
+    "Responsive design elements functioning properly"
+  ],
+  "test_report_links": [],
+  "action_item_for_main_agent": "Fix quote calculation algorithm: The margin calculation is currently producing Revenue=£3,500 and Profit=£1,750 for test case (5 days × £250 + £500 materials + 25% margin), but should produce Revenue=£2,187.50 and Profit=£437.50. Expected formula: Cost=(labour_days × day_rate + materials), Revenue=(Cost × (1 + margin/100)), Profit=(Revenue - Cost), Gross=(Revenue × 1.20). Please verify the calculation logic in the quote calculator hook and section calculation functions.",
+  "updated_files": [],
+  "success_percentage": {
+    "frontend": "90%",
+    "backend": "100% (persistence working)"
+  },
+  "should_call_test_agent_after_fix": "true",
+  "should_main_agent_test_itself": "false"
+}
