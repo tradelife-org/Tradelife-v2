@@ -16,15 +16,17 @@ Fix Vercel build failure for commit e0776c2 caused by missing `@supabase/supabas
 ## What's Been Implemented (Jan 2026)
 - [x] Installed `@supabase/supabase-js` ^2.98.0 and `@supabase/ssr` ^0.9.0 in root `package.json`
 - [x] Verified `next.config.js` is clean (no rewrites/proxy)
-- [x] No `next.config.mjs` existed — nothing to remove
 - [x] Fixed root `tsconfig.json` — `@/*` alias now points to `./frontend/*`
-- [x] Created `vercel.json` — build/install commands target `frontend/`, output from `frontend/.next`
-- [x] Build verified: both root and `frontend/` builds pass cleanly (exit code 0)
+- [x] Created `vercel.json` — framework: nextjs, build/install target `frontend/`, output `frontend/.next`
+- [x] Deleted root duplicate folders: `app/`, `components/`, `hooks/`, `lib/`
+- [x] Removed root config duplicates: `next.config.js`, `tailwind.config.js`, `postcss.config.js`
+- [x] Confirmed `NEXT_PUBLIC_SITE_URL=https://tradelife.app` (no localhost leakage)
+- [x] Build verified: `frontend/` builds pass cleanly (exit code 0, all routes compiled)
 
 ## Known Issues
-- None blocking. Lockfile patch warning is non-fatal.
+- None blocking.
 
 ## Backlog
-- **P1:** Consider consolidating dual-directory structure (root `app/` vs `frontend/app/`) into single `frontend/` for cleaner architecture
+- **P1:** Smoke test `/api/quotes/accept` on Vercel preview after green build
 - **P2:** Add Vercel build caching / optimization
-- **P2:** Clean up root `app/`, `components/`, `hooks/`, `lib/` duplicates if they're no longer needed
+- **P2:** Consider removing root `package.json` / `tsconfig.json` entirely and setting Vercel Root Directory to `frontend` in dashboard
