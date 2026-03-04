@@ -28,9 +28,17 @@ export async function GET(request: NextRequest) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(new URL(next, request.url))
+      // FIX: Force redirect to the production URL to avoid localhost issues
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tradelife.app'
+      // Ensure no double slashes if next starts with /
+      const targetPath = next.startsWith('/') ? next.slice(1) : next
+      const redirectUrl = `${siteUrl}/${targetPath}`
+      
+      return NextResponse.redirect(redirectUrl)
     }
   }
 
-  return NextResponse.redirect(new URL('/login', request.url))
+  // Error case
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tradelife.app'
+  return NextResponse.redirect(`${siteUrl}/login`)
 }
