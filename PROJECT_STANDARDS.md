@@ -77,3 +77,49 @@ The following columns exist for **deferred integrations** — do not remove them
 
 *Last updated: January 2026*
 *Source: Structural Audit + Foundation Layer Approval*
+
+---
+
+## 10. Schema Truth Hierarchy
+
+- **Primary sources of truth** (in order):
+  1. `TECHNICAL_AUDIT.md` — the living audit of what exists
+  2. `supabase/migrations/00001_foundation_schema.sql` — the canonical schema
+  3. `lib/types/database.ts` — TypeScript mirror of the schema
+- **Default coding patterns are OVERRIDDEN** by these documents. If a generic pattern conflicts with the schema, the schema wins.
+- Before writing any data-touching code, cross-reference against the schema. No assumptions.
+
+## 11. Financial Integrity Protocol
+
+- ALL currency is `BIGINT` in **pence**. No exceptions. No shortcuts.
+- ALL math is performed in pence (integer arithmetic). `Math.round()` only at margin/VAT application.
+- Conversion to pounds (`/ 100`) happens **exclusively** at the display layer:
+  - `penceToPounds()`, `formatCurrency()`, `formatPercentage()`
+  - Template literals in React components (e.g., `(pence / 100).toLocaleString(...)`)
+- **NEVER** store, transmit, or calculate with floats. If you see `150.50` in a variable that isn't a display string, it's a bug.
+- Percentages: `margin * value / 10000` — never `margin / 100 * value`.
+
+## 12. Multi-Tenant Isolation Enforcement
+
+- Every `SELECT` MUST include `org_id` filter (either via RLS or explicit `.eq('org_id', orgId)`).
+- Every `INSERT` MUST include `org_id` in the payload.
+- Every `UPDATE` MUST include `org_id` in the WHERE clause.
+- Server Actions: Always resolve `org_id` from `profiles` table via authenticated user before any query.
+- Client-side queries: Always fetch `profile.org_id` first, then filter.
+- Public endpoints (share_token): Use service role client to bypass RLS, but NEVER expose internal fields (costs, margins, org data).
+
+## 13. AI Verification Loop (Self-Healing Protocol)
+
+- After writing any data-mutating code, the AI (Jarvis) MUST verify against the Schema Context MCP (`lib/ai/schema-context.ts`).
+- Verification checklist:
+  1. Does the query include `org_id`?
+  2. Are all currency fields BIGINT pence (not floats)?
+  3. Are all percentage fields INTEGER x100?
+  4. Does the mutation respect immutability gates (ACCEPTED quotes)?
+  5. Does the lineage chain remain intact (Quote → Job → Invoice)?
+- If an error occurs, generate a **Self-Healing Fix** based on the schema:
+  1. Identify which constraint was violated
+  2. Reference the exact column/type from `00001_foundation_schema.sql`
+  3. Produce a corrected query/mutation
+  4. Re-verify before execution
+
