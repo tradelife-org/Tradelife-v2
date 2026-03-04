@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import JobFinancials from '@/components/job-financials'
 import ReceiptUploader from '@/components/receipt-uploader'
+import SmallWorksLogger from '@/components/small-works-logger'
 
 interface Job {
   id: string
@@ -159,6 +160,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         {/* Right Sidebar */}
         <div className="space-y-6">
           
+          {/* Small Works Engine (Module 5.2) */}
+          <SmallWorksLogger jobId={job.id} />
+
           {/* Receipt OCR (Task 3) */}
           <ReceiptUploader jobId={job.id} />
 
