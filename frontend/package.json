@@ -8,6 +8,7 @@
     "start": "next dev -p 3000"
   },
   "dependencies": {
+    "@google/genai": "^1.43.0",
     "@radix-ui/react-collapsible": "^1.1.0",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-select": "^2.1.0",
