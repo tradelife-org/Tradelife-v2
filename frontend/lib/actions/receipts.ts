@@ -15,13 +15,10 @@ export async function ocrReceiptAction(formData: FormData): Promise<ReceiptData>
   const file = formData.get('file') as File
   if (!file) throw new Error('No file provided')
 
-  // Convert to base64
   const arrayBuffer = await file.arrayBuffer()
   const base64Data = Buffer.from(arrayBuffer).toString('base64')
-  
   const mimeType = file.type
 
-  // Gemini OCR
   const prompt = `
     Analyze this receipt image.
     Extract:
@@ -62,26 +59,62 @@ export async function confirmReceiptAction(jobId: string, data: ReceiptData) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  const { data: profile } = await supabase.from('profiles').select('org_id').eq('id', user.id).single()
+  // Fetch Profile & Org Settings
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('org_id')
+    .eq('id', user.id)
+    .single()
   if (!profile) throw new Error('Profile not found')
 
-  // Insert Expense into Ledger
-  // Category: EXPENSE
-  // Transaction: DEBIT
-  const { error } = await supabase
-    .from('job_wallet_ledger')
-    .insert({
-      org_id: profile.org_id,
-      job_id: jobId,
-      amount: data.totalAmount, // Absolute amount
-      transaction_type: 'DEBIT',
-      category: 'EXPENSE',
-      description: `${data.supplier}: ${data.description}`
-    })
+  const { data: org } = await supabase
+    .from('organisations')
+    .select('is_vat_registered')
+    .eq('id', profile.org_id)
+    .single()
+  
+  // Note: is_vat_registered defaults to false in schema if missing, 
+  // but if column missing (migration failed), fetch might fail or return null.
+  // We'll treat null as false.
+  const isVatRegistered = org?.is_vat_registered || false
+
+  // Call RPC Transaction
+  const { error } = await supabase.rpc('record_expense_transaction', {
+    p_org_id: profile.org_id,
+    p_job_id: jobId,
+    p_total_amount: data.totalAmount,
+    p_vat_amount: data.vatAmount,
+    p_description: `${data.supplier}: ${data.description}`,
+    p_is_vat_registered: isVatRegistered
+  })
 
   if (error) {
     console.error('Ledger expense failed:', error)
-    throw new Error('Failed to save expense')
+    
+    // Fallback: If RPC missing (migration failed), do logic manually (non-transactional risk)
+    if (error.code === '42883') { // undefined_function
+       console.warn('RPC missing, falling back to manual insert (Non-Transactional)')
+       // Fallback Logic
+       if (isVatRegistered) {
+           await supabase.from('job_wallet_ledger').insert([
+               {
+                   org_id: profile.org_id, job_id: jobId, amount: data.totalAmount - data.vatAmount,
+                   transaction_type: 'DEBIT', category: 'EXPENSE', description: `${data.supplier}: ${data.description} (Net)`
+               },
+               {
+                   org_id: profile.org_id, job_id: jobId, amount: data.vatAmount,
+                   transaction_type: 'DEBIT', category: 'VAT_RECLAIM', description: `${data.supplier}: ${data.description} (VAT Reclaim)`
+               }
+           ])
+       } else {
+           await supabase.from('job_wallet_ledger').insert({
+               org_id: profile.org_id, job_id: jobId, amount: data.totalAmount,
+               transaction_type: 'DEBIT', category: 'EXPENSE', description: `${data.supplier}: ${data.description}`
+           })
+       }
+    } else {
+        throw new Error('Failed to save expense')
+    }
   }
 
   revalidatePath(`/jobs/${jobId}`)

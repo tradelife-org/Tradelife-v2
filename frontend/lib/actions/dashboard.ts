@@ -2,62 +2,91 @@
 
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 
-export interface QuoteListItem {
-  id: string
-  status: string
-  reference: string | null
-  quote_amount_net: number
-  quote_amount_gross: number
-  quote_total_cost: number
-  quote_profit: number
-  quote_margin_percentage: number
-  vat_rate: number
-  created_at: string
-  updated_at: string
-  client_name: string | null
+interface DashboardMetrics {
+  monthlyBurn: number
+  recognizedRevenue: number
+  netPosition: number
+  walletBalance: number
+  dailyBurn: number
+  runwayDays: number
 }
 
-export async function getQuotes(): Promise<QuoteListItem[]> {
+export async function getDashboardMetrics(): Promise<DashboardMetrics> {
   const supabase = createServerSupabaseClient()
-
+  
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return []
+  if (!user) throw new Error('Unauthorized')
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('org_id')
     .eq('id', user.id)
     .single()
+  
+  if (!profile) throw new Error('Profile not found')
+  const orgId = profile.org_id
 
-  if (!profile) return []
+  const { data: ledger, error } = await supabase
+    .from('job_wallet_ledger')
+    .select('amount, transaction_type, category, created_at')
+    .eq('org_id', orgId)
 
-  // Fetch quotes with client name via join
-  const { data, error } = await supabase
-    .from('quotes')
-    .select(`
-      id, status, reference,
-      quote_amount_net, quote_amount_gross, quote_total_cost,
-      quote_profit, quote_margin_percentage, vat_rate,
-      created_at, updated_at,
-      clients ( name )
-    `)
-    .eq('org_id', profile.org_id)
-    .order('created_at', { ascending: false })
+  if (error) throw new Error(`Failed to fetch ledger: ${error.message}`)
 
-  if (error || !data) return []
+  const now = new Date()
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
 
-  return data.map((q: any) => ({
-    id: q.id,
-    status: q.status,
-    reference: q.reference,
-    quote_amount_net: q.quote_amount_net,
-    quote_amount_gross: q.quote_amount_gross,
-    quote_total_cost: q.quote_total_cost,
-    quote_profit: q.quote_profit,
-    quote_margin_percentage: q.quote_margin_percentage,
-    vat_rate: q.vat_rate,
-    created_at: q.created_at,
-    updated_at: q.updated_at,
-    client_name: q.clients?.name ?? null,
-  }))
+  let monthlyBurn = 0
+  let monthlyRevenue = 0
+  let totalRevenue = 0 // Total Recognized
+  let totalCredits = 0
+  let totalDebits = 0
+
+  ledger.forEach((entry: any) => {
+    const amount = entry.amount
+    const date = new Date(entry.created_at)
+    
+    // Monthly Burn (Expense Last 30 Days)
+    if (entry.category === 'EXPENSE' && date >= thirtyDaysAgo) {
+        monthlyBurn += amount
+    }
+
+    // Monthly Recognized Revenue
+    if (entry.category === 'RECOGNIZED_REVENUE') {
+        totalRevenue += amount // Total
+        if (date >= thirtyDaysAgo) {
+            monthlyRevenue += amount // Monthly
+        }
+    }
+
+    // Balance
+    if (entry.transaction_type === 'CREDIT') {
+        totalCredits += amount
+    } else {
+        totalDebits += amount
+    }
+  })
+
+  const walletBalance = totalCredits - totalDebits
+  // Pulse: Net Position (Revenue - Burn). Assuming Monthly Pulse.
+  const netPosition = monthlyRevenue - monthlyBurn
+  
+  // Survival Runway
+  const dailyBurn = monthlyBurn / 30
+  const runwayDays = dailyBurn > 0 ? Math.floor(walletBalance / dailyBurn) : (walletBalance > 0 ? 999 : 0)
+
+  return {
+    monthlyBurn,
+    recognizedRevenue: totalRevenue, // Display Total or Monthly? Prompt says "Sum of all RECOGNIZED_REVENUE entries" -> Total?
+    // "The Pulse... Revenue minus Burn". If Revenue is Total and Burn is Monthly, it's weird.
+    // But "Recognized Revenue" usually means Total Recognized to date?
+    // Let's return Total as 'recognizedRevenue' but use Monthly for 'netPosition'.
+    // Or maybe Net Position is "Wallet Balance" change?
+    // "The Pulse (Net Position): Revenue minus Burn".
+    // I'll stick to Monthly Revenue - Monthly Burn for Pulse.
+    netPosition,
+    walletBalance,
+    dailyBurn,
+    runwayDays
+  }
 }
