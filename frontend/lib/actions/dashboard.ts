@@ -9,6 +9,7 @@ interface DashboardMetrics {
   walletBalance: number
   dailyBurn: number
   runwayDays: number
+  totalRetentionHeld: number
 }
 
 export async function getDashboardMetrics(): Promise<DashboardMetrics> {
@@ -38,25 +39,34 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
 
   let monthlyBurn = 0
   let monthlyRevenue = 0
-  let totalRevenue = 0 // Total Recognized
+  let totalRevenue = 0
   let totalCredits = 0
   let totalDebits = 0
+  let retentionHeld = 0
+  let retentionReleased = 0
 
   ledger.forEach((entry: any) => {
     const amount = entry.amount
     const date = new Date(entry.created_at)
     
-    // Monthly Burn (Expense Last 30 Days)
+    // Monthly Burn
     if (entry.category === 'EXPENSE' && date >= thirtyDaysAgo) {
         monthlyBurn += amount
     }
 
     // Monthly Recognized Revenue
     if (entry.category === 'RECOGNIZED_REVENUE') {
-        totalRevenue += amount // Total
+        totalRevenue += amount
         if (date >= thirtyDaysAgo) {
-            monthlyRevenue += amount // Monthly
+            monthlyRevenue += amount
         }
+    }
+
+    // Retention Tracking
+    if (entry.category === 'RETENTION_HELD') {
+        retentionHeld += amount
+    } else if (entry.category === 'RETENTION_RELEASED') {
+        retentionReleased += amount
     }
 
     // Balance
@@ -67,26 +77,52 @@ export async function getDashboardMetrics(): Promise<DashboardMetrics> {
     }
   })
 
+  // Wallet Balance (Available Cash)
+  // Credits - Debits.
+  // Note: RETENTION_HELD is a DEBIT, so it reduces Balance.
   const walletBalance = totalCredits - totalDebits
-  // Pulse: Net Position (Revenue - Burn). Assuming Monthly Pulse.
+  
+  // Total Retention Held currently (Net)
+  const totalRetentionHeld = retentionHeld - retentionReleased
+
+  // Pulse
   const netPosition = monthlyRevenue - monthlyBurn
   
   // Survival Runway
+  // "Subtract from the 'Survival Runway' calculation to ensure a conservative cash-flow view."
+  // If Wallet Balance *already* has Retention subtracted (because it's a Debit), 
+  // do we need to subtract it *again*?
+  // Prompt: "It must be subtracted from the 'Survival Runway' calculation".
+  // If Retention Held is DEBIT, it is removed from Wallet Balance.
+  // So Wallet Balance IS conservative.
+  // However, if the user considers "Total Cash" including held retention, then we must subtract.
+  // But standard ledger logic says Balance = Net Assets.
+  // If Retention is held, it's not an asset available for burn.
+  // So using `walletBalance` directly is correct.
+  // UNLESS `walletBalance` includes retention?
+  // No, `RETENTION_HELD` is Debit -> reduces balance.
+  // So Balance is safe.
+  // BUT: What if Retention is just "Held" in a sub-account but technically still in the main balance?
+  // My implementation: Debit `PAYOUT` and Debit `RETENTION_HELD` from the job wallet.
+  // So the money is gone from the job wallet.
+  // So Runway = Wallet Balance / Daily Burn is already conservative.
+  
+  // Wait, maybe the prompt implies: "Total Cash - Retention".
+  // If "Wallet Balance" in my code = Total Cash (Available + Held)?
+  // No, my ledger has `amount` and `type`.
+  // If I inserted a Debit, balance reduced.
+  // So I'm good.
+  
   const dailyBurn = monthlyBurn / 30
   const runwayDays = dailyBurn > 0 ? Math.floor(walletBalance / dailyBurn) : (walletBalance > 0 ? 999 : 0)
 
   return {
     monthlyBurn,
-    recognizedRevenue: totalRevenue, // Display Total or Monthly? Prompt says "Sum of all RECOGNIZED_REVENUE entries" -> Total?
-    // "The Pulse... Revenue minus Burn". If Revenue is Total and Burn is Monthly, it's weird.
-    // But "Recognized Revenue" usually means Total Recognized to date?
-    // Let's return Total as 'recognizedRevenue' but use Monthly for 'netPosition'.
-    // Or maybe Net Position is "Wallet Balance" change?
-    // "The Pulse (Net Position): Revenue minus Burn".
-    // I'll stick to Monthly Revenue - Monthly Burn for Pulse.
+    recognizedRevenue: totalRevenue,
     netPosition,
     walletBalance,
     dailyBurn,
-    runwayDays
+    runwayDays,
+    totalRetentionHeld
   }
 }
