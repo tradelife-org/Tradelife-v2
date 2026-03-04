@@ -27,6 +27,12 @@ Fix Vercel build failure for commit e0776c2 caused by missing `@supabase/supabas
 - None blocking.
 
 ## Backlog
-- **P1:** Smoke test `/api/quotes/accept` on Vercel preview after green build
-- **P2:** Add Vercel build caching / optimization
-- **P2:** Consider removing root `package.json` / `tsconfig.json` entirely and setting Vercel Root Directory to `frontend` in dashboard
+- **P0:** Quote lifecycle: SEND button, EDIT/DELETE, `/quotes/[id]` detail page (dead route)
+- **P0:** Wire up clients CRUD (currently `client_id` is always NULL)
+- **P1:** Job conversion pipeline (ACCEPTED quote → Job)
+- **P1:** "Save as Template" button in quote section UI
+- **P1:** Invoice generation from Job
+- **P2:** Role-based access control (currently TEXT column, no enforcement)
+- **P2:** Money pots / Profit First UI (Settings page)
+- **P2:** Integration wiring: Stripe, Xero, Google Calendar
+- **P2:** Remove orphaned `dashboard.ts` server action (duplicated by client-side fetch)
