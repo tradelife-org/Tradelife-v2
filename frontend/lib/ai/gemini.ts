@@ -23,8 +23,8 @@ function getGenAI(): GoogleGenAI {
 // ---------------------------------------------------------------------------
 // Model Constants
 // ---------------------------------------------------------------------------
-export const GEMINI_FLASH = 'gemini-3-flash'
-export const GEMINI_PRO = 'gemini-3-pro'
+export const GEMINI_FLASH = 'gemini-3-flash-preview'
+export const GEMINI_PRO = 'gemini-3-pro-preview'
 
 // ---------------------------------------------------------------------------
 // Generate Content — Flash (speed-critical tasks)

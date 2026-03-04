@@ -22,9 +22,16 @@ Fix Vercel build failure for commit e0776c2 caused by missing `@supabase/supabas
 - [x] Removed root config duplicates: `next.config.js`, `tailwind.config.js`, `postcss.config.js`
 - [x] Confirmed `NEXT_PUBLIC_SITE_URL=https://tradelife.app` (no localhost leakage)
 - [x] Build verified: `frontend/` builds pass cleanly (exit code 0, all routes compiled)
+- [x] Generated TECHNICAL_AUDIT.md — full schema/guardrail/auth audit for Tier-1 review
+- [x] Gemini Integration: `@google/genai` SDK, dual-model client (Flash preview + Pro preview)
+- [x] Schema Context MCP: Full DB schema/constraints/formulas as AI system context
+- [x] Jarvis AI Orchestrator: Intent routing, scope drafting, exec summary, pricing advisor, dispute mediation
+- [x] Supabase Storage Utilities: Client + server-side for invoices and gallery
+- [x] AI Server Actions + Health Check API (`/api/ai/health`)
 
 ## Known Issues
-- None blocking.
+- Gemini 3 Pro: Free tier quota = 0. Requires paid Google AI plan.
+- Gemini 3 Flash: Intermittent 503 during high demand periods.
 
 ## Backlog
 - **P0:** Quote lifecycle: SEND button, EDIT/DELETE, `/quotes/[id]` detail page (dead route)
