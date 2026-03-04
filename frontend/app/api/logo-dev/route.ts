@@ -1,14 +1,18 @@
 import { NextResponse } from 'next/server'
 
-// LOGO.DEV Proxy
-// Using key from env: NEXT_PUBLIC_LOGO_DEV_KEY
-// Note: Logo.dev usually provides a direct URL for frontend use, but if we need backend fetch,
-// we can do it here. Or we can just construct the URL on the client?
-// The prompt says "fetch the logo via Logo.dev".
-// Logo.dev usually works by domain: https://img.logo.dev/{domain}?token={key}
-// Let's implement a backend route to securely fetch or return the URL.
-// Actually, exposing the key on client (NEXT_PUBLIC_) is fine for logo.dev usually?
-// But let's keep it clean.
+// LOGO.DEV Proxy - Using provided key logic properly now
+// But wait, the onboarding action handles it by calling Logo.dev API directly via fetch in server action?
+// Or we fetch URL here and server action downloads it?
+// The prompt says "Fetch the official Registered Office Address... Ensure the Logo from Logo.dev is downloaded...".
+// My onboarding action logic does:
+// 1. Client calls /api/logo-dev to get a URL (Task 1 says "Ensure the Logo... is downloaded and stored").
+// 2. Client passes URL to Server Action.
+// 3. Server Action fetches URL -> Uploads to Storage.
+// So /api/logo-dev needs to return a valid URL.
+// Logo.dev provides direct image URLs: https://img.logo.dev/{domain}?token={key}
+// So we just return that URL.
+
+const API_KEY = process.env.NEXT_PUBLIC_LOGO_DEV_KEY
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -18,16 +22,24 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Domain required' }, { status: 400 })
   }
 
-  const apiKey = process.env.NEXT_PUBLIC_LOGO_DEV_KEY
-  if (!apiKey) {
+  if (!API_KEY) {
     console.error('Logo.dev API key missing')
     return NextResponse.json({ error: 'Configuration error' }, { status: 500 })
   }
 
-  // Logo.dev URL construction
-  const logoUrl = `https://img.logo.dev/${domain}?token=${apiKey}&size=128&format=png`
+  // Construct URL
+  const logoUrl = `https://img.logo.dev/${domain}?token=${API_KEY}&size=128&format=png`
 
-  // Return the URL directly so frontend can use it?
-  // Or fetch the image and proxy it? Usually URL is fine.
-  return NextResponse.json({ url: logoUrl })
+  // Verify if logo exists (optional, but good UX)
+  // Fetch head?
+  try {
+    const res = await fetch(logoUrl, { method: 'HEAD' })
+    if (res.ok) {
+      return NextResponse.json({ url: logoUrl })
+    } else {
+      return NextResponse.json({ url: null }) // No logo found
+    }
+  } catch (err) {
+    return NextResponse.json({ url: null })
+  }
 }

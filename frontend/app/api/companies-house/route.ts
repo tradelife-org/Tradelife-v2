@@ -1,48 +1,8 @@
 import { NextResponse } from 'next/server'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
 
-// MOCK DATA for Companies House
-// Since we don't have a real key, we return a few dummy results for testing.
-const MOCK_COMPANIES = [
-  {
-    company_number: '12345678',
-    title: 'TradeLife Ltd',
-    address_snippet: '123 Tech Street, London, EC1A 1BB',
-    company_status: 'active',
-    address: {
-      premises: '123',
-      address_line_1: 'Tech Street',
-      locality: 'London',
-      postal_code: 'EC1A 1BB',
-      country: 'United Kingdom'
-    }
-  },
-  {
-    company_number: '87654321',
-    title: 'Acme Builders',
-    address_snippet: '456 Construction Rd, Manchester, M1 1AA',
-    company_status: 'active',
-    address: {
-      premises: '456',
-      address_line_1: 'Construction Rd',
-      locality: 'Manchester',
-      postal_code: 'M1 1AA',
-      country: 'United Kingdom'
-    }
-  },
-  {
-    company_number: '11223344',
-    title: 'Rapid Plumbers',
-    address_snippet: '789 Pipe Lane, Birmingham, B1 1BB',
-    company_status: 'active',
-    address: {
-      premises: '789',
-      address_line_1: 'Pipe Lane',
-      locality: 'Birmingham',
-      postal_code: 'B1 1BB',
-      country: 'United Kingdom'
-    }
-  }
-]
+const COMPANIES_HOUSE_API_KEY = process.env.COMPANIES_HOUSE_API_KEY
+const BASE_URL = 'https://api.company-information.service.gov.uk'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -52,11 +12,42 @@ export async function GET(request: Request) {
     return NextResponse.json({ items: [] })
   }
 
-  // Simple case-insensitive filter
-  const filtered = MOCK_COMPANIES.filter(c => 
-    c.title.toLowerCase().includes(query.toLowerCase()) || 
-    c.company_number.includes(query)
-  )
+  if (!COMPANIES_HOUSE_API_KEY) {
+    console.error('Companies House API key missing')
+    return NextResponse.json({ error: 'Configuration error' }, { status: 500 })
+  }
 
-  return NextResponse.json({ items: filtered })
+  try {
+    // Basic Auth with API Key as username, empty password
+    const auth = Buffer.from(`${COMPANIES_HOUSE_API_KEY}:`).toString('base64')
+    
+    const response = await fetch(`${BASE_URL}/search/companies?q=${encodeURIComponent(query)}&items_per_page=10`, {
+      headers: {
+        'Authorization': `Basic ${auth}`
+      }
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Companies House API error:', response.status, errorText)
+      return NextResponse.json({ error: 'Search failed', details: errorText }, { status: response.status })
+    }
+
+    const data = await response.json()
+    
+    // Transform items to match our frontend interface
+    const items = data.items?.map((item: any) => ({
+      company_number: item.company_number,
+      title: item.title,
+      address_snippet: item.address_snippet,
+      company_status: item.company_status,
+      address: item.address // API returns address object similar to our mock
+    })) || []
+
+    return NextResponse.json({ items })
+
+  } catch (err: any) {
+    console.error('Companies House fetch error:', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }

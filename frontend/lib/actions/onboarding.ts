@@ -3,12 +3,54 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+/**
+ * Downloads a logo from a URL and uploads it to Supabase Storage.
+ * Returns the public URL of the uploaded logo.
+ */
+async function uploadLogo(logoUrl: string, orgId: string): Promise<string | null> {
+  const supabase = createServerSupabaseClient()
+  
+  try {
+    // 1. Fetch the logo image
+    const response = await fetch(logoUrl)
+    if (!response.ok) throw new Error(`Failed to fetch logo from ${logoUrl}`)
+    
+    const arrayBuffer = await response.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+    
+    // 2. Determine file path
+    const filePath = `branding/logos/${orgId}.png`
+    
+    // 3. Upload to 'gallery' bucket
+    const { error: uploadError } = await supabase.storage
+      .from('gallery')
+      .upload(filePath, buffer, {
+        contentType: 'image/png',
+        upsert: true
+      })
+      
+    if (uploadError) {
+      console.error('Logo upload failed:', uploadError)
+      return null
+    }
+    
+    // 4. Get Public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('gallery')
+      .getPublicUrl(filePath)
+      
+    return publicUrl
+  } catch (err) {
+    console.error('Error processing logo:', err)
+    return null
+  }
+}
+
 interface OnboardingInput {
   companyName: string
+  companyNumber: string | null
   address: string
-  vatRate: number // Assuming VAT Number is what is meant by "VAT Status"? Or Rate?
-  // "On selection, auto-fill the address and VAT status" -> VAT Number/Registered?
-  // I'll assume VAT Number for now.
+  vatRate: number
   vatNumber: string | null
   logoUrl: string | null
   isVatRegistered: boolean
@@ -17,6 +59,7 @@ interface OnboardingInput {
 export async function completeOnboardingAction(input: OnboardingInput) {
   const supabase = createServerSupabaseClient()
   
+  // 1. Auth & Context
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
@@ -27,34 +70,42 @@ export async function completeOnboardingAction(input: OnboardingInput) {
     .single()
 
   if (!profile) throw new Error('Profile not found')
+  const orgId = profile.org_id
 
-  // Prepare update data
-  // Note: Schema migration 00005_org_details.sql adds these columns.
-  // If not applied, this will fail. We should handle that gracefully if possible or assume user applied it.
+  // 2. Handle Logo Upload (if provided)
+  let finalLogoUrl = input.logoUrl
+  if (input.logoUrl && input.logoUrl.startsWith('http')) {
+    // Only upload if it's an external URL (not already our storage URL)
+    const storedUrl = await uploadLogo(input.logoUrl, orgId)
+    if (storedUrl) {
+      finalLogoUrl = storedUrl
+    }
+  }
+
+  // 3. Prepare Update Data
   const updates: any = {
     name: input.companyName,
     address: input.address,
     vat_number: input.vatNumber,
-    logo_url: input.logoUrl,
+    logo_url: finalLogoUrl,
     is_vat_registered: input.isVatRegistered,
     updated_at: new Date().toISOString()
   }
 
-  // Check columns existence via dynamic insert? No.
-  // Just try update. If fails, log error and proceed with basic update?
+  // 4. Update Organisation
   try {
     const { error } = await supabase
       .from('organisations')
       .update(updates)
-      .eq('id', profile.org_id)
+      .eq('id', orgId)
 
     if (error) {
-      // Fallback: If migration 00005 missing, try updating only name
-      console.warn('Full update failed (schema mismatch?), falling back to name only', error)
+      console.error('Full update failed:', error)
+      // Fallback: name only if columns missing (though migration should be applied)
       await supabase
         .from('organisations')
         .update({ name: input.companyName })
-        .eq('id', profile.org_id)
+        .eq('id', orgId)
     }
   } catch (err) {
     console.error('Update failed:', err)
@@ -62,6 +113,5 @@ export async function completeOnboardingAction(input: OnboardingInput) {
   }
 
   revalidatePath('/onboarding')
-  // Redirect happens client side usually, or here via redirect()
   return { success: true }
 }
