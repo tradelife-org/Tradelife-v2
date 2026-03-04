@@ -7,6 +7,7 @@ import {
   FileText, PlusCircle, TrendingUp, Clock,
   ArrowUpRight, Search,
 } from 'lucide-react'
+import VoiceIntake from '@/components/voice-intake'
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   DRAFT:    { label: 'Draft',    color: 'text-slate-600', bg: 'bg-slate-100' },
@@ -133,6 +134,9 @@ export default function QuotesDashboard() {
           New Quote
         </Link>
       </div>
+
+      {/* Van Voice Intake */}
+      <VoiceIntake />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

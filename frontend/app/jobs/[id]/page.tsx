@@ -8,6 +8,7 @@ import {
   Calendar, CreditCard
 } from 'lucide-react'
 import JobFinancials from '@/components/job-financials'
+import ReceiptUploader from '@/components/receipt-uploader'
 
 interface Job {
   id: string
@@ -157,6 +158,10 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
         {/* Right Sidebar */}
         <div className="space-y-6">
+          
+          {/* Receipt OCR (Task 3) */}
+          <ReceiptUploader jobId={job.id} />
+
           {/* Timeline Placeholder */}
           <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
             <h3 className="font-heading font-semibold text-slate-900 mb-4">Timeline</h3>
