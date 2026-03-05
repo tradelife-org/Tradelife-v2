@@ -1,8 +1,10 @@
 import { getPortalContext } from '@/lib/actions/portal'
 import PortalMessaging from '@/components/portal/messaging'
 import PortalTimeline from '@/components/portal/timeline'
+import ProposalViewer from '@/components/portal/proposal-viewer'
 import { GlassPanel } from '@/components/ui/glass-panel'
 import { notFound } from 'next/navigation'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
 
 export default async function PortalPage({ params }: { params: { token: string } }) {
   let context
@@ -20,6 +22,35 @@ export default async function PortalPage({ params }: { params: { token: string }
   }
 
   const { client, org, quotes, jobs } = context
+
+  // Check for an Active SENT quote (Pending Acceptance)
+  const activeQuoteSummary = quotes?.find((q: any) => q.status === 'SENT')
+  let activeQuoteFull = null
+  let activeUpsells = []
+
+  if (activeQuoteSummary) {
+    // Fetch full details via Admin Client (since public user needs to see it)
+    const { createClient } = await import('@supabase/supabase-js')
+    const adminClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+    
+    const { data: q } = await adminClient
+      .from('quotes')
+      .select(`
+        *,
+        quote_sections ( *, quote_line_items (*) ),
+        quote_upsells (*)
+      `)
+      .eq('id', activeQuoteSummary.id)
+      .single()
+      
+    if (q) {
+      activeQuoteFull = q
+      activeUpsells = q.quote_upsells || []
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[url('https://images.unsplash.com/photo-1651573652576-5d407dbe48d1?q=80&w=2832&auto=format&fit=crop')] bg-cover bg-fixed bg-center">
@@ -43,17 +74,33 @@ export default async function PortalPage({ params }: { params: { token: string }
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            {/* Left: Project Status (Timeline + Scope) */}
+            {/* Left: Proposal OR Project Status */}
             <div className="lg:col-span-7 space-y-8">
-              {/* Welcome Card */}
-              <GlassPanel className="p-8 bg-gradient-to-br from-blueprint-900/90 to-slate-900/90 text-white border-white/20">
-                <h2 className="text-2xl font-heading font-bold mb-2">Project Overview</h2>
-                <p className="text-white/80 leading-relaxed">
-                  Welcome to your dedicated project hub. Here you can track progress, view quotes, approve variations, and chat directly with the team.
-                </p>
-              </GlassPanel>
-
-              <PortalTimeline quotes={quotes || []} jobs={jobs || []} />
+              
+              {/* Cinematic Proposal View (If Active Quote Exists) */}
+              {activeQuoteFull ? (
+                <div className="space-y-4">
+                  <div className="p-4 bg-emerald-500/20 border border-emerald-500/50 rounded-xl text-emerald-100 flex items-center justify-between">
+                    <span className="font-bold">You have a new proposal awaiting review.</span>
+                    <span className="text-xs bg-emerald-500 text-white px-2 py-1 rounded font-bold uppercase">Action Required</span>
+                  </div>
+                  <ProposalViewer 
+                    quote={activeQuoteFull} 
+                    upsells={activeUpsells} 
+                    token={params.token} 
+                  />
+                </div>
+              ) : (
+                <>
+                  <GlassPanel className="p-8 bg-gradient-to-br from-blueprint-900/90 to-slate-900/90 text-white border-white/20">
+                    <h2 className="text-2xl font-heading font-bold mb-2">Project Overview</h2>
+                    <p className="text-white/80 leading-relaxed">
+                      Welcome to your dedicated project hub. Here you can track progress, view quotes, approve variations, and chat directly with the team.
+                    </p>
+                  </GlassPanel>
+                  <PortalTimeline quotes={quotes || []} jobs={jobs || []} />
+                </>
+              )}
             </div>
 
             {/* Right: Communication */}
