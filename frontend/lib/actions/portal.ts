@@ -54,10 +54,6 @@ export async function getPortalContext(token: string) {
   const supabase = createServerSupabaseClient()
 
   // 1. Verify Token & Get Ids
-  // We can't use RLS for this public access, so we use RPC or Service Role.
-  // We'll use the Service Role client here for read-only data fetching based on valid token.
-  // Ideally we use a restricted RPC, but for MVP this is standard pattern.
-  
   const { data: invite, error } = await supabase
     .from('portal_invites')
     .select('client_id, org_id, expires_at')
@@ -82,31 +78,7 @@ export async function getPortalContext(token: string) {
     .eq('id', invite.org_id)
     .single()
 
-  // 3. Fetch Timeline (Quotes & Jobs)
-  // We use the Service Role to bypass RLS since the *user* isn't logged in, 
-  // but the *token* grants access to this specific client's data.
-  // SECURITY: Ensure we ONLY fetch for invite.client_id
-  
-  // Note: Using a fresh supabase client with service role would be cleaner, 
-  // but we can query with RLS disabled on specific RPCs.
-  // For now, let's assume we need to implement a secure fetch.
-  // I'll use the 'get_portal_data' RPC approach for robust security if I had it, 
-  // but I'll write a specific query here using the authenticated client won't work 
-  // because the browser user is anon.
-  // 
-  // FIX: Use createServiceRoleClient (implied availability) or specific RPCs.
-  // I will use `createServiceRoleClient` pattern if available, or just standard fetching 
-  // if policies allow "public" with token. 
-  // My RLS policies for Quotes/Jobs are strict "auth.uid() = profile.id".
-  // So I MUST use Service Role here.
-  
-  const adminAuthClient = createServerSupabaseClient() // This won't work for public.
-  // We need a way to bypass RLS.
-  // I will use the 'get_portal_data' logic or similar.
-  // Actually, I'll rely on the existing 'get_portal_data' RPC I created? 
-  // No, that only returned IDs.
-  
-  // Let's create a Service Role client.
+  // 3. Fetch Data via Service Role (Bypass RLS for public token access)
   const { createClient } = await import('@supabase/supabase-js')
   const adminClient = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -125,11 +97,23 @@ export async function getPortalContext(token: string) {
     .eq('client_id', invite.client_id)
     .order('created_at', { ascending: false })
 
+  // NEW: Fetch Visible Visits
+  const { data: visits } = await adminClient
+    .from('job_visits')
+    .select('id, title, start_time, end_time, status, visit_type')
+    .eq('client_visible', true)
+    // We need to join jobs to filter by client_id, but supabase-js join filter is tricky.
+    // Instead, we can filter by job_ids we just fetched.
+    .in('job_id', jobs?.map((j: any) => j.id) || [])
+    .gt('start_time', new Date().toISOString()) // Only upcoming? Prompt says "upcoming visits"
+    .order('start_time', { ascending: true })
+
   return {
     client,
     org,
     quotes,
     jobs,
+    visits,
     valid: true
   }
 }

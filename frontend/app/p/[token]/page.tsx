@@ -2,6 +2,7 @@ import { getPortalContext } from '@/lib/actions/portal'
 import PortalMessaging from '@/components/portal/messaging'
 import PortalTimeline from '@/components/portal/timeline'
 import ProposalViewer from '@/components/portal/proposal-viewer'
+import PortalVisits from '@/components/portal/portal-visits' // New Component
 import { GlassPanel } from '@/components/ui/glass-panel'
 import { notFound } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
@@ -21,7 +22,7 @@ export default async function PortalPage({ params }: { params: { token: string }
     )
   }
 
-  const { client, org, quotes, jobs } = context
+  const { client, org, quotes, jobs, visits } = context
 
   // Check for an Active SENT quote (Pending Acceptance)
   const activeQuoteSummary = quotes?.find((q: any) => q.status === 'SENT')
@@ -98,6 +99,10 @@ export default async function PortalPage({ params }: { params: { token: string }
                       Welcome to your dedicated project hub. Here you can track progress, view quotes, approve variations, and chat directly with the team.
                     </p>
                   </GlassPanel>
+                  
+                  {/* Task 3: Portal Sync (Visits) */}
+                  <PortalVisits visits={visits || []} />
+
                   <PortalTimeline quotes={quotes || []} jobs={jobs || []} />
                 </>
               )}
