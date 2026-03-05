@@ -1,207 +1,84 @@
-'use client'
-
-import * as React from 'react'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { GlassPanel } from '@/components/ui/glass-panel'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
-import {
-  Briefcase, Search, ArrowUpRight,
-  Clock
-} from 'lucide-react'
-import { createDepositInvoiceAction } from '@/lib/actions/invoices'
-import { useRouter } from 'next/navigation'
+import { Calendar, CheckCircle, Clock, AlertCircle } from 'lucide-react'
 
-interface JobRow {
-  id: string
-  title: string
-  status: string
-  client_name: string | null
-  created_at: string
-}
+export default async function JobsDashboard() {
+  const supabase = createServerSupabaseClient()
+  
+  // Fetch jobs with client names
+  const { data: jobs } = await supabase
+    .from('jobs')
+    .select('*, clients(name)')
+    .order('created_at', { ascending: false })
 
-const JOB_STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  ENQUIRY:    { label: 'Enquiry',    color: 'text-slate-600', bg: 'bg-slate-100' },
-  BOOKED:     { label: 'Booked',     color: 'text-blue-700',  bg: 'bg-blue-50' },
-  ON_SITE:    { label: 'On Site',    color: 'text-amber-700', bg: 'bg-amber-50' },
-  COMPLETED:  { label: 'Completed',  color: 'text-green-700', bg: 'bg-green-50' },
-  SNAGGING:   { label: 'Snagging',   color: 'text-orange-700', bg: 'bg-orange-50' },
-  SIGNED_OFF: { label: 'Signed Off', color: 'text-emerald-700', bg: 'bg-emerald-50' },
-  CANCELLED:  { label: 'Cancelled',  color: 'text-red-700',   bg: 'bg-red-50' },
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
-export default function JobsDashboard() {
-  const router = useRouter()
-  const [jobs, setJobs] = React.useState<JobRow[]>([])
-  const [loading, setLoading] = React.useState(true)
-  const [search, setSearch] = React.useState('')
-  const [actionLoading, setActionLoading] = React.useState<string | null>(null) // jobId being processed
-
-  const fetchJobs = React.useCallback(async () => {
-    setLoading(true)
-    const supabase = createClient()
-
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setLoading(false); return }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('org_id')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile) { setLoading(false); return }
-
-    const { data, error } = await supabase
-      .from('jobs')
-      .select(`
-        id, title, status, created_at,
-        clients ( name )
-      `)
-      .eq('org_id', profile.org_id)
-      .order('created_at', { ascending: false })
-
-    if (!error && data) {
-      setJobs(data.map((j: any) => ({
-        id: j.id,
-        title: j.title,
-        status: j.status,
-        client_name: j.clients?.name ?? 'Unknown Client',
-        created_at: j.created_at,
-      })))
-    }
-    setLoading(false)
-  }, [])
-
-  React.useEffect(() => {
-    fetchJobs()
-  }, [fetchJobs])
-
-  const handleCreateDeposit = async (jobId: string) => {
-    if (!confirm('Generate 25% Deposit Invoice for this job?')) return
-    setActionLoading(jobId)
-    try {
-      const result = await createDepositInvoiceAction(jobId)
-      if (result.success) {
-        alert('Invoice created successfully!')
-        // Ideally router.push to the invoice page, but for now just refresh or stay
-        router.refresh()
-      }
-    } catch (err: any) {
-      alert(`Error: ${err.message}`)
-    } finally {
-      setActionLoading(null)
-    }
+  // Kanban Columns
+  const columns = {
+    PLANNED: jobs?.filter(j => ['ENQUIRY', 'BOOKED'].includes(j.status)) || [],
+    LIVE: jobs?.filter(j => ['ON_SITE', 'IN_PROGRESS'].includes(j.status)) || [],
+    BLOCKED: jobs?.filter(j => ['SNAGGING', 'PAUSED'].includes(j.status)) || [],
+    COMPLETE: jobs?.filter(j => ['COMPLETED', 'SIGNED_OFF', 'CANCELLED'].includes(j.status)) || []
   }
 
-  const filtered = jobs.filter((j) => {
-    const term = search.toLowerCase()
-    if (!term) return true
-    return (
-      j.title.toLowerCase().includes(term) ||
-      (j.client_name?.toLowerCase().includes(term)) ||
-      j.status.toLowerCase().includes(term)
-    )
-  })
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-heading font-black text-slate-900">Jobs</h1>
-          <p className="text-sm text-slate-400 mt-1 font-body">
-            {jobs.length} active job{jobs.length !== 1 ? 's' : ''}
-          </p>
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-heading font-bold text-slate-900">Job Board</h1>
       </div>
 
-      {/* Search */}
-      <div className="mb-6">
-        <div className="relative max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search jobs..."
-            className="w-full h-10 pl-10 pr-3 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blueprint/30 focus:border-blueprint"
-          />
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 h-[calc(100vh-160px)]">
+        <KanbanColumn title="Planned" jobs={columns.PLANNED} color="bg-slate-100" />
+        <KanbanColumn title="Live" jobs={columns.LIVE} color="bg-blue-50" />
+        <KanbanColumn title="Blocked / Snagging" jobs={columns.BLOCKED} color="bg-orange-50" />
+        <KanbanColumn title="Complete" jobs={columns.COMPLETE} color="bg-green-50" />
       </div>
+    </div>
+  )
+}
 
-      {/* Table */}
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-pulse text-slate-400 font-body">Loading jobs...</div>
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-20">
-          <Briefcase className="w-12 h-12 text-slate-200 mx-auto" />
-          <h3 className="mt-4 text-lg font-heading font-bold text-slate-400">
-            {search ? 'No matches found' : 'No jobs yet'}
-          </h3>
-          <p className="text-sm text-slate-400 mt-1">
-            {search ? 'Try a different search term' : 'Convert a quote to get started'}
-          </p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-          {/* Header Row */}
-          <div className="hidden sm:grid sm:grid-cols-12 gap-4 px-5 py-3 bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            <div className="col-span-5">Job / Client</div>
-            <div className="col-span-2">Created</div>
-            <div className="col-span-2">Status</div>
-            <div className="col-span-3 text-right">Actions</div>
-          </div>
-
-          {/* Data Rows */}
-          {filtered.map((j) => {
-            const status = JOB_STATUS_CONFIG[j.status] || JOB_STATUS_CONFIG.ENQUIRY
-            return (
-              <div
-                key={j.id}
-                className="grid grid-cols-1 sm:grid-cols-12 gap-2 sm:gap-4 px-5 py-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50 transition-colors items-center"
-              >
-                <div className="sm:col-span-5">
-                  <p className="font-semibold text-slate-900 text-sm truncate">{j.title}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{j.client_name}</p>
-                </div>
-                <div className="col-span-2 hidden sm:flex items-center gap-1.5 text-sm text-slate-500">
-                  <Clock className="w-3.5 h-3.5 text-slate-300" />
-                  {formatDate(j.created_at)}
-                </div>
-                <div className="sm:col-span-2">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${status.bg} ${status.color}`}>
-                    {status.label}
-                  </span>
-                </div>
-                <div className="col-span-3 flex items-center justify-end gap-2">
-                  <button
-                    onClick={() => handleCreateDeposit(j.id)}
-                    disabled={!!actionLoading}
-                    className="text-xs font-medium text-blueprint hover:text-blueprint-700 bg-blueprint-50 hover:bg-blueprint-100 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    {actionLoading === j.id ? 'Processing...' : 'Create Deposit'}
-                  </button>
-                  <Link
-                    href={`/jobs/${j.id}`}
-                    className="p-1.5 text-slate-300 hover:text-blueprint rounded-lg hover:bg-blueprint-50 transition-colors"
-                  >
-                    <ArrowUpRight className="w-4 h-4" />
-                  </Link>
-                </div>
+function KanbanColumn({ title, jobs, color }: { title: string, jobs: any[], color: string }) {
+  return (
+    <div className={`flex flex-col h-full rounded-2xl ${color} p-4`}>
+      <h3 className="font-bold text-slate-500 uppercase text-xs tracking-wider mb-4 px-2 flex justify-between">
+        {title} 
+        <span className="bg-white/50 px-2 py-0.5 rounded text-slate-600">{jobs.length}</span>
+      </h3>
+      
+      <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+        {jobs.map(job => (
+          <Link key={job.id} href={`/jobs/${job.id}`} className="block">
+            <GlassPanel className="p-4 bg-white hover:shadow-md transition-all border-white/50 hover:scale-[1.02] duration-200">
+              <div className="flex justify-between items-start mb-2">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500 uppercase">
+                  {job.status.replace('_', ' ')}
+                </span>
+                {/* Status Pulse */}
+                <div className={`w-2 h-2 rounded-full ${
+                  ['ON_SITE', 'IN_PROGRESS'].includes(job.status) ? 'bg-green-500 animate-pulse' :
+                  ['SNAGGING', 'PAUSED'].includes(job.status) ? 'bg-red-500' :
+                  'bg-slate-300'
+                }`} />
               </div>
-            )
-          })}
-        </div>
-      )}
+              
+              <h4 className="font-bold text-slate-800 leading-tight mb-1">{job.title}</h4>
+              <p className="text-xs text-slate-500 mb-3">{job.clients?.name}</p>
+              
+              {job.target_start_date && (
+                <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                  <Calendar className="w-3 h-3" />
+                  {new Date(job.target_start_date).toLocaleDateString()}
+                </div>
+              )}
+            </GlassPanel>
+          </Link>
+        ))}
+        
+        {jobs.length === 0 && (
+          <div className="text-center py-12 border-2 border-dashed border-slate-300/20 rounded-xl">
+            <p className="text-xs text-slate-400 font-medium">No jobs</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

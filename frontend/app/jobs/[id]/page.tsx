@@ -10,6 +10,8 @@ import {
 import JobFinancials from '@/components/job-financials'
 import ReceiptUploader from '@/components/receipt-uploader'
 import SmallWorksLogger from '@/components/small-works-logger'
+import JobMaterials from '@/components/jobs/job-materials'
+import JobTimeline from '@/components/jobs/job-timeline'
 
 interface Job {
   id: string
@@ -33,6 +35,8 @@ function formatDate(iso: string | null) {
 
 export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [job, setJob] = React.useState<Job | null>(null)
+  const [materials, setMaterials] = React.useState<any[]>([])
+  const [timeline, setTimeline] = React.useState<any[]>([])
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -44,7 +48,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         .from('jobs')
         .select(`
           *,
-          clients ( name )
+          clients ( name ),
+          job_materials (*),
+          job_timeline (*)
         `)
         .eq('id', params.id)
         .single()
@@ -56,6 +62,10 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           ...data,
           client_name: (data as any).clients?.name
         })
+        setMaterials(data.job_materials || [])
+        setTimeline((data.job_timeline || []).sort((a: any, b: any) => 
+          new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
+        ))
       }
       setLoading(false)
     }
@@ -87,7 +97,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
       <div>
         <Link href="/jobs" className="inline-flex items-center text-sm text-slate-500 hover:text-slate-900 mb-6 transition-colors">
@@ -146,6 +156,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             </div>
           </div>
 
+          {/* Materials */}
+          <JobMaterials materials={materials} />
+
           {/* Financial Health View (Task 2) */}
           <div className="space-y-4">
             <h3 className="font-heading font-bold text-xl text-slate-900 flex items-center gap-2">
@@ -160,26 +173,14 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         {/* Right Sidebar */}
         <div className="space-y-6">
           
+          <JobTimeline timeline={timeline} />
+
           {/* Small Works Engine (Module 5.2) */}
           <SmallWorksLogger jobId={job.id} />
 
           {/* Receipt OCR (Task 3) */}
           <ReceiptUploader jobId={job.id} />
 
-          {/* Timeline Placeholder */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-            <h3 className="font-heading font-semibold text-slate-900 mb-4">Timeline</h3>
-            <div className="space-y-4">
-              <div className="flex gap-3 relative">
-                <div className="absolute left-1 top-2 bottom-0 w-0.5 bg-slate-100" />
-                <div className="mt-1.5 w-2 h-2 rounded-full bg-blueprint shrink-0 relative z-10" />
-                <div>
-                   <p className="text-sm font-medium text-slate-900">Job created</p>
-                   <p className="text-xs text-slate-400 mt-0.5">{formatDate(job.created_at)}</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
       </div>
