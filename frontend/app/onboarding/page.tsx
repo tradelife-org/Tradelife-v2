@@ -120,6 +120,7 @@ export default function OnboardingPage() {
     try {
       await completeOnboardingAction({
         companyName: companyName,
+        companyNumber: selectedCompany?.company_number || null,
         address,
         vatRate: isVatRegistered ? 2000 : 0,
         vatNumber: isVatRegistered ? vatNumber : null,

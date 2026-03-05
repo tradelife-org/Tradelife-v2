@@ -95,7 +95,7 @@ export async function convertQuoteToJobAction(quoteId: string) {
     .single()
 
   if (jobError || !job) {
-    throw new Error(`Failed to create job: ${jobError.message}`)
+    throw new Error(`Failed to create job: ${jobError?.message || 'Unknown error'}`)
   }
 
   // 3. Create Job Line Items
