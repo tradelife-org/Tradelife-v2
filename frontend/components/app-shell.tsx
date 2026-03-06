@@ -8,7 +8,7 @@ import {
   FileText, Briefcase, Settings, LogOut,
   PlusCircle, Menu, X, ChevronRight,
   Calendar, Users, BarChart2,
-  Bell, CheckCircle, MessageSquare
+  Bell, CheckCircle, MessageSquare, TrendingUp
 } from 'lucide-react'
 import NotificationBell from '@/components/notification-bell'
 
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { href: '/jobs', label: 'Jobs', icon: Briefcase },
   { href: '/calendar', label: 'Schedule', icon: Calendar },
   { href: '/finance', label: 'Finance', icon: BarChart2 },
+  { href: '/analytics', label: 'Growth', icon: TrendingUp },
   { href: '/assistant', label: 'Assistant', icon: MessageSquare },
   { href: '/clients', label: 'Clients', icon: Users },
   { href: '/settings', label: 'Settings', icon: Settings },
