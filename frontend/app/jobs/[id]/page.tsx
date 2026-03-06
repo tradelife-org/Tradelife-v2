@@ -10,7 +10,8 @@ import ReceiptUploader from '@/components/receipt-uploader'
 import SmallWorksLogger from '@/components/small-works-logger'
 import JobMaterials from '@/components/jobs/job-materials'
 import JobTimeline from '@/components/jobs/job-timeline'
-import MediatorPanel from '@/components/jobs/mediator-panel' // New
+import MediatorPanel from '@/components/jobs/mediator-panel'
+import JobCommsActions from '@/components/jobs/job-comms-actions' // New
 
 interface Job {
   id: string
@@ -114,6 +115,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             </div>
             <p className="text-slate-500 font-medium">{job.client_name || 'Unknown Client'}</p>
           </div>
+          
+          {/* Phase 18: Comms Actions */}
+          <JobCommsActions jobId={job.id} />
         </div>
       </div>
 
@@ -155,7 +159,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             </div>
           </div>
 
-          {/* AI Mediator (Task 3) */}
+          {/* AI Mediator */}
           <MediatorPanel jobId={job.id} />
 
           {/* Materials */}
