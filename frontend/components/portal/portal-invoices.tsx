@@ -1,10 +1,29 @@
+'use client'
+
+import { useState } from 'react'
 import { GlassPanel } from '@/components/ui/glass-panel'
-import { FileText, ArrowRight, CheckCircle } from 'lucide-react'
+import { FileText, ArrowRight, CheckCircle, Loader2 } from 'lucide-react'
+import { createStripeCheckoutAction } from '@/lib/actions/stripe'
 
 export default function PortalInvoices({ invoices }: { invoices: any[] }) {
+  const [loadingId, setLoadingId] = useState<string | null>(null)
+
   if (!invoices || invoices.length === 0) return null
 
   const formatPence = (p: number) => (p / 100).toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })
+
+  async function handlePay(invoiceId: string) {
+    setLoadingId(invoiceId)
+    try {
+      // Return URL is current page
+      const returnUrl = window.location.href
+      const { url } = await createStripeCheckoutAction(invoiceId, returnUrl)
+      if (url) window.location.href = url
+    } catch (err: any) {
+      alert(err.message)
+      setLoadingId(null)
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -38,9 +57,17 @@ export default function PortalInvoices({ invoices }: { invoices: any[] }) {
               </div>
 
               {inv.status !== 'PAID' && (
-                <button className="h-10 px-4 bg-white text-blueprint font-bold rounded-lg hover:bg-slate-100 transition-colors flex items-center gap-2 text-sm shadow-lg">
-                  Pay Now
-                  <ArrowRight className="w-4 h-4" />
+                <button 
+                  onClick={() => handlePay(inv.id)}
+                  disabled={loadingId === inv.id}
+                  className="h-10 px-4 bg-white text-blueprint font-bold rounded-lg hover:bg-slate-100 transition-colors flex items-center gap-2 text-sm shadow-lg disabled:opacity-70"
+                >
+                  {loadingId === inv.id ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                    <>
+                      Pay Now
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
                 </button>
               )}
               {inv.status === 'PAID' && (
