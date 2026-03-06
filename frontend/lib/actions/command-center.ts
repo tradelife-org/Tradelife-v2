@@ -17,6 +17,7 @@ interface WidgetsData {
   tte_schedule: { id: string; title: string; date: string }[]
   urgent_tasks: { id: string; title: string; issue?: string }[]
   financial_overview: { revenue: number; expenses: number; retention: number }
+  service_status: { id: string; title: string; date: string; status: 'FUTURE' | 'DUE_SOON' | 'OVERDUE' }[]
 }
 
 // --- Jarvis Hub Actions ---
@@ -31,7 +32,6 @@ export const getDailyBriefAction = cache(async (): Promise<DailyBrief> => {
   const orgId = profile.org_id
 
   // 1. Burn Rate (From burn_rate_snapshots)
-  // Assumed schema: id, org_id, burn_rate (int), created_at
   let burnRate = 0
   try {
     const { data: burnSnap, error } = await supabase
@@ -46,11 +46,10 @@ export const getDailyBriefAction = cache(async (): Promise<DailyBrief> => {
       burnRate = burnSnap.burn_rate
     }
   } catch (e) {
-    console.warn('burn_rate_snapshots query failed:', e)
+    // console.warn('burn_rate_snapshots query failed:', e)
   }
 
   // 2. Recognized Revenue (From quote_snapshots)
-  // Sum of net amount from snapshots in last 30 days
   let recognizedRevenue = 0
   try {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
@@ -62,17 +61,15 @@ export const getDailyBriefAction = cache(async (): Promise<DailyBrief> => {
     
     if (!error && quoteSnaps) {
       recognizedRevenue = quoteSnaps.reduce((sum, snap: any) => {
-        // Access nested JSON data
         const amount = snap.snapshot_data?.quote?.quote_amount_net || 0
         return sum + Number(amount)
       }, 0)
     }
   } catch (e) {
-     console.warn('quote_snapshots query failed:', e)
+     // console.warn('quote_snapshots query failed:', e)
   }
 
   // 3. Next 3 Schedule Items
-  // From Jobs table where target_start_date >= now
   const now = new Date().toISOString()
   const { data: schedule } = await supabase
     .from('jobs')
@@ -104,7 +101,6 @@ export const getWidgetsData = cache(async (): Promise<WidgetsData> => {
   const orgId = profile.org_id
 
   // 1. Financial Overview (From job_wallet_ledger)
-  // Categories: RECOGNIZED_REVENUE, EXPENSE, RETENTION_HELD
   const { data: ledger } = await supabase
     .from('job_wallet_ledger')
     .select('amount, category')
@@ -121,8 +117,7 @@ export const getWidgetsData = cache(async (): Promise<WidgetsData> => {
     if (entry.category === 'RETENTION_HELD') retention += amt
   })
 
-  // 2. Active Projects (From jobs table)
-  // Status: ON_SITE, BOOKED
+  // 2. Active Projects
   const { data: activeJobs } = await supabase
     .from('jobs')
     .select('id, title, client:clients(name)') 
@@ -132,7 +127,6 @@ export const getWidgetsData = cache(async (): Promise<WidgetsData> => {
     .limit(5)
 
   // 3. Attention Needed
-  // Logic: Status = SNAGGING
   const { data: attentionJobs } = await supabase
     .from('jobs')
     .select('id, title, status')
@@ -140,7 +134,7 @@ export const getWidgetsData = cache(async (): Promise<WidgetsData> => {
     .eq('status', 'SNAGGING')
     .limit(5)
 
-  // 4. Live Projects (ON_SITE only)
+  // 4. Live Projects
   const { data: liveJobs } = await supabase
     .from('jobs')
     .select('id, title')
@@ -148,7 +142,7 @@ export const getWidgetsData = cache(async (): Promise<WidgetsData> => {
     .eq('status', 'ON_SITE')
     .limit(3)
 
-  // 5. TTE Schedule (Next 5 jobs starting)
+  // 5. TTE Schedule
   const now = new Date().toISOString()
   const { data: tteSchedule } = await supabase
     .from('jobs')
@@ -158,9 +152,32 @@ export const getWidgetsData = cache(async (): Promise<WidgetsData> => {
     .order('target_start_date', { ascending: true })
     .limit(5)
 
-  // 6. Urgent Tasks
-  // Placeholder logic return empty
-  
+  // 6. Service Status (Maintenance Schedules)
+  const { data: services } = await supabase
+    .from('maintenance_schedules')
+    .select('id, title, next_due_date')
+    .eq('org_id', orgId)
+    .eq('active', true)
+    .order('next_due_date', { ascending: true })
+    .limit(10)
+
+  const serviceStatus = services?.map((s: any) => {
+    const due = new Date(s.next_due_date)
+    const today = new Date()
+    const diffDays = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+    
+    let status: 'FUTURE' | 'DUE_SOON' | 'OVERDUE' = 'FUTURE'
+    if (diffDays < 0) status = 'OVERDUE'
+    else if (diffDays <= 30) status = 'DUE_SOON'
+    
+    return {
+      id: s.id,
+      title: s.title,
+      date: s.next_due_date,
+      status
+    }
+  }) || []
+
   return {
     attention_needed: attentionJobs?.map(j => ({
       id: j.id,
@@ -188,6 +205,7 @@ export const getWidgetsData = cache(async (): Promise<WidgetsData> => {
       revenue,
       expenses,
       retention
-    }
+    },
+    service_status: serviceStatus
   }
 })

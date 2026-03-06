@@ -1,54 +1,64 @@
 'use server'
 
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
+import { stripe } from '@/lib/stripe'
+import { redirect } from 'next/navigation'
 
-export async function requestJobPayoutAction(jobId: string, amountPence: number) {
+export async function createStripeConnectAccountLink() {
   const supabase = createServerSupabaseClient()
-  
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('org_id')
-    .eq('id', user.id)
-    .single()
+  const { data: profile } = await supabase.from('profiles').select('org_id').eq('id', user.id).single()
   
   if (!profile) throw new Error('Profile not found')
 
-  // Use RPC
-  const { error } = await supabase.rpc('record_payout_transaction', {
-    p_org_id: profile.org_id,
-    p_job_id: jobId,
-    p_total_amount: amountPence,
-    p_description: 'Payout Request'
-  })
+  const { data: org } = await supabase.from('organisations').select('stripe_connect_id').eq('id', profile.org_id).single()
 
-  if (error) {
-    console.error('Payout failed:', error)
+  let accountId = org?.stripe_connect_id
+
+  if (!accountId) {
+    const account = await stripe.accounts.create({ type: 'express' })
+    accountId = account.id
     
-    // Fallback if RPC missing
-    if (error.code === '42883') {
-        console.warn('RPC missing, falling back to manual insert')
-        const payout = Math.floor(amountPence * 0.75)
-        const retention = amountPence - payout
-        
-        await supabase.from('job_wallet_ledger').insert([
-            {
-                org_id: profile.org_id, job_id: jobId, amount: payout,
-                transaction_type: 'DEBIT', category: 'PAYOUT', description: 'Payout Request (75% Payout)'
-            },
-            {
-                org_id: profile.org_id, job_id: jobId, amount: retention,
-                transaction_type: 'DEBIT', category: 'RETENTION_HELD', description: 'Payout Request (25% Retention)'
-            }
-        ])
-    } else {
-        throw new Error('Failed to process payout')
-    }
+    await supabase
+      .from('organisations')
+      .update({ stripe_connect_id: accountId })
+      .eq('id', profile.org_id)
   }
 
-  revalidatePath(`/jobs/${jobId}`)
-  return { success: true }
+  const accountLink = await stripe.accountLinks.create({
+    account: accountId,
+    refresh_url: `${process.env.NEXT_PUBLIC_SITE_URL}/settings/payments`,
+    return_url: `${process.env.NEXT_PUBLIC_SITE_URL}/settings/payments`,
+    type: 'account_onboarding',
+  })
+
+  return { url: accountLink.url }
+}
+
+export async function releaseFundsAction(jobId: string) {
+  const supabase = createServerSupabaseClient()
+  const { data: job } = await supabase.from('jobs').select('org_id, job_wallet_ledger(*)').eq('id', jobId).single()
+  
+  if (!job) throw new Error('Job not found')
+
+  const { data: org } = await supabase.from('organisations').select('stripe_connect_id').eq('id', job.org_id).single()
+
+  if (!org?.stripe_connect_id) throw new Error('No payout account connected')
+
+  const totalCredits = job.job_wallet_ledger
+    .filter((e: any) => e.transaction_type === 'CREDIT')
+    .reduce((sum: number, e: any) => sum + e.amount, 0)
+
+  // Avoid zero transfer
+  if (totalCredits <= 0) throw new Error('No funds to release')
+
+  const transfer = await stripe.transfers.create({
+    amount: totalCredits,
+    currency: 'gbp',
+    destination: org.stripe_connect_id,
+  })
+
+  return { success: true, transferId: transfer.id }
 }

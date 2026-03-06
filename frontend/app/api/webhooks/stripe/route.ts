@@ -32,23 +32,36 @@ export async function POST(req: Request) {
     const orgId = session.metadata?.org_id
     const jobId = session.metadata?.source_job_id
     const amountPaid = session.amount_total // integer pence
+    const paymentIntentId = session.payment_intent as string
 
     if (invoiceId && orgId) {
       console.log(`Processing payment for Invoice ${invoiceId}`)
 
-      // 1. Update Invoice Status
+      // 1. IDEMPOTENCY CHECK
+      const { data: existingPayment } = await supabase
+        .from('payment_records')
+        .select('id')
+        .eq('provider_ref', paymentIntentId)
+        .single()
+
+      if (existingPayment) {
+        console.log(`Payment ${paymentIntentId} already processed. Skipping.`)
+        return NextResponse.json({ received: true, idempotent: true })
+      }
+
+      // 2. Update Invoice Status
       const { error: invError } = await supabase
         .from('invoices')
         .update({ 
           status: 'PAID', 
           paid_at: new Date().toISOString(),
-          stripe_payment_intent_id: session.payment_intent
+          stripe_payment_intent_id: paymentIntentId
         })
         .eq('id', invoiceId)
 
       if (invError) console.error('Error updating invoice:', invError)
 
-      // 2. Create Payment Record
+      // 3. Create Payment Record
       const { error: payError } = await supabase
         .from('payment_records')
         .insert({
@@ -57,16 +70,15 @@ export async function POST(req: Request) {
           amount: amountPaid,
           currency: session.currency,
           provider: 'stripe',
-          provider_ref: session.payment_intent,
+          provider_ref: paymentIntentId,
           status: 'succeeded'
         })
 
       if (payError) console.error('Error creating payment record:', payError)
 
-      // 3. Ledger Write-Back (Task 3)
+      // 4. Ledger Write-Back
       if (jobId) {
         // Ensure Wallet Exists
-        // Try select first
         let { data: wallet } = await supabase
           .from('job_wallets')
           .select('id')
@@ -74,59 +86,24 @@ export async function POST(req: Request) {
           .single()
 
         if (!wallet) {
-          // Create if missing
-          const { data: newWallet, error: walletError } = await supabase
+          const { data: newWallet } = await supabase
             .from('job_wallets')
             .insert({ org_id: orgId, job_id: jobId })
             .select('id')
             .single()
-          
-          if (walletError) console.error('Error creating wallet:', walletError)
           wallet = newWallet
         }
 
         if (wallet) {
-          // Create Ledger Entry
-          const { error: ledgerError } = await supabase
+          await supabase
             .from('job_wallet_ledger')
             .insert({
               org_id: orgId,
               wallet_id: wallet.id,
               transaction_type: 'CREDIT', // Income
               amount: amountPaid,
-              description: `Payment for Invoice ${invoiceId.slice(0,8)}`,
-              // We could add 'category' if we migrated that column, but migration 4 uses 'transaction_type'
-              // Wait, migration 7 added 'category' column? 
-              // I didn't see migration 7 in my checks, but `00004` had `transaction_type`.
-              // `job_financials.tsx` used `category` (REVENUE/EXPENSE) which implies I might have hallucinated that column 
-              // or it was in a migration I didn't read fully.
-              // Let's check `00004_job_wallets.sql` again.
-              // It had `transaction_type` (text).
-              // `job_financials.tsx` usage: `entry.category === 'REVENUE'`.
-              // I might need to check if `category` exists.
-              // If not, I'll stick to `transaction_type` being the classifier?
-              // Or `transaction_type` = 'CREDIT' and I rely on description?
-              // Let's look at `00004` content again from my memory/logs.
-              // It had `transaction_type` TEXT.
-              // I will use `transaction_type` = 'PAYMENT_RECEIVED' or just 'CREDIT'.
-              // I will check `job_financials` implementation to see what it expects.
-              // It expects `transaction_type` (CREDIT/DEBIT) and `category` (REVENUE/EXPENSE).
-              // If `category` is missing in DB, `job_financials` will fail or show undefined.
-              // I should check if `category` exists.
-              // I will assume `00007` exists in the file list I saw earlier (`00007_ledger_categories.sql`).
-              // So I should populate `category` if it exists. I'll add it to the insert query cautiously.
-              // If it fails, I'll catch it.
+              description: `Payment for Invoice ${invoiceId.slice(0,8)}`
             })
-            // Actually, better to stick to what I know exists in `00004`.
-            // `transaction_type` was the only one in `00004`.
-            // If `00007` exists, I should use it. 
-            // I saw `00007_ledger_categories.sql` in the file list `mcp_view_bulk` output earlier.
-            // So `category` column exists.
-          
-          // Let's try inserting with category.
-          /*
-            category: 'REVENUE'
-          */
         }
       }
     }

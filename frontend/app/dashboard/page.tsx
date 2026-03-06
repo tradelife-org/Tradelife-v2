@@ -9,7 +9,8 @@ import {
   LiveProjects, 
   TTESchedule, 
   UrgentTasks, 
-  FinancialOverview 
+  FinancialOverview,
+  ServiceTrafficLights
 } from '@/components/dashboard/Widgets'
 import { getWidgetsData } from '@/lib/actions/command-center'
 
@@ -48,7 +49,8 @@ export default function DashboardPage() {
     live_projects: [],
     tte_schedule: [],
     urgent_tasks: [],
-    financial_overview: { revenue: 0, expenses: 0, retention: 0 }
+    financial_overview: { revenue: 0, expenses: 0, retention: 0 },
+    service_status: []
   }
 
   return (
@@ -85,7 +87,7 @@ export default function DashboardPage() {
              <TTESchedule items={safeData.tte_schedule} />
            </div>
            <div className="flex-1 min-h-[200px]">
-             <UrgentTasks items={safeData.urgent_tasks} />
+             <ServiceTrafficLights items={safeData.service_status || []} />
            </div>
         </div>
 
