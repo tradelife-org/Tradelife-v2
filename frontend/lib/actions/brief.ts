@@ -9,8 +9,8 @@ export async function getMorningBriefData() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
   const { data: profile } = await supabase.from('profiles').select('org_id, full_name').eq('id', user.id).single()
-  if (!profile) throw new Error('Profile not found')
 
+  if (!profile) throw new Error('Profile not found')
   const orgId = profile.org_id
 
   // 1. Bookings (Today/Week)
@@ -27,8 +27,13 @@ export async function getMorningBriefData() {
     .order('start_time', { ascending: true })
     .limit(5)
 
-  // 2. Bank Balance
-  const balance = await getBankBalance()
+  // 2. Bank Balance (Plaid - Sandbox Aware)
+  let balance = 0
+  try {
+    balance = await getBankBalance()
+  } catch (e) {
+    console.warn('Balance fetch failed:', e)
+  }
 
   // 3. Unsent Drafts
   const { count: draftCount } = await supabase
