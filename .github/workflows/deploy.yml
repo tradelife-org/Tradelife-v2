@@ -1,0 +1,40 @@
+name: Vercel Deploy & Notify
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel Deploy
+        run: |
+          curl -X POST "https://api.vercel.com/v1/integrations/deploy/prj_QMfHAL9jua3vwbqX5MBR9Svaj0fT/zxipS340XS"
+
+      - name: Notify TradeLife Admin
+        if: always()
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+        run: |
+          STATUS="${{ job.status }}"
+          SUBJECT="Deployment Status: $STATUS"
+          BODY="The latest push to main has triggered a deployment. Status: $STATUS."
+          
+          if [ "$STATUS" == "success" ]; then
+            BODY="$BODY The live site is updating."
+          else
+            BODY="$BODY Please check Vercel logs."
+          fi
+
+          # Simple curl to Resend API if key exists
+          if [ ! -z "$RESEND_API_KEY" ] && [ ! -z "$ADMIN_EMAIL" ]; then
+            curl -X POST "https://api.resend.com/emails" \
+            -H "Authorization: Bearer $RESEND_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"from\": \"TradeLife Ops <deploy@tradelife.app>\", \"to\": \"$ADMIN_EMAIL\", \"subject\": \"$SUBJECT\", \"html\": \"<p>$BODY</p>\"}"
+          else
+            echo "Skipping email notification (Secrets missing)"
+          fi
