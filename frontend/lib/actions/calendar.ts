@@ -3,6 +3,10 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+// ============================================================================
+// VISIT ACTIONS (Updated with Task Trigger)
+// ============================================================================
+
 export async function createVisitAction(data: {
   jobId: string
   title: string
@@ -50,20 +54,32 @@ export async function createVisitAction(data: {
       org_id: profile.org_id,
       visit_id: visit.id,
       user_id: userId,
-      trade_role_label: 'Staff' // Default for now
+      trade_role_label: 'Staff' 
     }))
 
-    const { error: assignError } = await supabase
-      .from('visit_assignments')
-      .insert(assignments)
-
-    if (assignError) {
-      console.error('Failed to assign staff:', assignError)
-      // Don't fail the whole request, just log
-    }
+    await supabase.from('visit_assignments').insert(assignments)
   }
 
+  // 3. TASK TRIGGER (AssistantLife)
+  // "When a new job_visit is created, automatically generate a 'Prepare for Site' task"
+  
+  const taskDueDate = new Date(data.startTime)
+  taskDueDate.setHours(taskDueDate.getHours() - 24) // Due 24h before visit
+
+  await supabase.from('assistant_tasks').insert({
+    org_id: profile.org_id,
+    title: `Prepare for Site: ${data.title}`,
+    description: `Auto-generated task for visit on ${new Date(data.startTime).toLocaleDateString()}. Check tools and materials.`,
+    status: 'PENDING',
+    priority: 'NORMAL',
+    due_date: taskDueDate.toISOString(),
+    related_job_id: data.jobId,
+    // Assign to first user if any, or unassigned
+    assigned_to: data.assignedUserIds[0] || null
+  })
+
   revalidatePath('/calendar')
+  revalidatePath('/assistant')
   revalidatePath(`/jobs/${data.jobId}`)
   
   return { success: true, visitId: visit.id }
