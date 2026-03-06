@@ -2,10 +2,10 @@ import { getPortalContext } from '@/lib/actions/portal'
 import PortalMessaging from '@/components/portal/messaging'
 import PortalTimeline from '@/components/portal/timeline'
 import ProposalViewer from '@/components/portal/proposal-viewer'
-import PortalVisits from '@/components/portal/portal-visits' // New Component
+import PortalVisits from '@/components/portal/portal-visits'
+import PortalInvoices from '@/components/portal/portal-invoices' // New
 import { GlassPanel } from '@/components/ui/glass-panel'
 import { notFound } from 'next/navigation'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
 
 export default async function PortalPage({ params }: { params: { token: string } }) {
   let context
@@ -22,7 +22,7 @@ export default async function PortalPage({ params }: { params: { token: string }
     )
   }
 
-  const { client, org, quotes, jobs, visits } = context
+  const { client, org, quotes, jobs, visits, invoices } = context
 
   // Check for an Active SENT quote (Pending Acceptance)
   const activeQuoteSummary = quotes?.find((q: any) => q.status === 'SENT')
@@ -30,7 +30,7 @@ export default async function PortalPage({ params }: { params: { token: string }
   let activeUpsells = []
 
   if (activeQuoteSummary) {
-    // Fetch full details via Admin Client (since public user needs to see it)
+    // Fetch full details via Admin Client
     const { createClient } = await import('@supabase/supabase-js')
     const adminClient = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -78,7 +78,6 @@ export default async function PortalPage({ params }: { params: { token: string }
             {/* Left: Proposal OR Project Status */}
             <div className="lg:col-span-7 space-y-8">
               
-              {/* Cinematic Proposal View (If Active Quote Exists) */}
               {activeQuoteFull ? (
                 <div className="space-y-4">
                   <div className="p-4 bg-emerald-500/20 border border-emerald-500/50 rounded-xl text-emerald-100 flex items-center justify-between">
@@ -100,6 +99,9 @@ export default async function PortalPage({ params }: { params: { token: string }
                     </p>
                   </GlassPanel>
                   
+                  {/* Task 3: Portal Payment View (Invoices) */}
+                  <PortalInvoices invoices={invoices || []} />
+
                   {/* Task 3: Portal Sync (Visits) */}
                   <PortalVisits visits={visits || []} />
 

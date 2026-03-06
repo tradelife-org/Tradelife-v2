@@ -108,12 +108,21 @@ export async function getPortalContext(token: string) {
     .gt('start_time', new Date().toISOString()) // Only upcoming? Prompt says "upcoming visits"
     .order('start_time', { ascending: true })
 
+  // NEW: Fetch Sent Invoices
+  const { data: invoices } = await adminClient
+    .from('invoices')
+    .select('id, invoice_number, amount_gross, status, issue_date, due_date')
+    .in('source_job_id', jobs?.map((j: any) => j.id) || [])
+    .neq('status', 'DRAFT') // Only show SENT, PAID, OVERDUE
+    .order('issue_date', { ascending: false })
+
   return {
     client,
     org,
     quotes,
     jobs,
     visits,
+    invoices,
     valid: true
   }
 }

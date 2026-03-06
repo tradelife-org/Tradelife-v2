@@ -2,115 +2,144 @@
 
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
 
-async function generateInvoiceNumber(supabase: any, orgId: string): Promise<string> {
-  const { data: lastInvoice } = await supabase
-    .from('invoices')
-    .select('invoice_number')
-    .eq('org_id', orgId)
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single()
-
-  let nextNum = 1
-  if (lastInvoice && lastInvoice.invoice_number) {
-    const parts = lastInvoice.invoice_number.split('-')
-    if (parts.length === 2 && !isNaN(parseInt(parts[1]))) {
-      nextNum = parseInt(parts[1]) + 1
-    }
-  }
-
-  return `INV-${nextNum.toString().padStart(4, '0')}`
-}
-
-export async function createDepositInvoiceAction(jobId: string) {
+export async function createInvoiceAction(data: {
+  jobId: string
+  type: 'DEPOSIT' | 'INTERIM' | 'FINAL'
+  depositPercentage?: number // 0-100 integer
+  dueDate: string // ISO date
+  notes?: string
+}) {
   const supabase = createServerSupabaseClient()
   
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  // Get Job + Source Quote
-  const { data: job, error: jobError } = await supabase
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('org_id')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile) throw new Error('Profile not found')
+
+  // 1. Fetch Job & Linked Quote Snapshot
+  const { data: job } = await supabase
     .from('jobs')
     .select(`
       *,
-      quotes:source_quote_id (
-        id,
-        quote_amount_gross,
-        quote_amount_net,
-        vat_rate
+      quotes!jobs_source_quote_id_fkey ( 
+        id, 
+        accepted_snapshot_id,
+        quote_snapshots!quotes_accepted_snapshot_id_fkey (
+          snapshot_data,
+          total_amount_gross
+        )
       )
     `)
-    .eq('id', jobId)
+    .eq('id', data.jobId)
     .single()
 
-  if (jobError || !job) throw new Error('Job not found')
-  if (!job.quotes) throw new Error('Source quote not found')
+  if (!job) throw new Error('Job not found')
 
-  const orgId = job.org_id
-  const quote = job.quotes
+  const snapshot = job.quotes?.quote_snapshots?.snapshot_data
+  const totalGross = job.quotes?.quote_snapshots?.total_amount_gross || 0
+  
+  // 2. Calculate Amounts
+  let amountNet = 0
+  let amountGross = 0
+  let vatRate = snapshot?.vat_rate || 2000
 
-  // Calculate Deposit
-  const depositAmountGross = Math.round(quote.quote_amount_gross * 0.25)
-  const vatMultiplier = (10000 + quote.vat_rate) / 10000
-  const depositAmountNet = Math.round(depositAmountGross / vatMultiplier)
+  if (data.type === 'DEPOSIT' && data.depositPercentage) {
+    amountGross = Math.round((totalGross * data.depositPercentage) / 100)
+    amountNet = Math.round((amountGross * 10000) / (10000 + vatRate))
+  } else {
+    amountGross = totalGross
+    amountNet = snapshot?.quote_amount_net || 0
+  }
 
-  // Invoice Number
-  const invoiceNumber = await generateInvoiceNumber(supabase, orgId)
+  // 3. Generate Invoice Number
+  const { count } = await supabase
+    .from('invoices')
+    .select('id', { count: 'exact', head: true })
+    .eq('org_id', profile.org_id)
+  
+  const invoiceNumber = `INV-${new Date().getFullYear()}-${(count || 0) + 1001}`
 
-  // Create Invoice
-  const { data: invoice, error: invoiceError } = await supabase
+  // 4. Create Invoice
+  const { data: invoice, error } = await supabase
     .from('invoices')
     .insert({
-      org_id: orgId,
-      source_job_id: jobId,
+      org_id: profile.org_id,
+      source_job_id: data.jobId,
       invoice_number: invoiceNumber,
-      invoice_type: 'DEPOSIT',
-      amount_net: depositAmountNet,
-      amount_gross: depositAmountGross,
-      vat_rate: quote.vat_rate,
+      invoice_type: data.type,
+      amount_net: amountNet,
+      amount_gross: amountGross,
+      vat_rate: vatRate,
       status: 'DRAFT',
       issue_date: new Date().toISOString(),
+      due_date: data.dueDate
     })
-    .select()
+    .select('id')
     .single()
 
-  if (invoiceError) throw new Error(`Failed to create invoice: ${invoiceError.message}`)
+  if (error) throw new Error(error.message)
 
-  // Accounting: RECOGNIZED_REVENUE
-  // Note: We don't initialize wallet here anymore (moved to Accept Quote or lazy init)
-  // We assume wallet exists or creating ledger entry might fail if FK missing?
-  // Ledger requires wallet_id?
-  // Schema check: job_wallet_ledger(job_id) FK to jobs(id).
-  // Wait, does it link to job_wallets(id)?
-  // Migration 00006 (Ledger) definition:
-  // job_wallet_ledger ( ... job_id UUID REFERENCES jobs(id) ... )
-  // It does NOT link to job_wallets table directly in 00006 schema I wrote?
-  // Let's check 00006 again.
-  // "job_id UUID NOT NULL REFERENCES jobs(id)"
-  // Ah, 00004 (which I couldn't apply but simulated?) defined job_wallet_ledger with wallet_id.
-  // 00006 defined it with job_id.
-  // I should check which schema is active.
-  // Since I created 00006 recently, and that's the one I "verified" (but failed), I should stick to 00006 logic?
-  // Or check the actual table?
-  // `diagnostic_phase3_v4.py` inserted into `job_wallet_ledger` using `job_id`.
-  // So the active schema uses `job_id`.
-  
-  const { error: ledgerError } = await supabase
-    .from('job_wallet_ledger')
-    .insert({
-        org_id: orgId,
-        job_id: jobId,
-        amount: depositAmountGross,
-        transaction_type: 'CREDIT',
-        category: 'RECOGNIZED_REVENUE', // Requires Migration 00007
-        description: `Recognized Revenue: Invoice ${invoiceNumber} (Deposit)`
+  // 5. Create Line Item
+  const firstLineId = await getFirstJobLineId(supabase, data.jobId)
+  if (firstLineId) {
+    await supabase.from('invoice_line_items').insert({
+      org_id: profile.org_id,
+      invoice_id: invoice.id,
+      source_job_line_id: firstLineId,
+      description: `${data.type} Invoice - ${data.depositPercentage || 100}% of Project`,
+      quantity: 1,
+      unit: 'lot',
+      unit_price_net: amountNet,
+      line_total_net: amountNet,
+      sort_order: 0
     })
+  }
 
-  if (ledgerError) console.error('Ledger recognized revenue failed:', ledgerError)
+  revalidatePath('/invoices')
+  redirect(`/invoices/${invoice.id}`)
+}
 
-  revalidatePath('/jobs')
-  revalidatePath(`/jobs/${jobId}`)
+async function getFirstJobLineId(supabase: any, jobId: string) {
+  const { data } = await supabase
+    .from('job_line_items')
+    .select('id')
+    .eq('job_id', jobId)
+    .limit(1)
+    .single()
+  return data?.id
+}
+
+export async function sendInvoiceAction(invoiceId: string) {
+  const supabase = createServerSupabaseClient()
+  const { error } = await supabase
+    .from('invoices')
+    .update({ status: 'SENT' })
+    .eq('id', invoiceId)
   
-  return { success: true, invoiceId: invoice.id }
+  if (error) throw new Error(error.message)
+  revalidatePath('/invoices')
+  revalidatePath(`/invoices/${invoiceId}`)
+}
+
+export async function markInvoicePaidAction(invoiceId: string) {
+  const supabase = createServerSupabaseClient()
+  const { error } = await supabase
+    .from('invoices')
+    .update({ 
+      status: 'PAID',
+      paid_at: new Date().toISOString()
+    })
+    .eq('id', invoiceId)
+  
+  if (error) throw new Error(error.message)
+  revalidatePath('/invoices')
+  revalidatePath(`/invoices/${invoiceId}`)
 }
