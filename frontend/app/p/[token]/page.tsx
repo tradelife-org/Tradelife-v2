@@ -3,7 +3,8 @@ import PortalMessaging from '@/components/portal/messaging'
 import PortalTimeline from '@/components/portal/timeline'
 import ProposalViewer from '@/components/portal/proposal-viewer'
 import PortalVisits from '@/components/portal/portal-visits'
-import PortalInvoices from '@/components/portal/portal-invoices' // New
+import PortalInvoices from '@/components/portal/portal-invoices'
+import EmergencySOS from '@/components/portal/emergency-sos' // New
 import { GlassPanel } from '@/components/ui/glass-panel'
 import { notFound } from 'next/navigation'
 
@@ -30,13 +31,11 @@ export default async function PortalPage({ params }: { params: { token: string }
   let activeUpsells = []
 
   if (activeQuoteSummary) {
-    // Fetch full details via Admin Client
     const { createClient } = await import('@supabase/supabase-js')
     const adminClient = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
-    
     const { data: q } = await adminClient
       .from('quotes')
       .select(`
@@ -99,12 +98,11 @@ export default async function PortalPage({ params }: { params: { token: string }
                     </p>
                   </GlassPanel>
                   
-                  {/* Task 3: Portal Payment View (Invoices) */}
+                  {/* Task 1: SOS Portal Trigger */}
+                  <EmergencySOS token={params.token} />
+
                   <PortalInvoices invoices={invoices || []} />
-
-                  {/* Task 3: Portal Sync (Visits) */}
                   <PortalVisits visits={visits || []} />
-
                   <PortalTimeline quotes={quotes || []} jobs={jobs || []} />
                 </>
               )}
