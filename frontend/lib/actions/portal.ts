@@ -3,10 +3,56 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-// ============================================================================
-// INTERNAL ACTIONS (Authenticated User)
-// ============================================================================
+// ... existing code ...
 
+// NEW: Send Message to Job Log (for Portal)
+export async function sendPortalJobMessage(token: string, jobId: string, content: string) {
+  const { createClient } = await import('@supabase/supabase-js')
+  const adminClient = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  // 1. Verify Token
+  const { data: invite } = await adminClient
+    .from('portal_invites')
+    .select('client_id, org_id')
+    .eq('token', token)
+    .gt('expires_at', new Date().toISOString())
+    .single()
+
+  if (!invite) throw new Error('Invalid token')
+
+  // 2. Insert to Communication Log
+  const { error } = await adminClient.from('communication_logs').insert({
+    org_id: invite.org_id,
+    job_id: jobId,
+    sender_type: 'CLIENT',
+    content: content
+  })
+
+  if (error) throw new Error(error.message)
+
+  revalidatePath(`/p/${token}`)
+}
+
+export async function fetchPortalJobMessages(token: string, jobId: string) {
+  const { createClient } = await import('@supabase/supabase-js')
+  const adminClient = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  const { data: messages } = await adminClient
+    .from('communication_logs')
+    .select('*')
+    .eq('job_id', jobId)
+    .order('created_at', { ascending: true })
+
+  return messages || []
+}
+
+// ... existing exports ...
 export async function generatePortalLink(clientId: string) {
   const supabase = createServerSupabaseClient()
   
@@ -43,13 +89,6 @@ export async function generatePortalLink(clientId: string) {
   }
 }
 
-// ============================================================================
-// PUBLIC ACTIONS (Token Access)
-// ============================================================================
-
-/**
- * Validates token and returns Portal Context (Client info, Timeline, etc)
- */
 export async function getPortalContext(token: string) {
   const supabase = createServerSupabaseClient()
 
@@ -127,10 +166,6 @@ export async function getPortalContext(token: string) {
   }
 }
 
-/**
- * Sends a message from the client portal.
- * Handles Out-of-Hours Auto-Response logic.
- */
 export async function sendPortalMessage(token: string, content: string) {
   const supabase = createServerSupabaseClient()
   

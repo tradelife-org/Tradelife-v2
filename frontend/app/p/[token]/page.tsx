@@ -4,7 +4,7 @@ import PortalTimeline from '@/components/portal/timeline'
 import ProposalViewer from '@/components/portal/proposal-viewer'
 import PortalVisits from '@/components/portal/portal-visits'
 import PortalInvoices from '@/components/portal/portal-invoices'
-import EmergencySOS from '@/components/portal/emergency-sos' // New
+import EmergencySOS from '@/components/portal/emergency-sos'
 import { GlassPanel } from '@/components/ui/glass-panel'
 import { notFound } from 'next/navigation'
 
@@ -103,12 +103,14 @@ export default async function PortalPage({ params }: { params: { token: string }
 
                   <PortalInvoices invoices={invoices || []} />
                   <PortalVisits visits={visits || []} />
-                  <PortalTimeline quotes={quotes || []} jobs={jobs || []} />
+                  
+                  {/* Task 2: Private Comms Engine per Job integrated via Timeline */}
+                  <PortalTimeline quotes={quotes || []} jobs={jobs || []} token={params.token} />
                 </>
               )}
             </div>
 
-            {/* Right: Communication */}
+            {/* Right: Communication (General) */}
             <div className="lg:col-span-5">
               <div className="sticky top-28">
                 <PortalMessaging token={params.token} />

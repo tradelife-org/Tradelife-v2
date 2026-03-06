@@ -1,5 +1,3 @@
-'use client'
-
 import * as React from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -12,6 +10,7 @@ import ReceiptUploader from '@/components/receipt-uploader'
 import SmallWorksLogger from '@/components/small-works-logger'
 import JobMaterials from '@/components/jobs/job-materials'
 import JobTimeline from '@/components/jobs/job-timeline'
+import MediatorPanel from '@/components/jobs/mediator-panel' // New
 
 interface Job {
   id: string
@@ -156,10 +155,13 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
             </div>
           </div>
 
+          {/* AI Mediator (Task 3) */}
+          <MediatorPanel jobId={job.id} />
+
           {/* Materials */}
           <JobMaterials materials={materials} />
 
-          {/* Financial Health View (Task 2) */}
+          {/* Financial Health View */}
           <div className="space-y-4">
             <h3 className="font-heading font-bold text-xl text-slate-900 flex items-center gap-2">
               <CreditCard className="w-6 h-6 text-blueprint" />
@@ -175,10 +177,10 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           
           <JobTimeline timeline={timeline} />
 
-          {/* Small Works Engine (Module 5.2) */}
+          {/* Small Works Engine */}
           <SmallWorksLogger jobId={job.id} />
 
-          {/* Receipt OCR (Task 3) */}
+          {/* Receipt OCR */}
           <ReceiptUploader jobId={job.id} />
 
         </div>
