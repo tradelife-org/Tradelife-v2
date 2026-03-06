@@ -9,21 +9,16 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Secret Health Check
+      - name: Trigger Vercel Deploy Hook
         env:
-          RESEND_KEY: ${{ secrets.RESEND_API_KEY }}
-          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
         run: |
-          if [ -z "$RESEND_KEY" ]; then
-            echo "::warning::RESEND_API_KEY is missing in GitHub Secrets. Notifications will fail."
+          if [ -z "$VERCEL_DEPLOY_HOOK_URL" ]; then
+            echo "::error::VERCEL_DEPLOY_HOOK_URL secret is missing!"
+            exit 1
           fi
-          if [ -z "$ADMIN_EMAIL" ]; then
-            echo "::warning::ADMIN_EMAIL is missing in GitHub Secrets."
-          fi
-
-      - name: Trigger Vercel Deploy
-        run: |
-          curl -X POST "https://api.vercel.com/v1/integrations/deploy/prj_QMfHAL9jua3vwbqX5MBR9Svaj0fT/zxipS340XS"
+          echo "Triggering Vercel Deploy Hook..."
+          curl -X POST "$VERCEL_DEPLOY_HOOK_URL"
 
       - name: Notify TradeLife Admin
         if: always()
@@ -36,5 +31,7 @@ jobs:
             curl -X POST "https://api.resend.com/emails" \
             -H "Authorization: Bearer $RESEND_API_KEY" \
             -H "Content-Type: application/json" \
-            -d "{\"from\": \"TradeLife Ops <deploy@tradelife.app>\", \"to\": \"$ADMIN_EMAIL\", \"subject\": \"Deployment: $STATUS\", \"html\": \"<p>Triggered Vercel build.</p>\"}"
+            -d "{\"from\": \"TradeLife Ops <deploy@tradelife.app>\", \"to\": \"$ADMIN_EMAIL\", \"subject\": \"Deployment Triggered: $STATUS\", \"html\": \"<p>GitHub Action triggered Vercel build via Webhook.</p>\"}"
+          else
+            echo "Skipping email notification (Secrets missing)"
           fi
