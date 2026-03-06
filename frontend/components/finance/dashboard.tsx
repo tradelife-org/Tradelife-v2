@@ -1,7 +1,8 @@
 'use client'
 
 import { GlassPanel } from '@/components/ui/glass-panel'
-import { TrendingDown, TrendingUp, AlertCircle, PieChart } from 'lucide-react'
+import { GlassTooltip } from '@/components/ui/glass-tooltip'
+import { TrendingDown, TrendingUp, PieChart, Info } from 'lucide-react'
 
 interface FinanceDashboardProps {
   data: {
@@ -45,7 +46,10 @@ export default function FinanceDashboard({ data }: FinanceDashboardProps) {
             <div className="p-2 bg-safety/10 rounded-lg text-safety">
               <TrendingDown className="w-5 h-5" />
             </div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Monthly Burn</p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Monthly Burn</p>
+              <GlassTooltip content="Average monthly expenses over the last 3 months." />
+            </div>
           </div>
           <p className="text-3xl font-mono font-bold text-slate-900">{formatPence(data.burnRate)}</p>
         </GlassPanel>
@@ -55,7 +59,10 @@ export default function FinanceDashboard({ data }: FinanceDashboardProps) {
             <div className="p-2 bg-slate-800 rounded-lg text-blue-400">
               <PieChart className="w-5 h-5" />
             </div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Runway</p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Runway</p>
+              <GlassTooltip content="How long your business can survive with zero income, based on current balance and burn rate." />
+            </div>
           </div>
           <div className="flex items-baseline gap-2">
             <p className="text-3xl font-mono font-bold text-white">
@@ -68,7 +75,10 @@ export default function FinanceDashboard({ data }: FinanceDashboardProps) {
 
       {/* Profit First Pots */}
       <div>
-        <h3 className="font-heading font-bold text-slate-900 mb-4 text-xl">Profit First Allocation</h3>
+        <div className="flex items-center gap-2 mb-4">
+          <h3 className="font-heading font-bold text-slate-900 text-xl">Profit First Allocation</h3>
+          <GlassTooltip content="Target balances based on your configured percentages. Transfer funds to match these targets." />
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {data.pots.map((pot: any) => (
             <GlassPanel key={pot.id} className="p-5 bg-white border-slate-200 relative overflow-hidden group hover:scale-[1.02] transition-all">
