@@ -8,6 +8,25 @@ interface PageProps {
 export default async function PublicQuotePage({ params }: PageProps) {
   const quote = await getPublicQuote(params.share_token)
 
+  // Fetch active mockup for the organisation
+  const { createClient } = await import('@supabase/supabase-js')
+  const adminClient = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  let activeMockup = null
+  if (quote) {
+    const { data } = await adminClient
+      .from('branding_gallery')
+      .select('image_url')
+      .eq('org_id', quote.org_id)
+      .eq('type', 'MOCKUP')
+      .eq('is_selected', true)
+      .single()
+    activeMockup = data
+  }
+
   if (!quote) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
@@ -26,5 +45,15 @@ export default async function PublicQuotePage({ params }: PageProps) {
     )
   }
 
-  return <PublicQuoteClient quote={quote} shareToken={params.share_token} />
+  return (
+    <div className="flex flex-col min-h-screen bg-slate-50">
+      {activeMockup && (
+        <div className="w-full h-64 overflow-hidden relative border-b border-slate-200">
+          <img src={activeMockup.image_url} alt="Brand Mockup" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+        </div>
+      )}
+      <PublicQuoteClient quote={quote} shareToken={params.share_token} />
+    </div>
+  )
 }

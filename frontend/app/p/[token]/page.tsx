@@ -25,6 +25,21 @@ export default async function PortalPage({ params }: { params: { token: string }
 
   const { client, org, quotes, jobs, visits, invoices } = context
 
+  // Fetch active mockup for the organisation
+  const { createClient } = await import('@supabase/supabase-js')
+  const adminClient = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  const { data: activeMockup } = await adminClient
+    .from('branding_gallery')
+    .select('image_url')
+    .eq('org_id', org.id)
+    .eq('type', 'MOCKUP')
+    .eq('is_selected', true)
+    .single()
+
   // Check for an Active SENT quote (Pending Acceptance)
   const activeQuoteSummary = quotes?.find((q: any) => q.status === 'SENT')
   let activeQuoteFull = null
@@ -87,6 +102,7 @@ export default async function PortalPage({ params }: { params: { token: string }
                     quote={activeQuoteFull} 
                     upsells={activeUpsells} 
                     token={params.token} 
+                    mockup_url={activeMockup?.image_url}
                   />
                 </div>
               ) : (

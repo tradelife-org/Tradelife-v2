@@ -4,6 +4,7 @@ import { createServiceRoleClient } from '@/lib/supabase/server'
 
 export interface PublicQuoteData {
   id: string
+  org_id: string
   status: string
   vat_rate: number
   quote_amount_net: number
@@ -39,7 +40,7 @@ export async function getPublicQuote(shareToken: string): Promise<PublicQuoteDat
   const { data: quote, error } = await supabase
     .from('quotes')
     .select(`
-      id, status, vat_rate, quote_amount_net, quote_amount_gross,
+      id, org_id, status, vat_rate, quote_amount_net, quote_amount_gross,
       reference, valid_until, created_at,
       organisations ( name ),
       clients ( name )
@@ -65,6 +66,7 @@ export async function getPublicQuote(shareToken: string): Promise<PublicQuoteDat
 
   return {
     id: quote.id,
+    org_id: quote.org_id,
     status: quote.status,
     vat_rate: quote.vat_rate,
     quote_amount_net: quote.quote_amount_net,

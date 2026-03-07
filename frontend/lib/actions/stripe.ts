@@ -78,3 +78,53 @@ export async function createStripeCheckoutAction(invoiceId: string, returnUrl: s
 
   return { url: session.url }
 }
+
+export async function createFoundersBundleCheckout() {
+  const supabase = createServerSupabaseClient()
+
+  // 1. Auth & Context
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('org_id, organisations(name)')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile) throw new Error('Profile not found')
+  const orgId = profile.org_id
+  const orgName = (profile.organisations as any).name
+
+  // 2. Create Checkout Session for Founder's Bundle
+  // Fee: £499.00 (49900 pence) as an example for "Founder's Bundle"
+  const amount = 49900
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items: [
+      {
+        price_data: {
+          currency: 'gbp',
+          product_data: {
+            name: `Founder's Bundle - ${orgName}`,
+            description: `Full company incorporation, brand identity, and Phase 0 setup.`,
+          },
+          unit_amount: amount,
+        },
+        quantity: 1,
+      },
+    ],
+    mode: 'payment',
+    success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/settings?founders_bundle=success`,
+    cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/settings?founders_bundle=cancelled`,
+    metadata: {
+      type: 'FOUNDERS_BUNDLE',
+      org_id: orgId,
+    },
+  })
+
+  if (!session.url) throw new Error('Failed to create checkout session')
+
+  return { url: session.url }
+}

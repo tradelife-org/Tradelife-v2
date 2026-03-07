@@ -10,9 +10,10 @@ interface ProposalViewerProps {
   quote: any
   upsells: any[]
   token: string
+  mockup_url?: string
 }
 
-export default function ProposalViewer({ quote, upsells, token }: ProposalViewerProps) {
+export default function ProposalViewer({ quote, upsells, token, mockup_url }: ProposalViewerProps) {
   const router = useRouter()
   const [selectedUpsells, setSelectedUpsells] = useState<string[]>(
     upsells.filter(u => u.accepted).map(u => u.id)
@@ -58,6 +59,15 @@ export default function ProposalViewer({ quote, upsells, token }: ProposalViewer
   return (
     <div className="space-y-8 animate-fade-in">
       
+      {mockup_url && (
+        <div className="w-full aspect-[21/9] rounded-2xl overflow-hidden shadow-2xl border border-white/20 relative group">
+          <img src={mockup_url} alt="Brand Mockup" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+            <p className="text-white font-heading font-bold text-xl drop-shadow-lg">Your Vision, Brought to Life</p>
+          </div>
+        </div>
+      )}
+
       {/* Scope of Works */}
       <div className="space-y-6">
         <h2 className="text-2xl font-heading font-bold text-white mb-4">Scope of Works</h2>
