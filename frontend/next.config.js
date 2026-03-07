@@ -11,6 +11,7 @@ const nextConfig = {
   },
   // Ensure we don't have strict React mode issues in some specific deployments
   reactStrictMode: true,
+  turbopack: {},
 }
 
 module.exports = nextConfig
