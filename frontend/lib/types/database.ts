@@ -220,3 +220,33 @@ export interface CashflowEntry {
   source_invoice_id: string | null;
   created_at: string;
 }
+
+// -- Property & Portfolio Layer --
+
+export interface PropertyAsset {
+  id: string;
+  org_id: string;
+  client_id: string | null;
+  job_id: string | null;
+  asset_type: string;
+  manufacturer: string | null;
+  model: string | null;
+  serial_number: string | null;
+  install_date: string | null;
+  warranty_expiry: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MaintenanceReminder {
+  id: string;
+  org_id: string;
+  asset_id: string;
+  title: string;
+  description: string | null;
+  due_date: string;
+  status: 'PENDING' | 'COMPLETED' | 'OVERDUE' | 'CANCELLED';
+  created_at: string;
+  updated_at: string;
+}
