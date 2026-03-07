@@ -3,8 +3,15 @@
 import { GlassPanel } from '@/components/ui/glass-panel'
 import { Calendar, CheckCircle, Flag, Info } from 'lucide-react'
 
-export default function JobTimeline({ timeline }: { timeline: any[] }) {
+import { JobTimelineEvent } from '@/lib/types/database'
+
+export default function JobTimeline({ timeline }: { timeline: JobTimelineEvent[] }) {
   if (timeline.length === 0) return null
+
+  // Ensure events are stored and sorted in ISO/UTC as per requirement
+  const sortedTimeline = [...timeline].sort((a, b) =>
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  )
 
   return (
     <GlassPanel className="p-6 bg-white border-slate-200">
@@ -16,15 +23,19 @@ export default function JobTimeline({ timeline }: { timeline: any[] }) {
       <div className="relative pl-4 space-y-8">
         <div className="absolute left-[23px] top-2 bottom-4 w-0.5 bg-slate-100" />
 
-        {timeline.map((event, idx) => (
+        {sortedTimeline.map((event, idx) => (
           <div key={event.id} className="relative pl-8">
             <div className={`absolute left-4 -translate-x-1/2 top-1.5 w-4 h-4 rounded-full border-2 border-white shadow-sm z-10
-              ${event.event_type === 'MILESTONE' ? 'bg-blueprint' : 'bg-slate-300'}`} />
+              ${event.event_type === 'MILESTONE' ? 'bg-blueprint' :
+                event.event_type === 'STATUS_CHANGE' ? 'bg-emerald-500' :
+                event.event_type === 'DOCUMENT' ? 'bg-amber-500' :
+                event.event_type === 'PARTICIPANT' ? 'bg-purple-500' :
+                'bg-slate-300'}`} />
             
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
               <div className="flex justify-between items-start mb-1">
                 <span className="text-[10px] font-bold uppercase text-slate-400">
-                  {new Date(event.event_date).toLocaleDateString()}
+                  {new Date(event.created_at).toLocaleDateString()} {new Date(event.created_at).toLocaleTimeString()}
                 </span>
                 <span className="text-[10px] font-bold bg-white px-2 py-0.5 rounded text-slate-500 uppercase border border-slate-200">
                   {event.event_type}
