@@ -120,9 +120,45 @@ export interface Job {
   status: JobStatus;
   target_start_date: string | null;
   target_end_date: string | null;
+  latitude: number | null;
+  longitude: number | null;
   google_calendar_event_id: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface JobParticipant {
+  id: string;
+  org_id: string;
+  job_id: string;
+  user_id: string;
+  role: 'STAFF' | 'SUBCONTRACTOR' | 'CLIENT_REP';
+  status: 'INVITED' | 'ACTIVE' | 'REMOVED';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface JobDocument {
+  id: string;
+  org_id: string;
+  job_id: string;
+  name: string;
+  storage_path: string;
+  visibility: 'INTERNAL' | 'CLIENT_VISIBLE';
+  uploaded_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface JobTimelineEvent {
+  id: string;
+  org_id: string;
+  job_id: string;
+  title: string;
+  description: string | null;
+  event_type: 'ACTION' | 'STATUS_CHANGE' | 'DOCUMENT' | 'PARTICIPANT' | 'INFO' | 'MILESTONE' | 'ALERT' | 'FINANCIAL';
+  created_by: string | null;
+  created_at: string;
 }
 
 export interface JobLineItem {
