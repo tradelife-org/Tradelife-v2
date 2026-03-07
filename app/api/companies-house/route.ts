@@ -33,7 +33,7 @@ export async function GET(request: Request) {
   try {
     // Basic Auth with API Key as username, empty password
     const auth = Buffer.from(`${COMPANIES_HOUSE_API_KEY}:`).toString('base64')
-    
+
     let url = `${BASE_URL}/search/companies?q=${encodeURIComponent(query || '')}&items_per_page=10`
 
     if (type === 'officers') {
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json()
-    
+
     if (type === 'search') {
       // Transform items to match our frontend interface
       const items = data.items?.map((item: any) => ({

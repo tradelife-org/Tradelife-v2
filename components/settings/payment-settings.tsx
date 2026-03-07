@@ -45,7 +45,7 @@ export default function PaymentSettings() {
         </div>
       </div>
 
-      <button 
+      <button
         onClick={handleConnect}
         disabled={loading}
         className="w-full py-4 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2"

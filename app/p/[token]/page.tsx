@@ -23,7 +23,7 @@ export default async function PortalPage({ params }: { params: { token: string }
     )
   }
 
-  const { client, org, quotes, jobs, visits, invoices } = context
+  const { client, org, quotes, jobs, visits, invoices } = context as any
 
   // Fetch active mockup for the organisation
   const { createClient } = await import('@supabase/supabase-js')
@@ -35,7 +35,7 @@ export default async function PortalPage({ params }: { params: { token: string }
   const { data: activeMockup } = await adminClient
     .from('branding_gallery')
     .select('image_url')
-    .eq('org_id', org.id)
+    .eq('org_id', (context as any).org_id)
     .eq('type', 'MOCKUP')
     .eq('is_selected', true)
     .single()

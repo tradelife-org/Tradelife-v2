@@ -158,6 +158,7 @@ export async function getPortalContext(token: string) {
   return {
     client,
     org,
+    org_id: invite.org_id,
     quotes,
     jobs,
     visits,
