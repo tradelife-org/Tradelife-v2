@@ -12,6 +12,9 @@ import JobMaterials from '@/components/jobs/job-materials'
 import JobTimeline from '@/components/jobs/job-timeline'
 import MediatorPanel from '@/components/jobs/mediator-panel'
 import JobCommsActions from '@/components/jobs/job-comms-actions' // New
+import HandoverDocuments from '@/components/jobs/handover-documents'
+import PropertyAssetList from '@/components/jobs/property-asset-list'
+import HandoverGenerator from '@/components/jobs/handover-generator'
 
 interface Job {
   id: string
@@ -23,6 +26,7 @@ interface Job {
   address: string | null
   target_start_date: string | null
   target_end_date: string | null
+  uprn: string | null
   created_at: string
 }
 
@@ -37,6 +41,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   const [job, setJob] = React.useState<Job | null>(null)
   const [materials, setMaterials] = React.useState<any[]>([])
   const [timeline, setTimeline] = React.useState<any[]>([])
+  const [documents, setDocuments] = React.useState<any[]>([])
+  const [assets, setAssets] = React.useState<any[]>([])
+  const [handoverPack, setHandoverPack] = React.useState<any>(null)
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -50,7 +57,10 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           *,
           clients ( name ),
           job_materials (*),
-          job_timeline (*)
+          job_timeline (*),
+          job_documents (*),
+          property_assets (*),
+          handover_packs (*)
         `)
         .eq('id', params.id)
         .single()
@@ -66,6 +76,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
         setTimeline((data.job_timeline || []).sort((a: any, b: any) => 
           new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
         ))
+        setDocuments(data.job_documents || [])
+        setAssets(data.property_assets || [])
+        setHandoverPack(data.handover_packs?.[0] || null)
       }
       setLoading(false)
     }
@@ -157,6 +170,18 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Phase 5: Digital Handover Engine */}
+          <HandoverGenerator
+            jobId={job.id}
+            initialUPRN={job.uprn || ''}
+            existingToken={handoverPack?.share_token}
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <HandoverDocuments jobId={job.id} initialDocuments={documents} />
+            <PropertyAssetList jobId={job.id} clientId={job.client_id || ''} initialAssets={assets} />
           </div>
 
           {/* AI Mediator */}
