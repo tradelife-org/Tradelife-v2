@@ -2,13 +2,12 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { generateFlashJSON } from '@/lib/ai/gemini'
 
-// Admin Client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
 export async function POST(req: Request) {
+  // Admin Client
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
   const formData = await req.formData()
   const recordingUrl = formData.get('RecordingUrl') as string
   const callSid = formData.get('CallSid') as string
