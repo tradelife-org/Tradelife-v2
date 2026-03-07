@@ -12,6 +12,7 @@ import JobMaterials from '@/components/jobs/job-materials'
 import JobTimeline from '@/components/jobs/job-timeline'
 import MediatorPanel from '@/components/jobs/mediator-panel'
 import JobCommsActions from '@/components/jobs/job-comms-actions' // New
+import { WarrantySnapshot } from '@/components/assets/warranty-snapshot'
 
 interface Job {
   id: string
@@ -186,6 +187,9 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
           {/* Receipt OCR */}
           <ReceiptUploader jobId={job.id} />
+
+          {/* Asset Snapshot */}
+          <WarrantySnapshot jobId={job.id} />
 
         </div>
 
