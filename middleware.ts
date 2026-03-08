@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  console.log('Middleware running for:', request.nextUrl.pathname)
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -29,6 +30,7 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  console.log('User found:', !!user)
   // Public routes — no auth required
   const isPublicRoute =
     request.nextUrl.pathname === '/' ||
@@ -46,7 +48,7 @@ export async function middleware(request: NextRequest) {
 
   if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup')) {
     const url = request.nextUrl.clone()
-    url.pathname = '/quotes'
+    url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 

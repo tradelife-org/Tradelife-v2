@@ -1,0 +1,57 @@
+{
+  "summary": {
+    "tests_run": 4,
+    "tests_passed": 2,
+    "success_rate": "50.0%"
+  },
+  "results": [
+    {
+      "test": "Build Compilation",
+      "success": true,
+      "timestamp": "2026-03-08T21:52:20.759378",
+      "status_code": 200,
+      "app_running": true,
+      "error": null
+    },
+    {
+      "test": "Health Endpoint Exists",
+      "success": true,
+      "timestamp": "2026-03-08T21:52:21.623511",
+      "status_code": 503,
+      "content_type": "application/json",
+      "error": null
+    },
+    {
+      "test": "GEMINI_API_KEY Configured",
+      "success": false,
+      "timestamp": "2026-03-08T21:52:21.635915",
+      "error": "API key appears to be missing or invalid",
+      "flash_error": "GEMINI_API_KEY missing",
+      "pro_error": "GEMINI_API_KEY missing"
+    },
+    {
+      "test": "AI Health Check",
+      "success": false,
+      "timestamp": "2026-03-08T21:52:21.668360",
+      "status_code": 503,
+      "response_data": {
+        "timestamp": "2026-03-08T21:52:21.667Z",
+        "models": {
+          "flash": "gemini-1.5-flash",
+          "pro": "gemini-1.5-pro"
+        },
+        "flash": {
+          "status": "error",
+          "latencyMs": 0,
+          "error": "GEMINI_API_KEY missing"
+        },
+        "pro": {
+          "status": "error",
+          "latencyMs": 0,
+          "error": "GEMINI_API_KEY missing"
+        }
+      },
+      "error": "Service unavailable - models not connecting"
+    }
+  ]
+}
