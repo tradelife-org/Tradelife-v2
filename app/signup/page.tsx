@@ -23,6 +23,8 @@ export default function SignupPage() {
     setLoading(true)
 
     const supabase = createClient()
+    console.log('Attempting signup for:', email)
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -33,9 +35,11 @@ export default function SignupPage() {
     })
 
     if (error) {
+      console.error("Signup error:", error.message, error)
       setError(error.message)
       setLoading(false)
     } else {
+      console.log("Signup request successful")
       // Auto-seed org + profile (safety net if DB trigger not applied)
       const { data } = await supabase.auth.getUser()
       if (data.user) {
