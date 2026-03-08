@@ -1,5 +1,6 @@
 # TradeLife v2
 
 ## Deployment Log
-- **Sanitized Update:** Triggering Vercel via pure Curl Hook (Bypassing CLI seat check).
+- **Root Migration:** Moved all frontend code to root directory (`./`).
+- **Config Update:** Updated `vercel.json` to standard Next.js build.
 - **Status:** Production Ready.
