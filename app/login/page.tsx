@@ -33,9 +33,17 @@ export default function LoginPage() {
       return
     }
 
-    // Login successful
+    // Login successful - Check Onboarding Status
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    // Refresh to update server context
     router.refresh()
-    router.push('/dashboard')
+
+    if (user?.user_metadata?.onboarding_completed === true) {
+      router.push('/dashboard')
+    } else {
+      router.push('/onboarding')
+    }
   }
 
   return (
