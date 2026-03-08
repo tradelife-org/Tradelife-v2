@@ -8,7 +8,8 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get('next') ?? '/quotes/create'
 
   if (code) {
-    const cookieStore = await cookies()
+    const cookieStore = cookies()
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -27,18 +28,12 @@ export async function GET(request: NextRequest) {
     )
 
     const { error } = await supabase.auth.exchangeCodeForSession(code)
+
     if (!error) {
-      // FIX: Force redirect to the production URL to avoid localhost issues
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tradelife.app'
-      // Ensure no double slashes if next starts with /
-      const targetPath = next.startsWith('/') ? next.slice(1) : next
-      const redirectUrl = `${siteUrl}/${targetPath}`
-      
-      return NextResponse.redirect(redirectUrl)
+      const target = next.startsWith('/') ? next : `/${next}`
+      return NextResponse.redirect(new URL(target, request.url))
     }
   }
 
-  // Error case
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tradelife.app'
-  return NextResponse.redirect(`${siteUrl}/login`)
+  return NextResponse.redirect(new URL('/login', request.url))
 }
