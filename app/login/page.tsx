@@ -14,47 +14,39 @@ export default function LoginPage() {
   const [loading, setLoading] = React.useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
+    setLoading(true);
 
-    console.log("LOGIN CLICKED")
-
-    setLoading(true)
-    setError(null)
+    alert("STEP 1: Login button clicked");
 
     try {
-      console.log("CALLING SUPABASE AUTH")
+      alert("STEP 2: Calling Supabase auth");
       const supabase = createClient()
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
-      })
+      });
 
-      console.log("SUPABASE RESPONSE", data, error)
+      alert("STEP 3: Supabase returned");
 
       if (error) {
-        throw error
+        alert("STEP 4: Auth error -> " + error.message);
+        throw error;
       }
 
-      console.log("LOGIN SUCCESS")
+      alert("STEP 5: Login successful");
 
-      // Ensure middleware sees the new Supabase session cookie
-      router.refresh()
-
-      // Navigate to dashboard
-      router.push("/dashboard")
+      router.refresh();
+      router.push("/dashboard");
 
     } catch (err: any) {
-      console.error("LOGIN ERROR", err)
-
+      alert("STEP 6: Login failed -> " + err.message);
       setError(err.message || "Login failed")
-
     } finally {
-      // Ensure loading state is reset so user can retry if needed
-      // If redirection happens, component unmounts anyway
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <main className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 relative z-10">
