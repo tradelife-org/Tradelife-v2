@@ -1,4 +1,4 @@
-# TradeLife v2
+# TradeLife v2 
 
 ## Deployment Log
 - **Status:** Production Ready.
