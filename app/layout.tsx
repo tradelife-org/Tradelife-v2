@@ -18,9 +18,9 @@ export default function RootLayout({
       <body className="min-h-screen bg-background font-body text-slate-900 antialiased selection:bg-safety/20 selection:text-safety-600">
         <VisualEngineProvider>
 
-          <VisualEngineRoot>
+          {/* <VisualEngineRoot> */}
             {children}
-          </VisualEngineRoot>
+          {/* </VisualEngineRoot> */}
 
         </VisualEngineProvider>
       </body>
