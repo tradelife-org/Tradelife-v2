@@ -38,8 +38,10 @@ export default function LoginPage() {
 
       console.log("LOGIN SUCCESS")
 
-      // Login successful, redirect to dashboard
-      // Using router.push for client-side navigation instead of window.location
+      // Ensure middleware sees the new Supabase session cookie
+      router.refresh()
+
+      // Navigate to dashboard
       router.push("/dashboard")
 
     } catch (err: any) {
