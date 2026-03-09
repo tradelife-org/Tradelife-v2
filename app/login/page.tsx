@@ -38,17 +38,18 @@ export default function LoginPage() {
 
       console.log("LOGIN SUCCESS")
 
-      setLoading(false)
-
-      alert("Login success — redirecting")
-
-      window.location.href = "/dashboard"
+      // Login successful, redirect to dashboard
+      // Using router.push for client-side navigation instead of window.location
+      router.push("/dashboard")
 
     } catch (err: any) {
       console.error("LOGIN ERROR", err)
 
       setError(err.message || "Login failed")
 
+    } finally {
+      // Ensure loading state is reset so user can retry if needed
+      // If redirection happens, component unmounts anyway
       setLoading(false)
     }
   }
