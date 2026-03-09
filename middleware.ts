@@ -31,37 +31,35 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // /auth/callback is required for magic links and OAuth
-  const publicRoutes = ['/login', '/signup', '/auth/callback']
+  const publicRoutes = ['/login', '/signup', '/auth/callback', '/api/health']
   const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname)
 
-  // 1. Not Authenticated
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  // 2. Authenticated
   if (user) {
-    // Basic redirect if accessing auth pages while logged in
-    if (isPublicRoute) {
+    const onboardingCompleted = user.user_metadata?.onboarding_completed === true
+    const isOnboardingPage = request.nextUrl.pathname.startsWith('/onboarding')
+
+    // Prevent logged-in users from accessing auth pages
+    if (isPublicRoute && request.nextUrl.pathname !== '/api/health' && request.nextUrl.pathname !== '/auth/callback') {
       const url = request.nextUrl.clone()
-      url.pathname = '/dashboard'
+      url.pathname = onboardingCompleted ? '/dashboard' : '/onboarding'
       return NextResponse.redirect(url)
     }
 
-    // Onboarding Gate
-    const onboardingComplete = user.user_metadata?.onboarding_completed === true
-    const isOnboardingRoute = request.nextUrl.pathname.startsWith('/onboarding')
-
-    if (!onboardingComplete && !isOnboardingRoute) {
+    // Force incomplete users to onboarding
+    if (!onboardingCompleted && !isOnboardingPage && request.nextUrl.pathname !== '/api/health') {
       const url = request.nextUrl.clone()
       url.pathname = '/onboarding'
       return NextResponse.redirect(url)
     }
 
-    if (onboardingComplete && isOnboardingRoute) {
+    // Prevent complete users from accessing onboarding
+    if (onboardingCompleted && isOnboardingPage) {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
       return NextResponse.redirect(url)

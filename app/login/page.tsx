@@ -10,43 +10,34 @@ export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
-  const [error, setError] = React.useState('')
+  const [error, setError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
 
     setLoading(true)
-    setError('')
+    setError(null)
 
     try {
-      console.log("Attempting Supabase login...")
       const supabase = createClient()
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
 
       if (error) throw error
 
-      console.log("Supabase login success:", data)
+      // Give the session cookie a moment to propagate
+      await new Promise(resolve => setTimeout(resolve, 200))
 
-      if (!data.session) {
-        throw new Error('An unexpected error occurred. Please try again.')
-      }
-
-      router.refresh()
-
-      // Check onboarding status from user metadata
-      const onboardingCompleted = data.user?.user_metadata?.onboarding_completed === true
-      const destination = onboardingCompleted ? "/dashboard" : "/onboarding"
-
-      console.log("Redirecting to:", destination)
-      router.push(destination)
+      // Send user into protected area so middleware can route them
+      router.push('/dashboard')
 
     } catch (err: any) {
-      console.error("Login failed:", err)
-      setError(err.message || "Login failed")
+      console.error('Login error:', err)
+      setError(err.message || 'Login failed')
     } finally {
-      // Ensure loading state is reset even if redirect happens (though unmount might occur first)
-      // This prevents the infinite "hanging" state if navigation fails
       setLoading(false)
     }
   }
