@@ -16,28 +16,39 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    console.log("LOGIN CLICKED")
+
     setLoading(true)
     setError(null)
 
     try {
+      console.log("CALLING SUPABASE AUTH")
       const supabase = createClient()
-      const { error } = await supabase.auth.signInWithPassword({
+
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       })
 
-      if (error) throw error
+      console.log("SUPABASE RESPONSE", data, error)
 
-      // Give the session cookie a moment to propagate
-      await new Promise(resolve => setTimeout(resolve, 200))
+      if (error) {
+        throw error
+      }
 
-      // Send user into protected area so middleware can route them
-      router.push('/dashboard')
+      console.log("LOGIN SUCCESS")
+
+      setLoading(false)
+
+      alert("Login success — redirecting")
+
+      window.location.href = "/dashboard"
 
     } catch (err: any) {
-      console.error('Login error:', err)
-      setError(err.message || 'Login failed')
-    } finally {
+      console.error("LOGIN ERROR", err)
+
+      setError(err.message || "Login failed")
+
       setLoading(false)
     }
   }
