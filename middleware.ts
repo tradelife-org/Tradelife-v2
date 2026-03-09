@@ -35,21 +35,44 @@ export async function middleware(request: NextRequest) {
   const publicRoutes = ['/login', '/signup', '/auth/callback']
   const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname)
 
+  // 1. Not Authenticated
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  if (user && isPublicRoute) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
-    return NextResponse.redirect(url)
+  // 2. Authenticated
+  if (user) {
+    // Basic redirect if accessing auth pages while logged in
+    if (isPublicRoute) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
+
+    // Onboarding Gate
+    const onboardingComplete = user.user_metadata?.onboarding_completed === true
+    const isOnboardingRoute = request.nextUrl.pathname.startsWith('/onboarding')
+
+    if (!onboardingComplete && !isOnboardingRoute) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/onboarding'
+      return NextResponse.redirect(url)
+    }
+
+    if (onboardingComplete && isOnboardingRoute) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|api/health|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }
