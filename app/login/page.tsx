@@ -30,8 +30,19 @@ export default function LoginPage() {
         return
       }
 
-      if (!data.session || !data.user) {
-        setError('Login succeeded but no session was returned.')
+      if (!data.user) {
+        setError('Login failed.')
+        setLoading(false)
+        return
+      }
+
+      /* Ensure session cookie exists */
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+
+      if (!session) {
+        setError('Session not created. Please try again.')
         setLoading(false)
         return
       }
