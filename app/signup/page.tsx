@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ensureOrgAndProfile } from '@/lib/actions/auth'
-import { getAuthCallbackUrl } from '@/lib/utils/url'
 import { UserPlus, Mail, Lock, User, ArrowRight } from 'lucide-react'
 
 export default function SignupPage() {
@@ -15,7 +14,6 @@ export default function SignupPage() {
   const [password, setPassword] = React.useState('')
   const [error, setError] = React.useState('')
   const [loading, setLoading] = React.useState(false)
-  const [success, setSuccess] = React.useState(false)
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,52 +21,31 @@ export default function SignupPage() {
     setLoading(true)
 
     const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
+    const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { full_name: fullName },
-        emailRedirectTo: getAuthCallbackUrl(),
+        // emailRedirectTo: removed since email confirmation is disabled
       },
     })
 
-    if (error) {
-      setError(error.message)
+    if (signUpError) {
+      setError(signUpError.message)
       setLoading(false)
-    } else {
-      // Auto-seed org + profile (safety net if DB trigger not applied)
-      const { data } = await supabase.auth.getUser()
-      if (data.user) {
-        await ensureOrgAndProfile(data.user.id, email, fullName)
-      }
-      setSuccess(true)
-      setLoading(false)
+      return
     }
-  }
 
-  if (success) {
-    return (
-      <main className="min-h-screen w-full flex items-center justify-center px-4 py-12 relative z-10">
-        <div className="w-full max-w-md text-center space-y-6 bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20">
-            <Mail className="w-7 h-7 text-green-400" />
-          </div>
-          <h2 className="text-2xl font-heading font-bold text-white" data-testid="signup-success">
-            Check your email
-          </h2>
-          <p className="text-slate-300">
-            We&apos;ve sent a confirmation link to <strong className="text-white">{email}</strong>.
-            Click it to activate your account.
-          </p>
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-2 text-white font-bold hover:text-safety-400 transition-colors"
-          >
-            Back to login <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </main>
-    )
+    // Auto-seed org + profile (safety net if DB trigger not applied)
+    // We check user existence to be safe, though signUp usually returns session immediately when auto-confirm is on.
+    const { data } = await supabase.auth.getUser()
+    if (data.user) {
+      await ensureOrgAndProfile(data.user.id, email, fullName)
+    }
+
+    // User session exists immediately when email confirmation is disabled
+    router.refresh()
+    router.push('/onboarding')
   }
 
   return (
