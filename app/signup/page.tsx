@@ -20,32 +20,35 @@ export default function SignupPage() {
     setError('')
     setLoading(true)
 
-    const supabase = createClient()
-    const { error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName },
-        // emailRedirectTo: removed since email confirmation is disabled
-      },
-    })
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName },
+        },
+      })
 
-    if (signUpError) {
-      setError(signUpError.message)
-      setLoading(false)
-      return
-    }
+      if (error) {
+        setError(error.message)
+        setLoading(false)
+        return
+      }
 
-    // Auto-seed org + profile (safety net if DB trigger not applied)
-    // We check user existence to be safe, though signUp usually returns session immediately when auto-confirm is on.
-    const { data } = await supabase.auth.getUser()
-    if (data.user) {
+      if (!data.user) {
+        setError('Signup succeeded but no user was returned.')
+        setLoading(false)
+        return
+      }
+
       await ensureOrgAndProfile(data.user.id, email, fullName)
-    }
 
-    // User session exists immediately when email confirmation is disabled
-    router.refresh()
-    router.push('/onboarding')
+      router.push('/onboarding')
+    } catch (err: any) {
+      setError(err?.message || 'Signup failed')
+      setLoading(false)
+    }
   }
 
   return (

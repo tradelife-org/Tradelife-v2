@@ -18,31 +18,36 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
 
-    const supabase = createClient()
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
 
-    if (error) {
-      setError(error.message)
+      if (error) {
+        setError(error.message)
+        setLoading(false)
+        return
+      }
+
+      if (!data.session || !data.user) {
+        setError('Login succeeded but no session was returned.')
+        setLoading(false)
+        return
+      }
+
+      const onboardingCompleted =
+        data.user.user_metadata?.onboarding_completed === true
+
+      if (onboardingCompleted) {
+        router.push('/dashboard')
+      } else {
+        router.push('/onboarding')
+      }
+    } catch (err: any) {
+      setError(err?.message || 'Login failed')
       setLoading(false)
-      return
-    }
-
-    if (!data.session) {
-      setError('An unexpected error occurred. Please try again.')
-      setLoading(false)
-      return
-    }
-
-    // Refresh router to ensure server components have latest auth state
-    router.refresh()
-
-    // Check Onboarding Status
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (user?.user_metadata?.onboarding_completed === true) {
-      router.push('/dashboard')
-    } else {
-      router.push('/onboarding')
     }
   }
 
