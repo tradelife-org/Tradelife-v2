@@ -7,7 +7,7 @@ import { QuoteSectionCard } from '@/components/quote-section-card'
 import { TotalsPanel } from '@/components/totals-panel'
 import { useQuoteCalculator } from '@/hooks/use-quote-calculator'
 import { saveQuoteDraft } from '@/lib/actions/save-quote'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 
 const VAT_RATE = 2000
 
@@ -37,7 +37,7 @@ export default function CreateQuotePage() {
   React.useEffect(() => {
     async function fetchTemplates() {
       try {
-        const supabase = createClient()
+        // const supabase = createClient()
         const { data } = await supabase
           .from('quote_templates')
           .select('*')
@@ -84,7 +84,7 @@ export default function CreateQuotePage() {
     if (result.success) {
       setSaveResult({ success: true, message: `Saved! Quote ID: ${result.quoteId?.slice(0, 8)}...` })
       // Refresh templates
-      const supabase = createClient()
+      // const supabase = createClient()
       const { data } = await supabase.from('quote_templates').select('*').order('created_at', { ascending: false })
       if (data) setTemplates(data)
     } else {
