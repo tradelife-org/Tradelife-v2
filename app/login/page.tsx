@@ -14,39 +14,32 @@ export default function LoginPage() {
   const [loading, setLoading] = React.useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    alert("STEP 1: Login button clicked");
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
 
     try {
-      alert("STEP 2: Calling Supabase auth");
       const supabase = createClient()
-
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
-      });
-
-      alert("STEP 3: Supabase returned");
+      })
 
       if (error) {
-        alert("STEP 4: Auth error -> " + error.message);
-        throw error;
+        throw error
       }
 
-      alert("STEP 5: Login successful");
+      const user = data.user
 
-      router.refresh();
-      router.push("/dashboard");
+      router.push("/dashboard")
 
     } catch (err: any) {
-      alert("STEP 6: Login failed -> " + err.message);
+      console.error("Login error:", err)
       setError(err.message || "Login failed")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <main className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 relative z-10">
