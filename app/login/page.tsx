@@ -29,9 +29,14 @@ export default function LoginPage() {
         throw error
       }
 
-      const user = data.user
+      // Login successful - Check Onboarding Status
+      const { data: { user } } = await supabase.auth.getUser()
 
-      router.push("/dashboard")
+      if (user?.user_metadata?.onboarding_completed === true) {
+        router.push('/dashboard')
+      } else {
+        router.push('/onboarding')
+      }
 
     } catch (err: any) {
       console.error("Login error:", err)
