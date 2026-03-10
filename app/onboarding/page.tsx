@@ -127,7 +127,7 @@ export default function OnboardingPage() {
         logoUrl,
         isVatRegistered
       })
-      router.push('/quotes') // Redirect to dashboard
+      router.push('/dashboard') // Redirect to dashboard
     } catch (err: any) {
       console.error(err)
       setError(err.message || 'Failed to save organisation details.')

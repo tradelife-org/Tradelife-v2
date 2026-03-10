@@ -11,8 +11,7 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   const body = await req.text()
-  const headersList = await headers()
-  const signature = headersList.get('Stripe-Signature') as string
+  const signature = (await headers()).get('Stripe-Signature') as string
 
   let event
 

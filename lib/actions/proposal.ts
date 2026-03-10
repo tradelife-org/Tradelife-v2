@@ -80,7 +80,6 @@ export async function acceptQuoteAction(
     }
   }
 
-  const headersList = await headers()
   const { data: snapshot, error: snapError } = await adminClient
     .from('quote_snapshots')
     .insert({
@@ -88,7 +87,7 @@ export async function acceptQuoteAction(
       quote_id: quote.id,
       snapshot_data: snapshotData,
       total_amount_gross: totalAgreedGross,
-      accepted_ip: headersList.get('x-forwarded-for') || 'unknown',
+      accepted_ip: (await headers()).get('x-forwarded-for') || 'unknown',
       accepted_by_name: 'Client via Portal',
       signature_url: signatureData
     })

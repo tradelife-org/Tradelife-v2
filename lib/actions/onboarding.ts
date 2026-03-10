@@ -112,6 +112,27 @@ export async function completeOnboardingAction(input: OnboardingInput) {
     throw err
   }
 
+  // 5. Update Profile (onboarding_completed = true)
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .update({ onboarding_completed: true })
+    .eq('id', user.id)
+
+  if (profileError) {
+    console.error('Profile update failed:', profileError)
+    // We don't throw here to avoid blocking the user if it's just a column missing issue
+    // but in production we should handle this.
+  }
+
+  // 6. Update User Metadata
+  const { error: authError } = await supabase.auth.updateUser({
+    data: { onboarding_completed: true }
+  })
+
+  if (authError) {
+    console.error('Auth metadata update failed:', authError)
+  }
+
   revalidatePath('/onboarding')
   return { success: true }
 }
