@@ -48,6 +48,9 @@ module.exports = {
         'slide-in': 'slide-in 0.3s ease-out',
         'fade-in': 'fade-in 0.2s ease-out',
       },
+      // backgroundImage: {
+      //   // Commented out to disable background images for debugging
+      // },
     },
   },
   plugins: [require('tailwindcss-animate')],
