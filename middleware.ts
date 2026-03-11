@@ -26,8 +26,8 @@ export async function middleware(request: NextRequest) {
   )
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+  } = await supabase.auth.getUser()
 
   const isAuthPage =
     request.nextUrl.pathname.startsWith('/login') ||
@@ -37,11 +37,11 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/dashboard') ||
     request.nextUrl.pathname.startsWith('/onboarding')
 
-  if (!session && isProtected) {
+  if (!user && isProtected) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  if (session && isAuthPage) {
+  if (user && isAuthPage) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
