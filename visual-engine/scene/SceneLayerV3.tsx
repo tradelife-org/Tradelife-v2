@@ -10,7 +10,7 @@ export default function SceneLayerV3() {
       <div
         className="tl-scene-image"
         style={{
-          backgroundImage: "url('/scenes/remembrance/bg.jpg')"
+          backgroundColor: "#000"
         }}
       />
 
