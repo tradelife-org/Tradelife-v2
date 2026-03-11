@@ -30,31 +30,23 @@ export default function LoginPage() {
         return
       }
 
-      if (!data.user) {
-        setError('Login failed.')
-        setLoading(false)
-        return
-      }
-
-      /* Ensure session cookie exists */
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-
-      if (!session) {
+      if (!data.session) {
         setError('Session not created. Please try again.')
         setLoading(false)
         return
       }
 
       const onboardingCompleted =
-        data.user.user_metadata?.onboarding_completed === true
+        data.user?.user_metadata?.onboarding_completed === true
+
+      setLoading(false)
 
       if (onboardingCompleted) {
         router.push('/dashboard')
       } else {
         router.push('/onboarding')
       }
+
     } catch (err: any) {
       setError(err?.message || 'Login failed')
       setLoading(false)
