@@ -15,42 +15,22 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
 
-      if (error) {
-        setError(error.message)
-        setLoading(false)
-        return
-      }
+    console.log("LOGIN RESULT:", { data, error })
 
-      if (!data.session) {
-        setError('Session not created. Please try again.')
-        setLoading(false)
-        return
-      }
-
-      const onboardingCompleted =
-        data.user?.user_metadata?.onboarding_completed === true
-
+    if (error) {
+      alert(error.message)
       setLoading(false)
-
-      if (onboardingCompleted) {
-        router.push('/dashboard')
-      } else {
-        router.push('/onboarding')
-      }
-
-    } catch (err: any) {
-      setError(err?.message || 'Login failed')
-      setLoading(false)
+      return
     }
+
+    window.location.href = "/dashboard"
   }
 
   return (
