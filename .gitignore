@@ -273,3 +273,7 @@ vite.config.ts.timestamp-*
 # Environment files
 *.env
 *.env.*
+-e 
+# Environment files
+*.env
+*.env.*
