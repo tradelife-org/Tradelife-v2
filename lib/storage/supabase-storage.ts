@@ -1,5 +1,6 @@
 // ============================================================================
 // TradeLife v2 — Supabase Storage Utilities
+import { supabase } from "@/lib/supabase/client"
 // lib/storage/supabase-storage.ts
 //
 // Wraps Supabase Storage for two use cases:
@@ -30,7 +31,6 @@ export async function uploadFile(
   file: File,
   subfolder?: string
 ): Promise<{ path: string; error: null } | { path: null; error: string }> {
-  const supabase = supabase()
 
   const ext = file.name.split('.').pop() || 'bin'
   const uniqueName = `${crypto.randomUUID()}.${ext}`
@@ -54,7 +54,6 @@ export async function uploadFile(
 // Get Public URL (for gallery bucket — public)
 // ---------------------------------------------------------------------------
 export function getPublicUrl(bucket: string, path: string): string {
-  const supabase = supabase()
   const { data } = supabase.storage.from(bucket).getPublicUrl(path)
   return data.publicUrl
 }
@@ -67,7 +66,6 @@ export async function getSignedUrl(
   path: string,
   expiresInSeconds: number = 3600
 ): Promise<string | null> {
-  const supabase = supabase()
   const { data, error } = await supabase.storage
     .from(bucket)
     .createSignedUrl(path, expiresInSeconds)
@@ -84,7 +82,6 @@ export async function listFiles(
   orgId: string,
   subfolder?: string
 ): Promise<{ name: string; id: string; created_at: string }[]> {
-  const supabase = supabase()
   const folderPath = subfolder ? `${orgId}/${subfolder}` : orgId
 
   const { data, error } = await supabase.storage.from(bucket).list(folderPath, {
@@ -107,7 +104,6 @@ export async function deleteFile(
   bucket: string,
   path: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = supabase()
   const { error } = await supabase.storage.from(bucket).remove([path])
   if (error) return { success: false, error: error.message }
   return { success: true }
