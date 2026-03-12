@@ -1,5 +1,6 @@
 'use client'
 
+import { redirect } from "next/navigation"
 import * as React from 'react'
 import { CommandCenterShell } from '@/components/command-center-shell'
 import { getWidgetsData } from '@/lib/actions/command-center'
