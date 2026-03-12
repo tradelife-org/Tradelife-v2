@@ -1,7 +1,6 @@
 // ============================================================================
 // TradeLife v2 — Supabase Storage Utilities
 import { supabase } from "@/lib/supabase/client"
-// lib/storage/supabase-storage.ts
 //
 // Wraps Supabase Storage for two use cases:
 // 1. Price Builder: supplier invoice uploads (OCR processing)
