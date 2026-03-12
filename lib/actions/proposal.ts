@@ -11,8 +11,8 @@ export async function acceptQuoteAction(
   signatureData?: string
 ) {
   // Use Admin Client to bypass RLS (Public user accepting via token)
-  const { supabase } = await import('@supabase/supabase-js')
-  const adminClient = supabase(
+  const { createClient } = await import('@supabase/supabase-js')
+  const adminClient = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )

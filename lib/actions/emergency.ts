@@ -6,8 +6,8 @@ import { revalidatePath } from 'next/cache'
 
 export async function reportEmergencyAction(token: string, description: string) {
   // 1. Verify Token
-  const { supabase } = await import('@supabase/supabase-js')
-  const adminClient = supabase(
+  const { createClient } = await import('@supabase/supabase-js')
+  const adminClient = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
