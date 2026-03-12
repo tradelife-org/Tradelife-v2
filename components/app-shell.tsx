@@ -1,5 +1,6 @@
 'use client'
 
+import { supabase } from "@/lib/supabase/client"
 import * as React from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
@@ -28,14 +29,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [userEmail, setUserEmail] = React.useState<string | null>(null)
 
   React.useEffect(() => {
-    const supabase = supabase()
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) setUserEmail(user.email ?? null)
     })
   }, [])
 
   const handleSignOut = async () => {
-    const supabase = supabase()
     await supabase.auth.signOut()
     window.location.href = '/login'
   }
