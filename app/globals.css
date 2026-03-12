@@ -15,3 +15,7 @@
     @apply font-heading tracking-tight;
   }
 }
+body {
+    background: #000 !important;
+    }
+}
