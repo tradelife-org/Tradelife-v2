@@ -6,7 +6,6 @@ const supabase = createClient(
 );
 
 import { NextResponse, type NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 
 export async function POST(request: NextRequest) {
   try {
