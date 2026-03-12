@@ -1,38 +1,70 @@
-'use client'
-
-import { redirect } from "next/navigation"
 import * as React from 'react'
 import { CommandCenterShell } from '@/components/command-center-shell'
 import { getWidgetsData } from '@/lib/actions/command-center'
 import MorningBriefModal from '@/components/dashboard/morning-brief'
-import DraggableDashboard from '@/components/dashboard/draggable-dashboard' // New
+import DraggableDashboard from '@/components/dashboard/draggable-dashboard'
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 
-export default function DashboardPage() {
-  const [data, setData] = React.useState<any>(null)
-  const [loading, setLoading] = React.useState(true)
+export default async function DashboardPage() {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
-  React.useEffect(() => {
-    async function fetchData() {
-      try {
-        const json = await getWidgetsData()
-        setData(json)
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
+  // Fetch Brief Data
+  let brief = null
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const cookieStore = cookies()
+    
+    const res = await fetch(`${baseUrl}/api/brief`, {
+      method: 'POST',
+      headers: {
+        Cookie: cookieStore.toString()
+      },
+      cache: 'no-store'
+    })
+    
+    if (res.ok) {
+        brief = await res.json()
+    } else {
+        // Handle non-200 responses
+        console.warn(`Brief fetch failed with status: ${res.status}`)
+        brief = {
+            summary: "Jarvis initializing.",
+            alerts: [],
+            recommendations: [],
+            // Modal Fallbacks
+            userName: user.email?.split('@')[0] || "User",
+            bookings: [],
+            balance: 0,
+            draftCount: 0,
+            unreadCount: 0
+        }
     }
-    fetchData()
-  }, [])
 
-  if (loading) {
-    return (
-      <CommandCenterShell>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="animate-pulse text-slate-400 font-mono">Initializing Command Center...</div>
-        </div>
-      </CommandCenterShell>
-    )
+  } catch (err) {
+    console.warn("Brief fetch failed", err)
+    brief = {
+      summary: "Jarvis initializing.",
+      alerts: [],
+      recommendations: [],
+      // Modal Fallbacks
+      userName: user.email?.split('@')[0] || "User",
+      bookings: [],
+      balance: 0,
+      draftCount: 0,
+      unreadCount: 0
+    }
+  }
+
+  // Fetch Dashboard Widgets Data
+  let data = null
+  try {
+    data = await getWidgetsData()
+  } catch (err) {
+    console.error("Dashboard widgets fetch failed", err)
   }
 
   const safeData = data || {
@@ -47,7 +79,7 @@ export default function DashboardPage() {
 
   return (
     <CommandCenterShell>
-      <MorningBriefModal /> 
+      <MorningBriefModal brief={brief} />
       <DraggableDashboard data={safeData} />
     </CommandCenterShell>
   )
