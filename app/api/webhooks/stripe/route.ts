@@ -1,10 +1,10 @@
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
-import { supabase } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
 
 // Admin Client for Webhook (Bypass RLS)
-const supabase = supabase(
+const adminClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
