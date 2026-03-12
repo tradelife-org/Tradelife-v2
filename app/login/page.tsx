@@ -3,7 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { LogIn, Mail, Lock, ArrowRight } from 'lucide-react'
 
 export default function LoginPage() {
@@ -18,8 +18,10 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
 
-    const supabase = createClient()
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
 
     if (error) {
       setError(error.message)
@@ -27,23 +29,8 @@ export default function LoginPage() {
       return
     }
 
-    if (!data.session) {
-      setError('An unexpected error occurred. Please try again.')
-      setLoading(false)
-      return
-    }
-
-    // Login successful - Check Onboarding Status
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    // Refresh to update server context
+    router.push('/dashboard')
     router.refresh()
-
-    if (user?.user_metadata?.onboarding_completed === true) {
-      router.push('/dashboard')
-    } else {
-      router.push('/onboarding')
-    }
   }
 
   return (

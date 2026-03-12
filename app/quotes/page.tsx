@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import {
   FileText, PlusCircle, TrendingUp, Clock,
   ArrowUpRight, Search,
@@ -51,7 +51,7 @@ export default function QuotesDashboard() {
 
   React.useEffect(() => {
     async function fetchQuotes() {
-      const supabase = createClient()
+      // Using singleton
 
       // Get user's org_id via profile
       const { data: { user } } = await supabase.auth.getUser()

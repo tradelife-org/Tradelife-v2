@@ -3,7 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { ensureOrgAndProfile } from '@/lib/actions/auth'
 import { getAuthCallbackUrl } from '@/lib/utils/url'
 import { UserPlus, Mail, Lock, User, ArrowRight } from 'lucide-react'
@@ -22,7 +22,7 @@ export default function SignupPage() {
     setError('')
     setLoading(true)
 
-    const supabase = createClient()
+    // Using singleton
     const { error } = await supabase.auth.signUp({
       email,
       password,

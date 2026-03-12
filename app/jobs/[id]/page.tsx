@@ -1,6 +1,6 @@
 import * as React from 'react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import {
   ArrowLeft, Briefcase, Clock, MapPin, 
   Calendar, CreditCard
@@ -42,7 +42,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
 
   React.useEffect(() => {
     async function fetchJob() {
-      const supabase = createClient()
+      // Using singleton
       
       const { data, error } = await supabase
         .from('jobs')
