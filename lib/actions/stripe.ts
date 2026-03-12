@@ -14,8 +14,8 @@ export async function createStripeCheckoutAction(invoiceId: string, returnUrl: s
   // Actually, to be safe, we should assume the caller has validated access or use `getPortalContext` logic.
   // However, for a generic action, we'll use the Admin Client but ensure the invoice is SENT.
   
-  const { createClient } = await import('@supabase/supabase-js')
-  const adminClient = createClient(
+  const { supabase } = await import('@supabase/supabase-js')
+  const adminClient = supabase(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )

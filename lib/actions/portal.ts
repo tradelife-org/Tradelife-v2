@@ -7,8 +7,8 @@ import { revalidatePath } from 'next/cache'
 
 // NEW: Send Message to Job Log (for Portal)
 export async function sendPortalJobMessage(token: string, jobId: string, content: string) {
-  const { createClient } = await import('@supabase/supabase-js')
-  const adminClient = createClient(
+  const { supabase } = await import('@supabase/supabase-js')
+  const adminClient = supabase(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
@@ -37,8 +37,8 @@ export async function sendPortalJobMessage(token: string, jobId: string, content
 }
 
 export async function fetchPortalJobMessages(token: string, jobId: string) {
-  const { createClient } = await import('@supabase/supabase-js')
-  const adminClient = createClient(
+  const { supabase } = await import('@supabase/supabase-js')
+  const adminClient = supabase(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
@@ -118,8 +118,8 @@ export async function getPortalContext(token: string) {
     .single()
 
   // 3. Fetch Data via Service Role (Bypass RLS for public token access)
-  const { createClient } = await import('@supabase/supabase-js')
-  const adminClient = createClient(
+  const { supabase } = await import('@supabase/supabase-js')
+  const adminClient = supabase(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
@@ -180,8 +180,8 @@ export async function sendPortalMessage(token: string, content: string) {
   if (!invite) throw new Error('Invalid token')
 
   // 2. Use Admin Client to bypass RLS for insertion (since anon user)
-  const { createClient } = await import('@supabase/supabase-js')
-  const adminClient = createClient(
+  const { supabase } = await import('@supabase/supabase-js')
+  const adminClient = supabase(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
@@ -263,8 +263,8 @@ export async function fetchPortalMessages(token: string) {
   
     if (!invite) return []
   
-    const { createClient } = await import('@supabase/supabase-js')
-    const adminClient = createClient(
+    const { supabase } = await import('@supabase/supabase-js')
+    const adminClient = supabase(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )

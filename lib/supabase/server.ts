@@ -31,8 +31,8 @@ export async function createServerSupabaseClient() {
  * like the auth auto-seed fallback.
  */
 export function createServiceRoleClient() {
-  const { createClient } = require('@supabase/supabase-js')
-  return createClient(
+  const { supabase } = require('@supabase/supabase-js')
+  return supabase(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
