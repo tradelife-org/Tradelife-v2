@@ -1,5 +1,6 @@
 'use client'
 
+import { supabase } from "@/lib/supabase/client"
 import * as React from 'react'
 import { Plus, Clock, CheckCircle, Loader2, Play } from 'lucide-react'
 import { logSmallWorksAction, approveVariationAction } from '@/lib/actions/variations'
@@ -27,7 +28,6 @@ export default function SmallWorksLogger({ jobId }: { jobId: string }) {
   // Real-time subscription or fetch on mount
   React.useEffect(() => {
     const fetchVariations = async () => {
-      const supabase = supabase()
       const { data } = await supabase
         .from('variations')
         .select('*')
