@@ -8,7 +8,6 @@ const supabase = createClient(
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
-import { createClient } from '@supabase/supabase-js'
 
 // Admin Client for Webhook (Bypass RLS)
 const adminClient = createClient(
