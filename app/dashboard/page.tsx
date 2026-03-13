@@ -24,7 +24,7 @@ export default async function DashboardPage() {
   return (
     <SceneLayerV3 scene="remembrance">
       <CommandCenterShell>
-        <MorningBriefModal /> 
+        <MorningBriefModal brief={null} /> 
         <DraggableDashboard data={data} />
       </CommandCenterShell>
     </SceneLayerV3>
