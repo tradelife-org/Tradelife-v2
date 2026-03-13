@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient, updateClient, deleteClient } from '@/lib/actions/clients'
+import { supabase, updateClient, deleteClient } from '@/lib/actions/clients'
 import { GlassPanel } from '@/components/ui/glass-panel'
 
 export function ClientForm({ client = null }: { client?: any }) {
@@ -25,7 +25,7 @@ export function ClientForm({ client = null }: { client?: any }) {
       if (isEdit) {
         await updateClient(client.id, formData)
       } else {
-        await createClient(formData)
+        await supabase(formData)
       }
       router.refresh()
       router.push('/clients')
