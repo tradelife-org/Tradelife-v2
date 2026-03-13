@@ -2,6 +2,7 @@
 
 import { supabase } from "@/lib/supabase/client"
 import * as React from 'react'
+import { supabase } from '@/lib/supabase/client'
 import {
   Wallet, TrendingUp, TrendingDown, Clock,
   DollarSign, CheckCircle
@@ -47,6 +48,7 @@ export default function JobFinancials({ jobId, orgId }: JobFinancialsProps) {
 
   React.useEffect(() => {
     async function fetchFinancials() {
+      // supabase used
       
       const { data, error } = await supabase
         .from('job_wallet_ledger')

@@ -3,6 +3,7 @@
 import { supabase } from "@/lib/supabase/client"
 import * as React from 'react'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase/client'
 import {
   FileText, Briefcase, Settings, LogOut,
   PlusCircle, Menu, X, ChevronRight,
@@ -28,7 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [userEmail, setUserEmail] = React.useState<string | null>(null)
 
   React.useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data: { user } }: any) => {
       if (user) setUserEmail(user.email ?? null)
     })
   }, [])
@@ -39,7 +40,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-transparent flex flex-col">
       {/* Top Nav */}
       <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">

@@ -8,6 +8,7 @@ import {
   ArrowUpRight, Search,
 } from 'lucide-react'
 import VoiceIntake from '@/components/voice-intake'
+import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
   DRAFT:    { label: 'Draft',    color: 'text-slate-600', bg: 'bg-slate-100' },
@@ -114,7 +115,8 @@ export default function QuotesDashboard() {
   const acceptedCount = quotes.filter((q) => q.status === 'ACCEPTED').length
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <SceneLayerV3 scene="remembrance">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
@@ -266,6 +268,7 @@ export default function QuotesDashboard() {
           })}
         </div>
       )}
-    </div>
+      </div>
+    </SceneLayerV3>
   )
 }

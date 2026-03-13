@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { GlassPanel } from '@/components/ui/glass-panel'
 import Link from 'next/link'
+import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"
 import { Plus } from 'lucide-react'
 
 export default async function ClientsPage() {
@@ -8,7 +9,8 @@ export default async function ClientsPage() {
   const { data: clients } = await supabase.from('clients').select('*').order('name')
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <SceneLayerV3 scene="remembrance">
+      <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-heading font-bold text-slate-900">Clients</h1>
         <Link href="/clients/create" className="btn btn-primary bg-safety hover:bg-safety-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors shadow-lg">
@@ -54,5 +56,6 @@ export default async function ClientsPage() {
         )}
       </div>
     </div>
+    </SceneLayerV3>
   )
 }

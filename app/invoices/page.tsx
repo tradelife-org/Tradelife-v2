@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { GlassPanel } from '@/components/ui/glass-panel'
 import Link from 'next/link'
+import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"
 import { Plus, FileText, CheckCircle, Clock, AlertTriangle } from 'lucide-react'
 
 export default async function InvoicesPage() {
@@ -14,7 +15,8 @@ export default async function InvoicesPage() {
   const formatPence = (p: number) => (p / 100).toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <SceneLayerV3 scene="remembrance">
+      <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-heading font-bold text-slate-900">Invoices</h1>
         <Link href="/invoices/create" className="btn-primary bg-blueprint text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2 hover:bg-blueprint-700 transition-colors">
@@ -65,5 +67,6 @@ export default async function InvoicesPage() {
         ))}
       </div>
     </div>
+    </SceneLayerV3>
   )
 }

@@ -2,6 +2,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { getFinanceDashboardData } from '@/lib/actions/finance'
 import FinanceDashboard from '@/components/finance/dashboard'
 import ReceiptIngest from '@/components/finance/receipt-ingest'
+import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"
 
 export default async function FinancePage() {
   const supabase = await createServerSupabaseClient()
@@ -15,7 +16,8 @@ export default async function FinancePage() {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <SceneLayerV3 scene="remembrance">
+      <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-heading font-bold text-slate-900">Finance Control</h1>
         <p className="text-slate-500">Profit First Allocation & Expense Tracking</p>
@@ -35,5 +37,6 @@ export default async function FinancePage() {
         </div>
       </div>
     </div>
+    </SceneLayerV3>
   )
 }

@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { Calendar, CheckCircle, Clock, AlertCircle } from 'lucide-react'
 import XeroSyncButton from '@/components/jobs/xero-sync-button' // New
 
+import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"
+
 export default async function JobsDashboard() {
   const supabase = await createServerSupabaseClient()
   
@@ -22,19 +24,21 @@ export default async function JobsDashboard() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-heading font-bold text-slate-900">Job Board</h1>
-        <XeroSyncButton />
-      </div>
+    <SceneLayerV3 scene="remembrance">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-heading font-bold text-slate-900">Job Board</h1>
+          <XeroSyncButton />
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 h-[calc(100vh-160px)]">
-        <KanbanColumn title="Planned" jobs={columns.PLANNED} color="bg-slate-100" />
-        <KanbanColumn title="Live" jobs={columns.LIVE} color="bg-blue-50" />
-        <KanbanColumn title="Blocked / Snagging" jobs={columns.BLOCKED} color="bg-orange-50" />
-        <KanbanColumn title="Complete" jobs={columns.COMPLETE} color="bg-green-50" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 h-[calc(100vh-160px)]">
+          <KanbanColumn title="Planned" jobs={columns.PLANNED} color="bg-slate-100" />
+          <KanbanColumn title="Live" jobs={columns.LIVE} color="bg-blue-50" />
+          <KanbanColumn title="Blocked / Snagging" jobs={columns.BLOCKED} color="bg-orange-50" />
+          <KanbanColumn title="Complete" jobs={columns.COMPLETE} color="bg-green-50" />
+        </div>
       </div>
-    </div>
+    </SceneLayerV3>
   )
 }
 
