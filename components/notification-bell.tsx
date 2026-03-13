@@ -1,4 +1,5 @@
 'use client'
+import { supabase } from "@/lib/supabase/client"
 
 
 import { Bell } from 'lucide-react'
