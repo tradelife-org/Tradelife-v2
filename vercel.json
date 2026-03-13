@@ -1,3 +1,17 @@
 {
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/cron/finance",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/recurring",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/xero-refresh",
+      "schedule": "0 1 * * *"
+    }
+  ]
 }

@@ -36,6 +36,7 @@ export default async function FinancePage() {
           {/* Future: Quick Transfer / Allocations */}
         </div>
       </div>
+    </div>
     </SceneLayerV3>
   )
 }

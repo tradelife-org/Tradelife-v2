@@ -66,6 +66,7 @@ export default async function InvoicesPage() {
           </Link>
         ))}
       </div>
+    </div>
     </SceneLayerV3>
   )
 }

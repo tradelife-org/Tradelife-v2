@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { generateFlashJSON } from '@/lib/ai/gemini'
+import OpenAI from "openai"
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
 // Admin Client
 const supabase = createClient(
@@ -18,9 +21,6 @@ export async function POST(req: Request) {
   console.log(`Processing recording for ${callSid}: ${recordingUrl}`)
 
   // 1. Fetch Call Context (Find Log)
-  // We need job_id. It was logged in initiateProxyCallAction via content SID match?
-  // Regex search in logs? Or store SID in dedicated table?
-  // `communication_logs` has `content`. We can search.
   const { data: log } = await supabase
     .from('communication_logs')
     .select('job_id, org_id')
@@ -28,15 +28,21 @@ export async function POST(req: Request) {
     .single()
 
   if (log) {
-    // 2. Transcribe (Mock/Simulate or use Gemini Audio capability if enabled)
-    // Gemini Flash handles audio files via URI? Or file upload.
-    // Ideally we download the MP3 and send to Gemini.
-    // For MVP, we'll assume we can pass the URL or mock the transcription step if Gemini SDK requires bytes.
-    // Let's assume we download it.
-    
-    // ... Download logic skipped for brevity/complexity.
-    // Mock Transcription:
-    const transcript = "(Mock Transcript) Client asking about changing the radiator type."
+    // 2. Transcribe using OpenAI Whisper
+    let transcript = ""
+    try {
+      const audioRes = await fetch(recordingUrl)
+      if (!audioRes.ok) throw new Error(`Failed to fetch audio: ${audioRes.statusText}`)
+
+      const transcription = await openai.audio.transcriptions.create({
+        file: audioRes,
+        model: "whisper-1"
+      })
+      transcript = transcription.text
+    } catch (err) {
+      console.error("Transcription error:", err)
+      transcript = "(Transcription failed)"
+    }
 
     // 3. AI Summarize
     const prompt = `Summarize this call transcript. If actionable request (quote change, visit), output JSON: { follow_up_needed: boolean, task_title: string }

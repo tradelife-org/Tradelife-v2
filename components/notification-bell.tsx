@@ -3,13 +3,13 @@
 import { Bell } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 
 export default function NotificationBell() {
   const [count, setCount] = useState(0)
 
   useEffect(() => {
-    const supabase = createClient()
+    // supabase used
     
     async function fetchCount() {
       const { count } = await supabase
