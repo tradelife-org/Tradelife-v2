@@ -11,7 +11,7 @@ interface CommandCenterShellProps {
 
 export function CommandCenterShell({ children }: CommandCenterShellProps) {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-transparent flex flex-col font-sans">
       {/* Top Bar */}
       <header className="sticky top-0 z-50 bg-white border-b border-slate-200 h-16 shadow-sm">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
