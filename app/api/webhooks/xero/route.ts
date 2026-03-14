@@ -1,15 +1,22 @@
-export async function GET() {
-  return new Response("OK", { status: 200 });
-}
+import crypto from "crypto"
 
 export async function POST(req: Request) {
-  try {
-    const body = await req.text();
-    console.log("Xero webhook received:", body);
+  const rawBody = await req.text()
 
-    return new Response("OK", { status: 200 });
-  } catch (error) {
-    console.error("Xero webhook error:", error);
-    return new Response("Error", { status: 500 });
+  const signature = req.headers.get("x-xero-signature") || ""
+
+  const webhookKey = process.env.XERO_WEBHOOK_KEY || ""
+
+  const computed = crypto
+    .createHmac("sha256", webhookKey)
+    .update(rawBody)
+    .digest("base64")
+
+  if (computed !== signature) {
+    return new Response("Invalid signature", { status: 401 })
   }
+
+  console.log("Xero webhook verified")
+
+  return new Response("OK", { status: 200 })
 }
