@@ -11,8 +11,8 @@ export async function POST(request: NextRequest) {
 
     // Use service role to bypass RLS — this is a public system action
     const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+      process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder'
     )
 
     // Verify quote exists and is in SENT status

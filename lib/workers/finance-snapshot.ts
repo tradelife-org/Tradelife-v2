@@ -1,11 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
 export async function generateBurnRateSnapshot(orgId: string) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder'
+  )
   // 1. Query job_wallet_ledger for current month
   const startOfMonth = new Date()
   startOfMonth.setDate(1)
@@ -68,6 +67,11 @@ export async function generateBurnRateSnapshot(orgId: string) {
 }
 
 export async function generateBurnRateSnapshotForAllOrgs() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder'
+  )
+
   const { data: orgs, error } = await supabase
     .from('organisations')
     .select('id')
