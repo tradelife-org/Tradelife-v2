@@ -1,50 +1,13 @@
-import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export async function middleware(req: NextRequest) {
-  let res = NextResponse.next({
-    request: {
-      headers: req.headers,
-    },
-  })
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return req.cookies.get(name)?.value
-        },
-        setAll(cookiesToSet: any[]) {
-          cookiesToSet.forEach(({ name, value }: any) => req.cookies.set(name, value))
-          let response = NextResponse.next({
-            request: {
-              headers: req.headers,
-            },
-          })
-          cookiesToSet.forEach(({ name, value, options }: any) =>
-            response.cookies.set(name, value, options)
-          )
-        },
-      },
-    }
-  )
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  const publicRoutes = ['/login', '/signup', '/auth/callback']
-
-  if (!user && !publicRoutes.includes(req.nextUrl.pathname)) {
-    return NextResponse.redirect(new URL('/login', req.url))
+  // Allow webhook endpoints without auth
+  if (pathname.startsWith('/api/webhooks')) {
+    return NextResponse.next()
   }
 
-  return res
-}
-
-export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  return NextResponse.next()
 }
