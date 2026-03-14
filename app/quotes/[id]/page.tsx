@@ -9,6 +9,9 @@ import UpsellManager from '@/components/quotes/upsell-manager'
 
 export default async function QuoteDetail({ params }: { params: { id: string } }) {
   const supabase = await createServerSupabaseClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data: profile } = await supabase.from('profiles').select('org_id').eq('id', user.id).single()
   
   // Fetch Quote, Sections, Upsells, Org Settings
   const { data: quote, error } = await supabase
@@ -24,6 +27,7 @@ export default async function QuoteDetail({ params }: { params: { id: string } }
       quote_upsells ( * )
     `)
     .eq('id', params.id)
+    .eq('org_id', profile?.org_id)
     .single()
 
   if (error || !quote) {

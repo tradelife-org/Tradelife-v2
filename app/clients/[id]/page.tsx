@@ -5,7 +5,11 @@ import { notFound } from 'next/navigation'
 
 export default async function EditClientPage({ params }: { params: { id: string } }) {
   const supabase = await createServerSupabaseClient()
-  const { data: client } = await supabase.from('clients').select('*').eq('id', params.id).single()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data: profile } = await supabase.from('profiles').select('org_id').eq('id', user.id).single()
+
+  const { data: client } = await supabase.from('clients').select('*').eq('id', params.id).eq('org_id', profile?.org_id).single()
 
   if (!client) {
     notFound()

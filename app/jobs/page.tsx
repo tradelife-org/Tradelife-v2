@@ -9,10 +9,15 @@ import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"
 export default async function JobsDashboard() {
   const supabase = await createServerSupabaseClient()
   
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data: profile } = await supabase.from('profiles').select('org_id').eq('id', user.id).single()
+
   // Fetch jobs with client names
   const { data: jobs } = await supabase
     .from('jobs')
     .select('*, clients(name)')
+    .eq('org_id', profile?.org_id)
     .order('created_at', { ascending: false })
 
   // Kanban Columns
@@ -28,7 +33,15 @@ export default async function JobsDashboard() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-heading font-bold text-slate-900">Job Board</h1>
-          <XeroSyncButton />
+          <div className="flex items-center gap-3">
+            <XeroSyncButton />
+            <Link 
+              href="/jobs/create" 
+              className="inline-flex items-center gap-2 h-10 px-4 bg-blueprint text-white text-sm font-semibold rounded-lg hover:bg-blueprint-700 transition-colors shadow-sm"
+            >
+              New Job
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 h-[calc(100vh-160px)]">

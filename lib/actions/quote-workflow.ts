@@ -134,8 +134,24 @@ export async function convertQuoteToJobAction(quoteId: string) {
 
   if (linkError) {
     console.error('Failed to link job to quote:', linkError)
-    // Non-critical, but annoying for lineage.
   }
+
+  // 5. Initialize Job Wallet & Ledger
+  await supabase.from('job_wallets').insert({
+    org_id: quote.org_id,
+    job_id: job.id,
+    balance: 0,
+    status: 'ACTIVE'
+  })
+
+  await supabase.from('job_wallet_ledger').insert({
+    org_id: quote.org_id,
+    job_id: job.id,
+    amount: quote.quote_amount_gross,
+    transaction_type: 'CREDIT',
+    category: 'COMMITTED_REVENUE',
+    description: `Committed Revenue: Quote ${quote.reference || quote.id.slice(0,8)} Accepted`
+  })
 
   revalidatePath(`/quotes/${quoteId}`)
   revalidatePath('/quotes')

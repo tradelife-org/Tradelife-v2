@@ -6,7 +6,11 @@ import { Plus } from 'lucide-react'
 
 export default async function ClientsPage() {
   const supabase = await createServerSupabaseClient()
-  const { data: clients } = await supabase.from('clients').select('*').order('name')
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data: profile } = await supabase.from('profiles').select('org_id').eq('id', user.id).single()
+
+  const { data: clients } = await supabase.from('clients').select('*').eq('org_id', profile?.org_id).order('name')
 
   return (
     <SceneLayerV3 scene="remembrance">
