@@ -18,8 +18,9 @@ export default async function DashboardWidgets() {
 
   // Fallback safe queries
   let activeJobs = 0
-  let pendingQuotes = 0
+  let monthlyRevenue = 0
   let outstandingInvoices = 0
+  let averageMargin = 0
   let recentActivity: any[] = []
 
   if (orgId) {
@@ -32,21 +33,40 @@ export default async function DashboardWidgets() {
 
       activeJobs = jCount || 0
 
-      const { count: qCount } = await supabase
-        .from('quotes')
-        .select('*', { count: 'exact', head: true })
+      // Monthly Revenue from ledger
+      const startOfMonth = new Date()
+      startOfMonth.setDate(1)
+      startOfMonth.setHours(0,0,0,0)
+      
+      const { data: revData } = await supabase
+        .from('job_wallet_ledger')
+        .select('amount')
         .eq('org_id', orgId)
-        .in('status', ['DRAFT', 'SENT'])
+        .eq('transaction_type', 'CREDIT')
+        .gte('created_at', startOfMonth.toISOString())
+      
+      monthlyRevenue = revData?.reduce((sum, item) => sum + item.amount, 0) || 0
 
-      pendingQuotes = qCount || 0
-
-      const { count: iCount } = await supabase
+      // Outstanding Invoices (Sum of gross amount for unpaid)
+      const { data: invData } = await supabase
         .from('invoices')
-        .select('*', { count: 'exact', head: true })
+        .select('amount_gross')
         .eq('org_id', orgId)
         .in('status', ['DRAFT', 'SENT', 'OVERDUE'])
 
-      outstandingInvoices = iCount || 0
+      outstandingInvoices = invData?.reduce((sum, item) => sum + item.amount_gross, 0) || 0
+
+      // Average Margin (from accepted quotes)
+      const { data: marginData } = await supabase
+        .from('quotes')
+        .select('quote_margin_percentage')
+        .eq('org_id', orgId)
+        .eq('status', 'ACCEPTED')
+      
+      if (marginData && marginData.length > 0) {
+        const totalMargin = marginData.reduce((sum, item) => sum + (item.quote_margin_percentage || 0), 0)
+        averageMargin = Math.round(totalMargin / marginData.length)
+      }
 
       // Simplified recent activity: latest 5 created entities (quotes/jobs/invoices)
       const { data: latestQuotes } = await supabase
@@ -74,33 +94,22 @@ export default async function DashboardWidgets() {
     }
   }
 
+  const formatCurrency = (pence: number) => {
+    return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 0 }).format(pence / 100)
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mt-6">
-      {/* Active Jobs */}
-      <Link href="/jobs" className="block">
+      {/* Monthly Revenue */}
+      <Link href="/finance" className="block">
         <GlassPanel className="p-6 bg-white/80 hover:bg-white transition-all border-slate-200/50">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-100 text-blue-600 rounded-xl">
-              <Briefcase className="w-6 h-6" />
+            <div className="p-3 bg-green-100 text-green-600 rounded-xl">
+              <Activity className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Active Jobs</p>
-              <h3 className="text-3xl font-black text-slate-900">{activeJobs}</h3>
-            </div>
-          </div>
-        </GlassPanel>
-      </Link>
-
-      {/* Pending Quotes */}
-      <Link href="/quotes" className="block">
-        <GlassPanel className="p-6 bg-white/80 hover:bg-white transition-all border-slate-200/50">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-amber-100 text-amber-600 rounded-xl">
-              <FileText className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Pending Quotes</p>
-              <h3 className="text-3xl font-black text-slate-900">{pendingQuotes}</h3>
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Monthly Revenue</p>
+              <h3 className="text-2xl font-black text-slate-900">{formatCurrency(monthlyRevenue)}</h3>
             </div>
           </div>
         </GlassPanel>
@@ -110,12 +119,27 @@ export default async function DashboardWidgets() {
       <Link href="/invoices" className="block">
         <GlassPanel className="p-6 bg-white/80 hover:bg-white transition-all border-slate-200/50">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-rose-100 text-rose-600 rounded-xl">
-              <Clock className="w-6 h-6" />
+            <div className="p-3 bg-amber-100 text-amber-600 rounded-xl">
+              <FileText className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Unpaid Invoices</p>
-              <h3 className="text-3xl font-black text-slate-900">{outstandingInvoices}</h3>
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Outstanding Invoices</p>
+              <h3 className="text-2xl font-black text-slate-900">{formatCurrency(outstandingInvoices)}</h3>
+            </div>
+          </div>
+        </GlassPanel>
+      </Link>
+
+      {/* Average Job Margin */}
+      <Link href="/finance" className="block">
+        <GlassPanel className="p-6 bg-white/80 hover:bg-white transition-all border-slate-200/50">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-purple-100 text-purple-600 rounded-xl">
+              <Activity className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Avg Job Margin</p>
+              <h3 className="text-2xl font-black text-slate-900">{(averageMargin / 100).toFixed(1)}%</h3>
             </div>
           </div>
         </GlassPanel>

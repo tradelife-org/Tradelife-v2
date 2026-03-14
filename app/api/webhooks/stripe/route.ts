@@ -99,10 +99,24 @@ export async function POST(req: Request) {
             .from('job_wallet_ledger')
             .insert({
               org_id: orgId,
-              wallet_id: wallet.id,
+              job_id: jobId,
               transaction_type: 'CREDIT', // Income
+              category: 'REVENUE',
               amount: amountPaid,
               description: `Payment for Invoice ${invoiceId.slice(0,8)}`
+            })
+          
+          // Payment Protect Placeholder: Service Fee Expense
+          const serviceFee = Math.round(amountPaid * 0.015)
+          await supabase
+            .from('job_wallet_ledger')
+            .insert({
+              org_id: orgId,
+              job_id: jobId,
+              transaction_type: 'DEBIT',
+              category: 'EXPENSE',
+              amount: serviceFee,
+              description: `Payment Protect Service Fee (1.5%) for ${invoiceId.slice(0,8)}`
             })
         }
       }
