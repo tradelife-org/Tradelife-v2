@@ -1,32 +1,25 @@
 import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"
-import { CommandCenterShell } from '@/components/command-center-shell'
-import { getWidgetsData } from '@/lib/actions/command-center'
 import MorningBriefModal from '@/components/dashboard/morning-brief'
-import DraggableDashboard from '@/components/dashboard/draggable-dashboard'
+import BasicWidgets from '@/components/dashboard/basic-widgets'
+import { Suspense } from 'react'
+import { Loader2 } from 'lucide-react'
 
 export default async function DashboardPage() {
-  let data = null
-  try {
-    data = await getWidgetsData()
-  } catch (err) {
-    console.error(err)
-    data = {
-      attention_needed: [],
-      active_projects: [],
-      live_projects: [],
-      tte_schedule: [],
-      urgent_tasks: [],
-      financial_overview: { revenue: 0, expenses: 0, retention: 0 },
-      service_status: []
-    }
-  }
-
   return (
     <SceneLayerV3 scene="remembrance">
-      <CommandCenterShell>
-        <MorningBriefModal /> 
-        <DraggableDashboard data={data} />
-      </CommandCenterShell>
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-3xl font-heading font-bold text-slate-900 mb-6 drop-shadow-md">Dashboard</h1>
+          
+          <MorningBriefModal /> 
+          
+          <Suspense fallback={
+            <div className="flex justify-center p-12">
+              <Loader2 className="w-8 h-8 animate-spin text-blueprint" />
+            </div>
+          }>
+            <BasicWidgets />
+          </Suspense>
+        </div>
     </SceneLayerV3>
   )
 }
