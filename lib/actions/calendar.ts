@@ -95,3 +95,75 @@ export async function updateVisitStatusAction(visitId: string, status: string) {
   if (error) throw new Error(error.message)
   revalidatePath('/calendar')
 }
+
+export async function updateJobScheduleAction(jobId: string, scheduledStart: string, scheduledEnd: string) {
+  const supabase = await createServerSupabaseClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { data: profile } = await supabase.from('profiles').select('org_id').eq('id', user.id).single()
+  if (!profile) throw new Error('Profile not found')
+
+  // Update DB
+  const { data: job, error } = await supabase
+    .from('jobs')
+    .update({ 
+      scheduled_start: scheduledStart, 
+      scheduled_end: scheduledEnd,
+      status: 'BOOKED' // Auto update status
+    })
+    .eq('id', jobId)
+    .eq('org_id', profile.org_id)
+    .select('title, address, google_calendar_event_id')
+    .single()
+
+  if (error || !job) throw new Error(error?.message || 'Update failed')
+
+  // Google Calendar Sync
+  const gcalToken = process.env.GOOGLE_CALENDAR_ACCESS_TOKEN
+  if (gcalToken) {
+    try {
+      const event = {
+        summary: `TradeLife Job: ${job.title}`,
+        location: job.address || '',
+        start: { dateTime: scheduledStart },
+        end: { dateTime: scheduledEnd },
+      }
+
+      if (job.google_calendar_event_id) {
+        // Update existing
+        await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${job.google_calendar_event_id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${gcalToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(event)
+        })
+      } else {
+        // Create new
+        const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${gcalToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(event)
+        })
+        const data = await res.json()
+        if (data.id) {
+          await supabase.from('jobs').update({ google_calendar_event_id: data.id }).eq('id', jobId)
+        }
+      }
+    } catch (gcalErr) {
+      console.error('Google Calendar sync failed:', gcalErr)
+    }
+  }
+
+  revalidatePath('/calendar')
+  revalidatePath('/jobs')
+  revalidatePath(`/jobs/${jobId}`)
+
+  return { success: true }
+}
