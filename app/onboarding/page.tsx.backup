@@ -32,13 +32,6 @@ export default function OnboardingPage() {
       .select()
       .single()
 
-if (error) {
-  console.error("ORG CREATE ERROR:", error);
-  alert(error.message);
-  return;
-}
-
-
     if (orgError) {
       console.error(orgError)
       setLoading(false)
