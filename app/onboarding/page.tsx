@@ -33,8 +33,6 @@ export default function OnboardingPage() {
       .single()
 
 if (orgError) {
-  console.error("ORG CREATE ERROR:", orgError);
-  alert(orgError.message);
   return;
 }
 
