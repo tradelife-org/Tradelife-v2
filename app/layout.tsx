@@ -3,8 +3,8 @@ import { VisualEngineProvider } from '@/components/providers/visual-engine-provi
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'TradeLife v2 | Molten Copper Theme',
-  description: 'Quote, Job & Invoice management for tradespeople',
+  title: 'TradeLife | Built for Trades',
+  description: 'TradeLife — Built for Trades. The business operating system for builders and trades.',
 }
 
 export default function RootLayout({
