@@ -9,25 +9,38 @@ export default function LoginPage() {
 
   const router = useRouter()
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [email,setEmail] = useState('')
+  const [password,setPassword] = useState('')
+  const [loading,setLoading] = useState(false)
+  const [error,setError] = useState('')
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e:React.FormEvent) => {
 
     e.preventDefault()
     setLoading(true)
     setError('')
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      password,
+      password
     })
 
-    if (error) {
+    if(error){
       setError(error.message)
       setLoading(false)
+      return
+    }
+
+    const user = data.user
+
+    const { data:profile } = await supabase
+      .from('profiles')
+      .select('org_id')
+      .eq('id', user.id)
+      .single()
+
+    if(!profile || !profile.org_id){
+      router.push('/onboarding')
       return
     }
 
@@ -86,13 +99,8 @@ export default function LoginPage() {
 
         <div className="mt-6 flex justify-between text-sm text-neutral-400">
 
-          <Link href="/signup">
-            Sign up
-          </Link>
-
-          <Link href="/forgot-password">
-            Forgot password
-          </Link>
+          <Link href="/signup">Sign up</Link>
+          <Link href="/forgot-password">Forgot password</Link>
 
         </div>
 
