@@ -32,9 +32,9 @@ export default function OnboardingPage() {
       .select()
       .single()
 
-if (error) {
-  console.error("ORG CREATE ERROR:", error);
-  alert(error.message);
+if (orgError) {
+  console.error("ORG CREATE ERROR:", orgError);
+  alert(orgError.message);
   return;
 }
 
