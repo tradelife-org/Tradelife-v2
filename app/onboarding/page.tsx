@@ -31,6 +31,7 @@ export default function OnboardingPage() {
       })
       .select()
       .single()
+router.push('/dashboard');
 
 if (orgError) {
   return;
