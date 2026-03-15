@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from "react"
-import { createBrowserClient } from "@/lib/supabase/client"
+import { supabase } from "@/lib/supabase/client"
 
 export default function SignupPage() {
 
-  const supabase = createBrowserClient()
+  
 
     const [email, setEmail] = useState("")
       const [password, setPassword] = useState("")
