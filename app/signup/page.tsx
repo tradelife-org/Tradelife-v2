@@ -56,7 +56,7 @@ export default function SignupPage() {
 
                                                                                                                                                                                                                 <br/><br/>
 
-                                                                                                                                                                                                                        <button type="submit" type="submit" disabled={loading}>
+                                                                                                                                                                                                                        <button type="submit" disabled={loading}>
                                                                                                                                                                                                                                   {loading ? "Creating..." : "Sign Up"}
                                                                                                                                                                                                                                           </button>
 
