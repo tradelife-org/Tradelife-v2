@@ -1,112 +1,106 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { supabase } from '@/lib/supabase/client'
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { supabase } from "@/lib/supabase/client"
 
-export default function LoginPage() {
+export default function LoginPage(){
 
-  const router = useRouter()
+const router = useRouter()
 
-  const [email,setEmail] = useState('')
-  const [password,setPassword] = useState('')
-  const [loading,setLoading] = useState(false)
-  const [error,setError] = useState('')
+const [email,setEmail] = useState("")
+const [password,setPassword] = useState("")
+const [error,setError] = useState("")
+const [loading,setLoading] = useState(false)
 
-  const handleLogin = async (e:React.FormEvent) => {
+const handleLogin = async (e:any)=>{
 
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+e.preventDefault()
+setLoading(true)
+setError("")
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
+const { data,error } = await supabase.auth.signInWithPassword({
+email,
+password
+})
 
-    if(error){
-      setError(error.message)
-      setLoading(false)
-      return
-    }
+if(error){
+setError(error.message)
+setLoading(false)
+return
+}
 
-    const user = data.user
+router.push("/dashboard")
 
-    const { data:profile } = await supabase
-      .from('profiles')
-      .select('org_id')
-      .eq('id', user.id)
-      .single()
+}
 
-    if(!profile || !profile.org_id){
-      router.push('/onboarding')
-      return
-    }
+return(
 
-    router.push('/dashboard')
-  }
+<div className="flex min-h-screen items-center justify-center bg-black">
 
-  return (
+<div className="w-full max-w-md rounded-xl bg-neutral-900 p-8 shadow-xl">
 
-    <div className="flex min-h-screen items-center justify-center bg-black">
+<h1 className="text-3xl font-bold text-white mb-1">
+TradeLife
+</h1>
 
-      <div className="w-full max-w-md rounded-xl bg-neutral-900 p-8 shadow-xl">
+<p className="text-neutral-400 mb-6">
+Built for Trades
+</p>
 
-        <h1 className="text-3xl font-bold text-white mb-2">
-          TradeLife
-        </h1>
+<form onSubmit={handleLogin} className="space-y-4">
 
-        <p className="text-neutral-400 mb-6">
-          Built for Trades
-        </p>
+<input
+type="email"
+placeholder="Email"
+required
+value={email}
+onChange={(e)=>setEmail(e.target.value)}
+className="w-full rounded-lg bg-neutral-800 p-3 text-white"
+/>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+<input
+type="password"
+placeholder="Password"
+required
+value={password}
+onChange={(e)=>setPassword(e.target.value)}
+className="w-full rounded-lg bg-neutral-800 p-3 text-white"
+/>
 
-          <input
-            type="email"
-            placeholder="Email"
-            required
-            value={email}
-            onChange={(e)=>setEmail(e.target.value)}
-            className="w-full rounded-lg bg-neutral-800 p-3 text-white"
-          />
+<button
+type="submit"
+disabled={loading}
+className="w-full rounded-lg bg-blue-600 p-3 font-semibold text-white"
+>
 
-          <input
-            type="password"
-            placeholder="Password"
-            required
-            value={password}
-            onChange={(e)=>setPassword(e.target.value)}
-            className="w-full rounded-lg bg-neutral-800 p-3 text-white"
-          />
+{loading ? "Signing in..." : "Sign In"}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-blue-600 p-3 font-semibold text-white"
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
+</button>
 
-        </form>
+</form>
 
-        {error && (
-          <p className="mt-4 text-red-500 text-sm">
-            {error}
-          </p>
-        )}
+{error && (
+<p className="text-red-500 text-sm mt-4">{error}</p>
+)}
 
-        <div className="mt-6 flex justify-between text-sm text-neutral-400">
+<div className="flex justify-between text-sm text-neutral-400 mt-6">
 
-          <Link href="/signup">Sign up</Link>
-          <Link href="/forgot-password">Forgot password</Link>
+<Link href="/signup">
+Sign up
+</Link>
 
-        </div>
+<Link href="/forgot-password">
+Forgot password
+</Link>
 
-      </div>
+</div>
 
-    </div>
+</div>
 
-  )
+</div>
+
+)
+
 }
