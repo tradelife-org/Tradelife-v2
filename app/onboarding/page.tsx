@@ -1,97 +1,45 @@
-'use client'
+const handleCreateOrganisation = async () => {
+  if (!businessName) return
 
-import { useState } from "react"
-import { supabase } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
+  setLoading(true)
 
-export default function OnboardingPage() {
+  const { data: userData } = await supabase.auth.getUser()
 
-  const router = useRouter()
+  const user = userData?.user
 
-  const [businessName, setBusinessName] = useState("")
-  const [loading, setLoading] = useState(false)
-
-  async function handleContinue() {
-
-    if (!businessName) return
-
-    setLoading(true)
-
-    const { data: userData } = await supabase.auth.getUser()
-
-    const user = userData?.user
-
-    if (!user) return
-
-    // Create organisation
-    const { data: org, error: orgError } = await supabase
-      .from("organisations")
-      .insert({
-        name: businessName
-      })
-      .select()
-      .single()
-router.push('/dashboard');
-
-if (orgError) {
-  return;
-}
-
-
-    if (orgError) {
-      console.error(orgError)
-      setLoading(false)
-      return
-    }
-
-    // Attach user to organisation
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .update({
-        org_id: org.id
-      })
-      .eq("id", user.id)
-
-    if (profileError) {
-      console.error(profileError)
-      setLoading(false)
-      return
-    }
-
-    router.push("/dashboard")
+  if (!user) {
+    setLoading(false)
+    return
   }
 
-  return (
+  const { data: org, error: orgError } = await supabase
+    .from("organisations")
+    .insert({
+      name: businessName
+    })
+    .select()
+    .single()
 
-    <div className="flex min-h-screen items-center justify-center bg-black">
+  if (orgError) {
+    console.error("Org creation failed:", orgError)
+    setLoading(false)
+    return
+  }
 
-      <div className="w-96 rounded-xl bg-zinc-900 p-8 shadow-xl">
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .update({
+      org_id: org.id,
+      active_org_id: org.id,
+      onboarding_completed: true
+    })
+    .eq("id", user.id)
 
-        <h1 className="text-2xl font-bold text-white mb-4">
-          Welcome to TradeLife
-        </h1>
+  if (profileError) {
+    console.error("Profile update failed:", profileError)
+    setLoading(false)
+    return
+  }
 
-        <p className="text-zinc-400 mb-6">
-          Let's set up your business.
-        </p>
-
-        <input
-          className="w-full mb-4 p-3 rounded bg-zinc-800 text-white"
-          placeholder="Business name"
-          value={businessName}
-          onChange={(e)=>setBusinessName(e.target.value)}
-        />
-
-        <button
-          onClick={handleContinue}
-          className="w-full bg-blue-600 text-white p-3 rounded"
-        >
-          {loading ? "Creating..." : "Continue"}
-        </button>
-
-      </div>
-
-    </div>
-
-  )
+  router.push("/dashboard")
 }
