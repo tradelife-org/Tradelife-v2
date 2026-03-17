@@ -103,6 +103,16 @@ export async function createInvoiceAction(data: {
     })
   }
 
+  // 6. Record RECOGNISED_REVENUE in Ledger
+  await supabase.from('job_wallet_ledger').insert({
+    org_id: profile.org_id,
+    job_id: data.jobId,
+    amount: amountGross,
+    transaction_type: 'CREDIT',
+    category: 'RECOGNISED_REVENUE',
+    description: `Invoice Generated: ${invoiceNumber}`
+  })
+
   revalidatePath('/invoices')
   redirect(`/invoices/${invoice.id}`)
 }
@@ -131,6 +141,17 @@ export async function sendInvoiceAction(invoiceId: string) {
 
 export async function markInvoicePaidAction(invoiceId: string) {
   const supabase = await createServerSupabaseClient()
+  
+  // 1. Fetch Invoice
+  const { data: invoice, error: fetchErr } = await supabase
+    .from('invoices')
+    .select('*')
+    .eq('id', invoiceId)
+    .single()
+
+  if (fetchErr || !invoice) throw new Error('Invoice not found')
+
+  // 2. Update Invoice Status
   const { error } = await supabase
     .from('invoices')
     .update({ 
@@ -140,6 +161,29 @@ export async function markInvoicePaidAction(invoiceId: string) {
     .eq('id', invoiceId)
   
   if (error) throw new Error(error.message)
+
+  // 3. Record REVENUE in Ledger
+  await supabase.from('job_wallet_ledger').insert({
+    org_id: invoice.org_id,
+    job_id: invoice.source_job_id,
+    amount: invoice.amount_gross,
+    transaction_type: 'CREDIT',
+    category: 'REVENUE',
+    description: `Payment Received: ${invoice.invoice_number}`
+  })
+
+  // 4. Payment Protect Placeholder: Service Fee Expense
+  // Assume a 1.5% placeholder service fee
+  const serviceFee = Math.round(invoice.amount_gross * 0.015)
+  await supabase.from('job_wallet_ledger').insert({
+    org_id: invoice.org_id,
+    job_id: invoice.source_job_id,
+    amount: serviceFee,
+    transaction_type: 'DEBIT',
+    category: 'EXPENSE',
+    description: `Payment Protect Service Fee (1.5%) for ${invoice.invoice_number}`
+  })
+
   revalidatePath('/invoices')
   revalidatePath(`/invoices/${invoiceId}`)
 }

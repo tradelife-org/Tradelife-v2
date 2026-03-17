@@ -23,14 +23,43 @@ export async function middleware(req: NextRequest) {
     '/signup'
   ]
 
-  const isPublic = publicRoutes.includes(pathname)
+  const path = request.nextUrl.pathname
 
-  if (!session && !isPublic) {
-    return NextResponse.redirect(new URL('/login', req.url))
+  const isPublicRoute =
+    path === '/' ||
+    path === '/login' ||
+    path === '/signup' ||
+    path === '/forgot-password' ||
+    path === '/reset-password' ||
+    path.startsWith('/view/') ||
+    path.startsWith('/auth/') ||
+    path.startsWith('/api/') ||
+    path.startsWith('/_next/')
+
+  if (!user) {
+    if (!isPublicRoute) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+    return response
   }
 
-  if (session && isPublic) {
-    return NextResponse.redirect(new URL('/dashboard', req.url))
+  const onboardingCompleted = user.user_metadata?.onboarding_completed === true
+
+  if (onboardingCompleted) {
+    if (path === '/onboarding' || path === '/login' || path === '/signup') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard'
+      return NextResponse.redirect(url)
+    }
+  } else {
+    // Not onboarding complete
+    if (path !== '/onboarding' && !path.startsWith('/api/') && !path.startsWith('/auth/') && !path.startsWith('/_next/')) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/onboarding'
+        return NextResponse.redirect(url)
+    }
   }
 
   return res
@@ -38,6 +67,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)'
-  ]
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }

@@ -38,9 +38,14 @@ export default function CreateQuotePage() {
     async function fetchTemplates() {
       try {
         // Using singleton
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data: profile } = await supabase.from('profiles').select('org_id').eq('id', user.id).single()
+
         const { data } = await supabase
           .from('quote_templates')
           .select('*')
+          .eq('org_id', profile?.org_id)
           .order('created_at', { ascending: false })
         if (data) setTemplates(data)
       } catch {
@@ -85,7 +90,9 @@ export default function CreateQuotePage() {
       setSaveResult({ success: true, message: `Saved! Quote ID: ${result.quoteId?.slice(0, 8)}...` })
       // Refresh templates
       // Using singleton
-      const { data } = await supabase.from('quote_templates').select('*').order('created_at', { ascending: false })
+      const { data: { user } } = await supabase.auth.getUser()
+      const { data: profile } = await supabase.from('profiles').select('org_id').eq('id', user?.id).single()
+      const { data } = await supabase.from('quote_templates').select('*').eq('org_id', profile?.org_id).order('created_at', { ascending: false })
       if (data) setTemplates(data)
     } else {
       setSaveResult({ success: false, message: result.error || 'Save failed' })

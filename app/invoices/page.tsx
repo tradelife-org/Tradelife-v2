@@ -6,10 +6,14 @@ import { Plus, FileText, CheckCircle, Clock, AlertTriangle } from 'lucide-react'
 
 export default async function InvoicesPage() {
   const supabase = await createServerSupabaseClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data: profile } = await supabase.from('profiles').select('org_id').eq('id', user.id).single()
   
   const { data: invoices } = await supabase
     .from('invoices')
     .select('*, clients(name)')
+    .eq('org_id', profile?.org_id)
     .order('created_at', { ascending: false })
 
   const formatPence = (p: number) => (p / 100).toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })

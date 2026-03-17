@@ -17,10 +17,11 @@ export default function OnboardingPage() {
 
     const { data: userData } = await supabase.auth.getUser()
 
-    const user = userData?.user
-
-    if (!user) {
-      alert("No user session")
+  // Step 3: Confirmation & Save
+  const handleSave = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault()
+    if (!companyName) {
+      setError('Company name is required')
       return
     }
 
@@ -90,6 +91,39 @@ export default function OnboardingPage() {
           {loading ? "Creating..." : "Continue"}
         </button>
 
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setStep(1)
+                  }}
+                  className="flex-1 h-11 px-4 border border-slate-200 text-slate-600 font-semibold rounded-xl hover:bg-slate-50 transition-colors"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="flex-[2] h-11 px-4 bg-blueprint text-white font-semibold rounded-xl hover:bg-blueprint-700 transition-colors shadow-lg shadow-blueprint/20 flex items-center justify-center gap-2"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      Complete Setup
+                      <CheckCircle className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
     </div>

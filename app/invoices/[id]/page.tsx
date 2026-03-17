@@ -6,6 +6,9 @@ import { ArrowLeft, Download, FileText } from 'lucide-react'
 
 export default async function InvoiceDetailPage({ params }: { params: { id: string } }) {
   const supabase = await createServerSupabaseClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data: profile } = await supabase.from('profiles').select('org_id').eq('id', user.id).single()
   
   const { data: invoice } = await supabase
     .from('invoices')
@@ -16,6 +19,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
       invoice_line_items ( * )
     `)
     .eq('id', params.id)
+    .eq('org_id', profile?.org_id)
     .single()
 
   if (!invoice) notFound()

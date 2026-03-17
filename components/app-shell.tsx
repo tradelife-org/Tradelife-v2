@@ -13,8 +13,10 @@ import NotificationBell from '@/components/notification-bell'
 
 // ADDED IMPORT REVIEW LINK FOR ONBOARDING
 const NAV_ITEMS = [
+  { href: '/dashboard', label: 'Dashboard', icon: BarChart2 },
   { href: '/quotes', label: 'Quotes', icon: FileText },
   { href: '/jobs', label: 'Jobs', icon: Briefcase },
+  { href: '/invoices', label: 'Invoices', icon: FileText },
   { href: '/calendar', label: 'Schedule', icon: Calendar },
   { href: '/finance', label: 'Finance', icon: BarChart2 },
   { href: '/analytics', label: 'Growth', icon: TrendingUp },
@@ -28,6 +30,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [userEmail, setUserEmail] = React.useState<string | null>(null)
 
   React.useEffect(() => {
+    fetch('/api/bootstrap').catch(console.error)
     supabase.auth.getUser().then(({ data: { user } }: any) => {
       if (user) setUserEmail(user.email ?? null)
     })
@@ -88,6 +91,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <PlusCircle className="w-4 h-4" />
               New Quote
             </Link>
+
+            <div className="hidden sm:flex items-center gap-2 ml-2">
+              <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 font-bold text-slate-600 text-xs">
+                {userEmail ? userEmail.charAt(0).toUpperCase() : 'U'}
+              </div>
+            </div>
+
             <button
               onClick={handleSignOut}
               className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"

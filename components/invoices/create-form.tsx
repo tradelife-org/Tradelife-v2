@@ -1,14 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createInvoiceAction } from '@/lib/actions/invoices'
 import { GlassPanel } from '@/components/ui/glass-panel'
 import { ArrowRight, Loader2 } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 
 export default function CreateInvoiceForm({ jobs }: { jobs: any[] }) {
+  const searchParams = useSearchParams()
+  const initialJobId = searchParams.get('jobId') || ''
+
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
-    jobId: '',
+    jobId: initialJobId,
     type: 'DEPOSIT' as 'DEPOSIT' | 'INTERIM' | 'FINAL',
     depositPercentage: 25,
     dueDate: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]

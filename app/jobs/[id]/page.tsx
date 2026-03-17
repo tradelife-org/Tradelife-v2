@@ -43,7 +43,10 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
   React.useEffect(() => {
     async function fetchJob() {
       // Using singleton
-      
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data: profile } = await supabase.from('profiles').select('org_id').eq('id', user.id).single()
+
       const { data, error } = await supabase
         .from('jobs')
         .select(`
@@ -53,6 +56,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           job_timeline (*)
         `)
         .eq('id', params.id)
+        .eq('org_id', profile?.org_id)
         .single()
       
       if (error) {
@@ -117,7 +121,17 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           </div>
           
           {/* Phase 18: Comms Actions */}
-          <JobCommsActions jobId={job.id} />
+          <div className="flex items-center gap-2">
+            <JobCommsActions jobId={job.id} />
+            {job.status === 'COMPLETED' && (
+              <Link
+                href={`/invoices/create?jobId=${job.id}`}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-xl hover:bg-green-700 transition-colors shadow-sm"
+              >
+                Generate Invoice
+              </Link>
+            )}
+          </div>
         </div>
       </div>
 

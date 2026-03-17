@@ -10,6 +10,10 @@ interface CommandCenterShellProps {
 }
 
 export function CommandCenterShell({ children }: CommandCenterShellProps) {
+  React.useEffect(() => {
+    fetch('/api/bootstrap').catch(console.error)
+  }, [])
+
   return (
     <div className="min-h-screen bg-transparent flex flex-col font-sans">
       {/* Top Bar */}
