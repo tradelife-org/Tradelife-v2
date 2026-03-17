@@ -1,8 +1,8 @@
 'use client'
+import { supabase } from "@/lib/supabase/client"
 
 import * as React from 'react'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase/client'
 import {
   FileText, Briefcase, Settings, LogOut,
   PlusCircle, Menu, X, ChevronRight,

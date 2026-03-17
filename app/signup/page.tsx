@@ -1,52 +1,31 @@
 'use client'
 
-import * as React from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
-import { ensureOrgAndProfile } from '@/lib/actions/auth'
-import { getAuthCallbackUrl } from '@/lib/utils/url'
-import { UserPlus, Mail, Lock, User, ArrowRight } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"
 
 export default function SignupPage() {
-  const router = useRouter()
-  const [fullName, setFullName] = React.useState('')
-  const [email, setEmail] = React.useState('')
-  const [password, setPassword] = React.useState('')
-  const [error, setError] = React.useState('')
-  const [loading, setLoading] = React.useState(false)
-  const [success, setSuccess] = React.useState(false)
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
+  const router = useRouter()
+
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function handleSignup() {
+
     setLoading(true)
 
-    // Using singleton
     const { error } = await supabase.auth.signUp({
       email,
-      password,
-      options: {
-        data: { full_name: fullName },
-        emailRedirectTo: getAuthCallbackUrl(),
-      },
+      password
     })
 
-    if (error) {
-      setError(error.message)
-      setLoading(false)
-    } else {
-      // Auto-seed org + profile (safety net if DB trigger not applied)
-      const { data } = await supabase.auth.getUser()
-      if (data.user) {
-        await ensureOrgAndProfile(data.user.id, email, fullName)
-      }
-      setSuccess(true)
-      setLoading(false)
+    if (!error) {
+      router.push('/onboarding')
     }
-  }
 
   if (success) {
     return (

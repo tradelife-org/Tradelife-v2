@@ -1,7 +1,7 @@
 'use client'
+import { supabase } from "@/lib/supabase/client"
 
 import * as React from 'react'
-import { supabase } from '@/lib/supabase/client'
 import {
   Wallet, TrendingUp, TrendingDown, Clock,
   DollarSign, CheckCircle

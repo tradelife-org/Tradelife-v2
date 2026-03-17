@@ -1,10 +1,10 @@
 'use client'
+import { supabase } from "@/lib/supabase/client"
 
 import * as React from 'react'
 import { Plus, Clock, CheckCircle, Loader2, Play } from 'lucide-react'
 import { logSmallWorksAction, approveVariationAction } from '@/lib/actions/variations'
 import { formatCurrency } from '@/lib/actions/quotes'
-import { supabase } from '@/lib/supabase/client'
 
 interface Variation {
   id: string

@@ -4,25 +4,23 @@ import { useState, useEffect } from 'react'
 import { GlassPanel } from '@/components/ui/glass-panel'
 import { X, Calendar, DollarSign, FileText, MessageSquare, Sun } from 'lucide-react'
 
-export default function MorningBriefModal() {
+export default function MorningBriefModal({ brief }: { brief: any }) {
   const [isOpen, setIsOpen] = useState(false)
-  const [data, setData] = useState<any>(null)
-
+  
   useEffect(() => {
     // Check if seen today
     const seen = localStorage.getItem('morningBriefSeen')
     const today = new Date().toDateString()
     
-    if (seen !== today) {
-      fetch('/api/brief').then(res => res.json()).then(json => {
-        setData(json)
-        setIsOpen(true)
-        localStorage.setItem('morningBriefSeen', today)
-      })
+    if (seen !== today && brief) {
+      setIsOpen(true)
+      localStorage.setItem('morningBriefSeen', today)
     }
-  }, [])
+  }, [brief])
 
-  if (!isOpen || !data) return null
+  if (!isOpen || !brief) return null
+
+  const data = brief
 
   const formatPence = (p: number) => (p / 100).toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })
 
@@ -54,7 +52,7 @@ export default function MorningBriefModal() {
                 <DollarSign className="w-4 h-4" />
                 <span className="text-xs font-bold uppercase tracking-wider">Cash Position</span>
               </div>
-              <p className="text-2xl font-mono font-bold">{formatPence(data.balance)}</p>
+              <p className="text-2xl font-mono font-bold">{formatPence(data.balance || 0)}</p>
             </div>
             
             <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
@@ -62,7 +60,7 @@ export default function MorningBriefModal() {
                 <FileText className="w-4 h-4" />
                 <span className="text-xs font-bold uppercase tracking-wider">Drafts Pending</span>
               </div>
-              <p className="text-2xl font-mono font-bold">{data.draftCount}</p>
+              <p className="text-2xl font-mono font-bold">{data.draftCount || 0}</p>
             </div>
 
             <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
@@ -70,7 +68,7 @@ export default function MorningBriefModal() {
                 <MessageSquare className="w-4 h-4" />
                 <span className="text-xs font-bold uppercase tracking-wider">Unread Messages</span>
               </div>
-              <p className="text-2xl font-mono font-bold">{data.unreadCount}</p>
+              <p className="text-2xl font-mono font-bold">{data.unreadCount || 0}</p>
             </div>
           </div>
 
@@ -80,8 +78,8 @@ export default function MorningBriefModal() {
               Upcoming Schedule
             </h3>
             <div className="space-y-3">
-              {data.bookings.length === 0 && <p className="text-white/40 italic text-sm">No bookings this week.</p>}
-              {data.bookings.map((booking: any) => (
+              {(!data.bookings || data.bookings.length === 0) && <p className="text-white/40 italic text-sm">No bookings this week.</p>}
+              {data.bookings && data.bookings.map((booking: any) => (
                 <div key={booking.id} className="flex items-center gap-4 p-3 bg-white/5 border border-white/5 rounded-lg">
                   <div className="w-12 text-center border-r border-white/10 pr-4">
                     <span className="block text-xs text-white/60 font-bold uppercase">{new Date(booking.start_time).toLocaleDateString(undefined, { weekday: 'short' })}</span>

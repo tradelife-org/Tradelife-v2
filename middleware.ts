@@ -2,39 +2,26 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
+export async function middleware(req: NextRequest) {
+
+  const res = NextResponse.next()
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet: any[]) {
-          cookiesToSet.forEach(({ name, value }: any) => request.cookies.set(name, value))
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          cookiesToSet.forEach(({ name, value, options }: any) =>
-            response.cookies.set(name, value, options)
-          )
-        },
-      },
-    }
+    { cookies: { get: (name: string) => req.cookies.get(name)?.value } }
   )
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { session }
+  } = await supabase.auth.getSession()
+
+  const pathname = req.nextUrl.pathname
+
+  const publicRoutes = [
+    '/login',
+    '/signup'
+  ]
 
   const path = request.nextUrl.pathname
 
@@ -75,7 +62,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return response
+  return res
 }
 
 export const config = {

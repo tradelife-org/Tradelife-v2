@@ -1,9 +1,11 @@
 'use client'
+import { supabase } from "@/lib/supabase/client"
+
 
 import { Bell } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase/client'
+
 
 export default function NotificationBell() {
   const [count, setCount] = useState(0)

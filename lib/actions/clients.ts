@@ -14,7 +14,7 @@ const clientSchema = z.object({
 
 export type ClientInput = z.infer<typeof clientSchema>
 
-export async function createClient(data: ClientInput) {
+export async function supabase(data: ClientInput) {
   const supabase = await createServerSupabaseClient()
   
   const { data: { user } } = await supabase.auth.getUser()
