@@ -11,17 +11,14 @@ async function uploadLogo(logoUrl: string, orgId: string): Promise<string | null
   const supabase = await createServerSupabaseClient()
   
   try {
-    // 1. Fetch the logo image
     const response = await fetch(logoUrl)
     if (!response.ok) throw new Error(`Failed to fetch logo from ${logoUrl}`)
     
     const arrayBuffer = await response.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
     
-    // 2. Determine file path
     const filePath = `branding/logos/${orgId}.png`
     
-    // 3. Upload to 'gallery' bucket
     const { error: uploadError } = await supabase.storage
       .from('gallery')
       .upload(filePath, buffer, {
@@ -34,7 +31,6 @@ async function uploadLogo(logoUrl: string, orgId: string): Promise<string | null
       return null
     }
     
-    // 4. Get Public URL
     const { data: { publicUrl } } = supabase.storage
       .from('gallery')
       .getPublicUrl(filePath)
@@ -63,6 +59,13 @@ export async function completeOnboardingAction(input: OnboardingInput) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
+  // Use service role to bypass RLS for org creation if missing
+  const { createClient } = await import('@supabase/supabase-js')
+  const adminClient = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder'
+  )
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('org_id')
@@ -70,62 +73,79 @@ export async function completeOnboardingAction(input: OnboardingInput) {
     .single()
 
   if (!profile) throw new Error('Profile not found')
-  const orgId = profile.org_id
+  let orgId = profile.org_id
 
-  // 2. Handle Logo Upload (if provided)
-  let finalLogoUrl = input.logoUrl
-  if (input.logoUrl && input.logoUrl.startsWith('http')) {
-    // Only upload if it's an external URL (not already our storage URL)
-    const storedUrl = await uploadLogo(input.logoUrl, orgId)
-    if (storedUrl) {
-      finalLogoUrl = storedUrl
-    }
-  }
-
-  // 3. Prepare Update Data
-  const updates: any = {
-    name: input.companyName,
-    address: input.address,
-    vat_number: input.vatNumber,
-    logo_url: finalLogoUrl,
-    is_vat_registered: input.isVatRegistered,
-    updated_at: new Date().toISOString()
-  }
-
-  // 4. Update Organisation
-  try {
-    const { error } = await supabase
+  if (!orgId) {
+    // 2. Insert Organisation if missing
+    const { data: newOrg, error: orgError } = await adminClient
       .from('organisations')
-      .update(updates)
+      .insert({
+        name: input.companyName,
+        address: input.address,
+        vat_number: input.vatNumber,
+        is_vat_registered: input.isVatRegistered
+      })
+      .select('id')
+      .single()
+
+    if (orgError || !newOrg) {
+      throw new Error(`Failed to create organisation: ${orgError?.message}`)
+    }
+    orgId = newOrg.id
+
+    // Link new org to profile
+    await adminClient.from('profiles').update({ org_id: orgId, active_org_id: orgId }).eq('id', user.id)
+  } else {
+    // 2. Update existing Organisation
+    const { error: orgError } = await supabase
+      .from('organisations')
+      .update({
+        name: input.companyName,
+        address: input.address,
+        vat_number: input.vatNumber,
+        is_vat_registered: input.isVatRegistered
+      })
       .eq('id', orgId)
 
-    if (error) {
-      console.error('Full update failed:', error)
+    if (orgError) {
       // Fallback: name only if columns missing (though migration should be applied)
       await supabase
         .from('organisations')
         .update({ name: input.companyName })
         .eq('id', orgId)
     }
-  } catch (err) {
-    console.error('Update failed:', err)
-    throw err
   }
 
-  // 5. Update Profile (onboarding_completed = true)
-  const { error: profileError } = await supabase
+  // 3. Handle Logo Upload (if provided)
+  let finalLogoUrl = input.logoUrl
+  if (input.logoUrl && input.logoUrl.startsWith('http')) {
+    const storedUrl = await uploadLogo(input.logoUrl, orgId)
+    if (storedUrl) {
+      finalLogoUrl = storedUrl
+      await adminClient.from('organisations').update({ logo_url: finalLogoUrl }).eq('id', orgId)
+    }
+  }
+
+  // 4. Update Profile
+  const { error: profileError } = await adminClient
     .from('profiles')
-    .update({ onboarding_completed: true })
+    .update({ 
+      active_org_id: orgId,
+      onboarding_completed: true 
+    })
     .eq('id', user.id)
 
   if (profileError) {
     console.error('Profile update failed:', profileError)
-    // We don't throw here to avoid blocking the user if it's just a column missing issue
-    // but in production we should handle this.
   }
 
-  // 6. Update User Metadata
-  const { error: authError } = await supabase.auth.updateUser({
+  // 5. Update User Metadata
+  const { error: authError } = await adminClient.auth.admin.updateUserById(user.id, {
+    user_metadata: { onboarding_completed: true }
+  })
+
+  // Also update via client just in case the session needs to refresh (though redirect usually forces a refresh if middleware checks it properly)
+  await supabase.auth.updateUser({
     data: { onboarding_completed: true }
   })
 

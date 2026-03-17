@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { LogIn, Mail, Lock, ArrowRight } from 'lucide-react'
 
+import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"
+
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = React.useState('')
@@ -34,7 +36,8 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 relative z-10">
+    <SceneLayerV3 scene="remembrance">
+      <main className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 relative z-10">
       <div className="w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -116,5 +119,6 @@ export default function LoginPage() {
         </p>
       </div>
     </main>
+    </SceneLayerV3>
   )
 }

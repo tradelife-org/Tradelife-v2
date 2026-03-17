@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { Mail, ArrowRight, CheckCircle, Loader2 } from 'lucide-react'
 import { getSiteUrl } from '@/lib/utils/url'
+import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = React.useState('')
@@ -34,7 +35,8 @@ export default function ForgotPasswordPage() {
 
   if (success) {
     return (
-      <main className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 relative z-10">
+      <SceneLayerV3 scene="remembrance">
+        <main className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 relative z-10">
         <div className="w-full max-w-md space-y-8 bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 text-center">
           <CheckCircle className="w-12 h-12 text-green-400 mx-auto" />
           <h2 className="text-2xl font-bold text-white">Check your email</h2>
@@ -45,12 +47,14 @@ export default function ForgotPasswordPage() {
             Return to login
           </Link>
         </div>
-      </main>
+        </main>
+      </SceneLayerV3>
     )
   }
 
   return (
-    <main className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 relative z-10">
+    <SceneLayerV3 scene="remembrance">
+      <main className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 relative z-10">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-heading font-black text-white tracking-tight drop-shadow-md">
@@ -98,5 +102,6 @@ export default function ForgotPasswordPage() {
         </p>
       </div>
     </main>
+    </SceneLayerV3>
   )
 }

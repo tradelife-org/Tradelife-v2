@@ -4,6 +4,7 @@ import * as React from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { Lock, Loader2 } from 'lucide-react'
+import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -31,7 +32,8 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <main className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 relative z-10">
+    <SceneLayerV3 scene="remembrance">
+      <main className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 relative z-10">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-heading font-black text-white tracking-tight drop-shadow-md">
@@ -74,5 +76,6 @@ export default function ResetPasswordPage() {
         </form>
       </div>
     </main>
+    </SceneLayerV3>
   )
 }

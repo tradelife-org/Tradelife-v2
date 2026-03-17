@@ -3,7 +3,7 @@ import { VisualEngineProvider } from '@/components/providers/visual-engine-provi
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'TradeLife v2 | Molten Copper Theme',
+  title: 'TradeLife — Business OS for Trades',
   description: 'Quote, Job & Invoice management for tradespeople',
 }
 

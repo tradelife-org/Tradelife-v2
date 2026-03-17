@@ -8,6 +8,8 @@ import { ensureOrgAndProfile } from '@/lib/actions/auth'
 import { getAuthCallbackUrl } from '@/lib/utils/url'
 import { UserPlus, Mail, Lock, User, ArrowRight } from 'lucide-react'
 
+import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"
+
 export default function SignupPage() {
   const router = useRouter()
   const [fullName, setFullName] = React.useState('')
@@ -48,7 +50,8 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <main className="min-h-screen w-full flex items-center justify-center px-4 py-12 relative z-10">
+      <SceneLayerV3 scene="remembrance">
+        <main className="min-h-screen w-full flex items-center justify-center px-4 py-12 relative z-10">
         <div className="w-full max-w-md text-center space-y-6 bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20">
             <Mail className="w-7 h-7 text-green-400" />
@@ -67,12 +70,14 @@ export default function SignupPage() {
             Back to login <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
-      </main>
+        </main>
+      </SceneLayerV3>
     )
   }
 
   return (
-    <main className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 relative z-10">
+    <SceneLayerV3 scene="remembrance">
+      <main className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-12 relative z-10">
       <div className="w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -167,5 +172,6 @@ export default function SignupPage() {
         </p>
       </div>
     </main>
+    </SceneLayerV3>
   )
 }
