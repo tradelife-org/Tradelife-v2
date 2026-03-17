@@ -1,6 +1,6 @@
 'use server'
 
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createServerSupabaseClient, adminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 /**
@@ -59,13 +59,6 @@ export async function completeOnboardingAction(input: OnboardingInput) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
-  // Use service role to bypass RLS for org creation if missing
-  const { createClient } = await import('@supabase/supabase-js')
-  const adminClient = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder'
-  )
-
   const { data: profile } = await supabase
     .from('profiles')
     .select('org_id')
@@ -77,24 +70,25 @@ export async function completeOnboardingAction(input: OnboardingInput) {
 
   if (!orgId) {
     // 2. Insert Organisation if missing
+    // STEP 3 - required fields only
     const { data: newOrg, error: orgError } = await adminClient
       .from('organisations')
-      .insert({
-        name: input.companyName,
-        address: input.address,
-        vat_number: input.vatNumber,
-        is_vat_registered: input.isVatRegistered
-      })
-      .select('id')
+      .insert([{ name: input.companyName }])
+      .select()
       .single()
 
     if (orgError || !newOrg) {
-      throw new Error(`Failed to create organisation: ${orgError?.message}`)
+      console.error('Organisation insert failed:', orgError)
+      throw new Error(`Org creation failed: ${orgError?.message}`)
     }
     orgId = newOrg.id
 
-    // Link new org to profile
-    await adminClient.from('profiles').update({ org_id: orgId, active_org_id: orgId }).eq('id', user.id)
+    // Update with optional fields
+    await adminClient.from('organisations').update({
+      address: input.address,
+      vat_number: input.vatNumber,
+      is_vat_registered: input.isVatRegistered
+    }).eq('id', orgId)
   } else {
     // 2. Update existing Organisation
     const { error: orgError } = await supabase
@@ -108,6 +102,7 @@ export async function completeOnboardingAction(input: OnboardingInput) {
       .eq('id', orgId)
 
     if (orgError) {
+      console.error('Org update failed:', orgError)
       // Fallback: name only if columns missing (though migration should be applied)
       await supabase
         .from('organisations')
@@ -130,6 +125,7 @@ export async function completeOnboardingAction(input: OnboardingInput) {
   const { error: profileError } = await adminClient
     .from('profiles')
     .update({ 
+      org_id: orgId,
       active_org_id: orgId,
       onboarding_completed: true 
     })
@@ -137,6 +133,7 @@ export async function completeOnboardingAction(input: OnboardingInput) {
 
   if (profileError) {
     console.error('Profile update failed:', profileError)
+    throw new Error(`Profile update failed: ${profileError.message}`)
   }
 
   // 5. Update User Metadata
