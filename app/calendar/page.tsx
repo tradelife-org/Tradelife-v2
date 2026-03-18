@@ -1,4 +1,3 @@
-const supabase = getSupabaseServerClient()
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import JobCalendarClient from '@/components/calendar/job-calendar'
 import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"

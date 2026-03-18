@@ -1,4 +1,3 @@
-const supabase = getSupabaseServerClient()
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import CreateInvoiceForm from '@/components/invoices/create-form'
 import { Suspense } from 'react'
