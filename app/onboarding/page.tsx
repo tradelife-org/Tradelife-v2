@@ -1,91 +1,95 @@
 'use client'
 
-import { useState } from "react"
-import { supabase } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase/client'
 
 export default function OnboardingPage() {
-
   const router = useRouter()
 
-  const [businessName, setBusinessName] = useState("")
+  const [companyName, setCompanyName] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  async function handleContinue() {
-
-    if (!businessName) return
-
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault()
     setLoading(true)
+    setError(null)
 
-    const { data: userData } = await supabase.auth.getUser()
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser()
 
-    const user = userData?.user
+      if (userError || !user) {
+        throw new Error('User not found')
+      }
 
-    if (!user) return
+      // 1. Create organisation
+      const { data: org, error: orgError } = await supabase
+        .from('organisations')
+        .insert([{ name: companyName }])
+        .select()
+        .single()
 
-    // Create organisation
-    const { data: org, error: orgError } = await supabase
-      .from("organisations")
-      .insert({
-        name: businessName
-      })
-      .select()
-      .single()
+      if (orgError || !org) {
+        throw new Error(orgError?.message || 'Org creation failed')
+      }
 
-    if (orgError) {
-      console.error(orgError)
+      // 2. Update profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          org_id: org.id,
+          active_org_id: org.id,
+          onboarding_completed: true,
+        })
+        .eq('id', user.id)
+
+      if (profileError) {
+        throw new Error(profileError.message)
+      }
+
+      // 3. Redirect
+      router.push('/dashboard')
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong')
+    } finally {
       setLoading(false)
-      return
     }
-
-    // Attach user to organisation
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .update({
-        org_id: org.id
-      })
-      .eq("id", user.id)
-
-    if (profileError) {
-      console.error(profileError)
-      setLoading(false)
-      return
-    }
-
-    router.push("/dashboard")
   }
 
   return (
-
     <div className="flex min-h-screen items-center justify-center bg-black">
+      <div className="w-96 rounded-xl bg-neutral-900 p-8 text-white shadow-xl">
+        <h1 className="mb-6 text-2xl font-bold">Create your organisation</h1>
 
-      <div className="w-96 rounded-xl bg-zinc-900 p-8 shadow-xl">
+        <form onSubmit={handleCreate} className="space-y-4">
+          <input
+            type="text"
+            placeholder="Company name"
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+            className="w-full rounded-md bg-neutral-800 px-4 py-2 text-white outline-none"
+            required
+          />
 
-        <h1 className="text-2xl font-bold text-white mb-4">
-          Welcome to TradeLife
-        </h1>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-md bg-amber-500 py-2 font-semibold text-black hover:bg-amber-400 disabled:opacity-50"
+          >
+            {loading ? 'Creating...' : 'Create'}
+          </button>
+        </form>
 
-        <p className="text-zinc-400 mb-6">
-          Let's set up your business.
-        </p>
-
-        <input
-          className="w-full mb-4 p-3 rounded bg-zinc-800 text-white"
-          placeholder="Business name"
-          value={businessName}
-          onChange={(e)=>setBusinessName(e.target.value)}
-        />
-
-        <button
-          onClick={handleContinue}
-          className="w-full bg-blue-600 text-white p-3 rounded"
-        >
-          {loading ? "Creating..." : "Continue"}
-        </button>
-
+        {error && (
+          <p className="mt-4 text-sm text-red-400">
+            {error}
+          </p>
+        )}
       </div>
-
     </div>
-
   )
 }
