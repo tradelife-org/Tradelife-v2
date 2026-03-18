@@ -154,3 +154,7 @@ export default function SignupPage() {
     </SceneLayerV3>
   )
 }
+
+  </SceneLayerV3>
+)
+}
