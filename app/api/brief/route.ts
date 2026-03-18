@@ -1,3 +1,4 @@
+const supabase = getSupabaseServerClient()
 import { createClient } from "@/lib/supabase/server"
 import { getMorningBriefData } from "@/lib/actions/brief"
 

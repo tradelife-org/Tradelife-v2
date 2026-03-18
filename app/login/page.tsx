@@ -1,9 +1,10 @@
+const supabase = getSupabaseServerClient()
 'use client'
 
 import * as React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase/client'
+import { getSupabaseServerClient } from "../lib/supabase/server-safe"
 import { LogIn, Mail, Lock, ArrowRight } from 'lucide-react'
 
 import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"

@@ -1,3 +1,4 @@
+const supabase = getSupabaseServerClient()
 import { getPortalContext } from '@/lib/actions/portal'
 import PortalMessaging from '@/components/portal/messaging'
 import PortalTimeline from '@/components/portal/timeline'

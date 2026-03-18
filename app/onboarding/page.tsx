@@ -1,8 +1,9 @@
+const supabase = getSupabaseServerClient()
 'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase/client'
+import { getSupabaseServerClient } from "../lib/supabase/server-safe"
 
 export default function OnboardingPage() {
   const router = useRouter()

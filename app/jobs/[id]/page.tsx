@@ -1,6 +1,7 @@
+const supabase = getSupabaseServerClient()
 import * as React from 'react'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabase/client'
+import { getSupabaseServerClient } from "../lib/supabase/server-safe"
 import {
   ArrowLeft, Briefcase, Clock, MapPin, 
   Calendar, CreditCard

@@ -1,3 +1,4 @@
+const supabase = getSupabaseServerClient()
 'use client'
 
 import * as React from 'react'
@@ -7,7 +8,7 @@ import { QuoteSectionCard } from '@/components/quote-section-card'
 import { TotalsPanel } from '@/components/totals-panel'
 import { useQuoteCalculator } from '@/hooks/use-quote-calculator'
 import { saveQuoteDraft } from '@/lib/actions/save-quote'
-import { supabase } from '@/lib/supabase/client'
+import { getSupabaseServerClient } from "../lib/supabase/server-safe"
 
 const VAT_RATE = 2000
 

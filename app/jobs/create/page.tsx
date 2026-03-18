@@ -1,3 +1,4 @@
+const supabase = getSupabaseServerClient()
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"

@@ -1,3 +1,4 @@
+const supabase = getSupabaseServerClient()
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { GlassPanel } from '@/components/ui/glass-panel'
 import { sendQuote } from '@/lib/actions/quote-lifecycle'
