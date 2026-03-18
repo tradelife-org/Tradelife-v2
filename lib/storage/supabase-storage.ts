@@ -11,7 +11,7 @@
 //   - "gallery"  (public)  — before/after job photos
 // ============================================================================
 
-import { supabase } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/server-safe'
 
 // ---------------------------------------------------------------------------
 // Bucket Constants
