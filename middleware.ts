@@ -42,7 +42,7 @@ export async function middleware(req: NextRequest) {
       url.pathname = '/login'
       return NextResponse.redirect(url)
     }
-    return response
+    return NextResponse.next()
   }
 
   const onboardingCompleted = session?.user.session?.user_metadata?.onboarding_completed === true
