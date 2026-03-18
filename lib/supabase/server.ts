@@ -1,63 +1,54 @@
 import { createServerClient } from '@supabase/ssr'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
-export const adminClient = createSupabaseClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { createAdminSupabaseClient } from './admin'
+import { getSupabaseEnv } from './env.server'
 
-export function createClient() {
+function createRequestScopedSupabaseClient() {
   const cookieStore = cookies()
+  const { url, anonKey } = getSupabaseEnv()
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
+  return createServerClient(url, anonKey, {
+    cookies: {
+      get(name: string) {
+        return cookieStore.get(name)?.value
       },
-    }
-  )
+      set(name: string, value: string, options: any) {
+        try {
+          cookieStore.set({ name, value, ...options })
+        } catch {}
+      },
+      remove(name: string, options: any) {
+        try {
+          cookieStore.set({ name, value: '', ...options })
+        } catch {}
+      },
+    },
+  })
 }
 
-// Backward compatibility alias
-export async function createServerSupabaseClient() {
-  const cookieStore = cookies()
+export function createClient() {
+  return createRequestScopedSupabaseClient()
+}
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: any) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            // Handle cookie setting error (e.g., in Server Components)
-          }
-        },
-        remove(name: string, options: any) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            // Handle cookie removal error
-          }
-        },
-      },
-    }
-  )
+export async function createServerSupabaseClient() {
+  return createRequestScopedSupabaseClient()
 }
 
 export function createServiceRoleClient() {
-  const { supabase } = require('@supabase/supabase-js')
-  return supabase(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+  return createAdminSupabaseClient()
 }
+
+export const adminClient = new Proxy({} as SupabaseClient, {
+  get(_target, prop, receiver) {
+    const client = createAdminSupabaseClient() as SupabaseClient
+    const value = Reflect.get(client as object, prop, receiver)
+
+    if (typeof value === 'function') {
+      return value.bind(client)
+    }
+
+    return value
+  },
+})

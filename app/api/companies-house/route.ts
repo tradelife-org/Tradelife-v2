@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
 
 const COMPANIES_HOUSE_API_KEY = process.env.COMPANIES_HOUSE_API_KEY
 const BASE_URL = 'https://api.company-information.service.gov.uk'
