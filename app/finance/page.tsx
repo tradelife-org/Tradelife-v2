@@ -1,4 +1,4 @@
-import { getSupabaseServerClient } from '@/lib/supabase/server-safe'
+import { getSupabaseServerClient } from '../../lib/supabase/server-safe'
 
 export default async function FinancePage() {
   const supabase = getSupabaseServerClient()
