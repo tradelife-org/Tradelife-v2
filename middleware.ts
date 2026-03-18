@@ -23,7 +23,7 @@ export async function middleware(req: NextRequest) {
     '/signup'
   ]
 
-  const path = request.nextUrl.pathname
+  const path = req.nextUrl.pathname
 
   const isPublicRoute =
     path === '/' ||
@@ -38,7 +38,7 @@ export async function middleware(req: NextRequest) {
 
   if (!user) {
     if (!isPublicRoute) {
-      const url = request.nextUrl.clone()
+      const url = req.nextUrl.clone()
       url.pathname = '/login'
       return NextResponse.redirect(url)
     }
@@ -49,14 +49,14 @@ export async function middleware(req: NextRequest) {
 
   if (onboardingCompleted) {
     if (path === '/onboarding' || path === '/login' || path === '/signup') {
-      const url = request.nextUrl.clone()
+      const url = req.nextUrl.clone()
       url.pathname = '/dashboard'
       return NextResponse.redirect(url)
     }
   } else {
     // Not onboarding complete
     if (path !== '/onboarding' && !path.startsWith('/api/') && !path.startsWith('/auth/') && !path.startsWith('/_next/')) {
-        const url = request.nextUrl.clone()
+        const url = req.nextUrl.clone()
         url.pathname = '/onboarding'
         return NextResponse.redirect(url)
     }
