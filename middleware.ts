@@ -45,7 +45,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  const onboardingCompleted = session?.user.session?.user_metadata?.onboarding_completed === true
+  const onboardingCompleted = session?.user?.user_metadata?.onboarding_completed === true
 
   if (onboardingCompleted) {
     if (path === '/onboarding' || path === '/login' || path === '/signup') {
