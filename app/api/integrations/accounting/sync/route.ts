@@ -1,11 +1,29 @@
-import { NextResponse } from 'next/server'
-import { syncAccountingAction } from '@/lib/actions/intake'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
 export async function POST() {
-  try {
-    const result = await syncAccountingAction()
-    return NextResponse.json({ success: true, ...result })
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 })
+  const cookieStore = cookies()
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+      },
+    }
+  )
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  // Placeholder for sync logic
+  return Response.json({ success: true })
 }
