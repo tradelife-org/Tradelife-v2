@@ -36,7 +36,7 @@ export async function middleware(req: NextRequest) {
     path.startsWith('/api/') ||
     path.startsWith('/_next/')
 
-  if (!user) {
+  if (!session?.user) {
     if (!isPublicRoute) {
       const url = req.nextUrl.clone()
       url.pathname = '/login'
@@ -45,7 +45,7 @@ export async function middleware(req: NextRequest) {
     return response
   }
 
-  const onboardingCompleted = user.user_metadata?.onboarding_completed === true
+  const onboardingCompleted = session?.user.session?.user_metadata?.onboarding_completed === true
 
   if (onboardingCompleted) {
     if (path === '/onboarding' || path === '/login' || path === '/signup') {
