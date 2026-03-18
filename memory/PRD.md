@@ -1,33 +1,40 @@
-# Tradelife-v2 — PRD & Task Log
+# PRD
 
 ## Original Problem Statement
-Clone https://github.com/tradelife-org/Tradelife-v2 and fix all build errors caused by merge corruption. Focus on duplicate supabase declarations, duplicate createClient definitions, and broken JSX in onboarding and signup. Do not redesign anything. Make the build pass.
+Perform a full system audit on a Next.js 14 + Supabase App Router application deployed on Vercel to determine the root cause of persistent build failures (`Failed to collect page data`, `supabaseUrl is required`) moving across routes such as `/analytics`, `/calendar`, and `/proposals/[id]`. This is a root cause analysis only, not a bug fix task.
 
-## Architecture
-- **Framework**: Next.js 14 (App Router)
-- **Styling**: Tailwind CSS
-- **Auth/DB**: Supabase (SSR + client)
-- **Integrations**: Stripe, Twilio, Xero, Plaid, OpenAI, Google Gemini
-- **Deploy target**: Vercel
+## Architecture Decisions
+- Treat the issue as a system-level App Router + Supabase architecture failure, not a route-by-route bug.
+- Identify shared failure sources first: Supabase client factories, environment contract, and route rendering policy.
+- Separate request-scoped user Supabase access from service-role/admin access.
+- Keep service-role access out of page module graphs.
+- Define rendering policy by route group/segment instead of patching pages individually.
 
-## What Was Implemented (Jan 2026)
+## What's Implemented
+- Completed full repository audit of Next.js App Router pages, layouts, Supabase helpers, middleware, actions, and Vercel sync script.
+- Identified primary root cause in `lib/supabase/server.ts` and environment mismatch in `scripts/sync-vercel-env.sh`.
+- Mapped direct and indirect page importers that can trigger build-time evaluation failures.
+- Produced system-level fix strategy covering env normalization, client separation, and route architecture.
 
-### Build Fixes — Merge Corruption Cleanup
-1. **`app/api/webhooks/stripe/route.ts`** — Removed duplicate `const supabase` module-level declaration
-2. **`app/api/webhooks/twilio/recording/route.ts`** — Removed duplicate `const supabase` module-level declaration
-3. **`app/api/quotes/accept/route.ts`** — Removed duplicate `const supabase` module-level declaration, moved client creation inside handler
-4. **`lib/supabase/server.ts`** — Renamed import `createClient` → `createSupabaseClient` to avoid collision with exported `createClient()` function; fixed `createServiceRoleClient` to use proper import instead of broken `require`; added placeholder fallbacks to prevent build-time crashes
-5. **`app/onboarding/page.tsx`** — Restored clean version from `.backup` file (merge had broken JSX, undefined variables, unclosed functions)
-6. **`app/signup/page.tsx`** — Reconstructed coherent component from two merged versions; added missing imports (Link, lucide icons), missing state (fullName, success, error), proper function closure
-7. **`middleware.ts`** — Fixed undefined `request`/`user`/`response` variables (replaced with correct `req`/`session?.user`/`res`)
-8. **`components/dashboard/morning-brief.tsx`** — Made `brief` prop optional (component already handled null)
+## Prioritized Backlog
+### P0
+- Remove module-scope Supabase client initialization from `lib/supabase/server.ts`
+- Normalize Supabase env contract to one canonical URL variable across the app and Vercel sync process
+- Split request-scoped SSR client and service-role client into separate server-only modules
+- Refactor protected pages to consume repository/service functions instead of initializing Supabase directly in page entrypoints
 
-### Build Result
-- `next build` passes with exit code 0
-- All 50+ routes compile successfully
-- Only warnings are from xero-node dependency (not actionable)
+### P1
+- Group authenticated routes under a dedicated protected segment/layout with explicit request-time rendering policy
+- Move public token/share flows to isolated public data services or route handlers without importing admin client helpers into page graphs
+- Remove unused imports that pull `lib/supabase/server.ts` into route bundles (for example `app/api/companies-house/route.ts`)
 
-## Backlog
-- P0: Set up real Supabase env vars for runtime connectivity
-- P1: Review middleware.backup.ts for cookie `setAll` handling that may be needed
-- P2: TypeScript strict mode audit (some `any` types throughout)
+### P2
+- Consolidate all Supabase access behind domain repositories (`analytics`, `calendar`, `quotes`, `jobs`, etc.)
+- Add startup/runtime env validation for all required Supabase keys
+- Add CI build check to fail fast on server-only env drift and static-evaluation regressions
+
+## Next Tasks
+1. Create a single audited Supabase environment module.
+2. Split `server.ts` into request client, admin client, and browser client modules.
+3. Refactor protected routes to use the new access layer.
+4. Re-run production build and verify zero `collect page data` failures.
