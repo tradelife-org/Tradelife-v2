@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { GlassPanel } from '@/components/ui/glass-panel'
 import { X, Calendar, DollarSign, FileText, MessageSquare, Sun } from 'lucide-react'
 
-export default function MorningBriefModal({ brief }: { brief: any }) {
+export default function MorningBriefModal({ brief }: { brief?: any }) {
   const [isOpen, setIsOpen] = useState(false)
   
   useEffect(() => {
