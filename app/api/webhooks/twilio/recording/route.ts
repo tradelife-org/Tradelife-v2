@@ -1,21 +1,19 @@
-import { createClient } from "@supabase/supabase-js";
-import { NextResponse } from "next/server";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { createClient } from '@supabase/supabase-js'
 
 export async function POST(req: Request) {
-  try {
-    const formData = await req.formData();
-    const recordingUrl = formData.get("RecordingUrl") as string;
-    const callSid = formData.get("CallSid") as string;
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
 
-    // (optional) store or process recording
+  const formData = await req.formData()
+  const recordingUrl = formData.get('RecordingUrl')
+  const callSid = formData.get('CallSid')
 
-    return NextResponse.json({ success: true });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 400 });
-  }
+  await supabase.from('twilio_recordings').insert({
+    call_sid: callSid,
+    recording_url: recordingUrl,
+  })
+
+  return Response.json({ success: true })
 }
