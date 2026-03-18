@@ -1,6 +1,6 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import ImportReview from '@/components/onboarding/import-review'
-import { AppShell } from '@/components/app-shell'
+import AppShell from '@/components/app-shell'
 
 export default async function ImportReviewPage() {
   const supabase = await createServerSupabaseClient()
