@@ -1,5 +1,4 @@
-const supabase = getSupabaseServerClient()
-import { getSupabaseServerClient } from @/lib/supabase/server-safe'
+import { getSupabaseServerClient } from '@/lib/supabase/server-safe'
 
 export default async function DashboardPage() {
   const supabase = getSupabaseServerClient()

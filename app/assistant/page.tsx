@@ -1,12 +1,15 @@
-const supabase = getSupabaseServerClient()
-import { getSupabaseServerClient } from @/lib/supabase/server-safe'
+import { getSupabaseServerClient } from '@/lib/supabase/server-safe'
 
 export default async function AssistantPage() {
   const supabase = getSupabaseServerClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  if (!user) return <div>Not authenticated</div>
+  if (!user) {
+    return <div>Not authenticated</div>
+  }
 
   return (
     <div>
