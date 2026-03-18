@@ -1,6 +1,7 @@
 'use server'
 
 import { createServerSupabaseClient, adminClient } from '@/lib/supabase/server'
+import { getUserWithOrg } from '@/lib/auth/getUser'
 import { revalidatePath } from 'next/cache'
 
 /**
@@ -52,104 +53,141 @@ interface OnboardingInput {
   isVatRegistered: boolean
 }
 
-export async function completeOnboardingAction(input: OnboardingInput) {
-  const supabase = await createServerSupabaseClient()
-  
-  // 1. Auth & Context
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+async function ensureValidOrganisation(user: any, requestedName: string) {
+  const { org_id } = await getUserWithOrg()
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('org_id')
-    .eq('id', user.id)
+  if (org_id) {
+    return org_id
+  }
+
+  const fallbackName = requestedName || user?.user_metadata?.full_name || user?.email || 'New Org'
+  const { data: newOrg, error: orgError } = await adminClient
+    .from('organisations')
+    .insert({ name: fallbackName })
+    .select('id')
     .single()
 
-  if (!profile) throw new Error('Profile not found')
-  let orgId = profile.org_id
+  if (orgError || !newOrg) {
+    console.error('Organisation guarantee failed:', orgError)
+    return null
+  }
 
-  if (!orgId) {
-    // 2. Insert Organisation if missing
-    // STEP 3 - required fields only
-    const { data: newOrg, error: orgError } = await adminClient
-      .from('organisations')
-      .insert([{ name: input.companyName }])
-      .select()
-      .single()
+  const { error: profileRepairError } = await adminClient
+    .from('profiles')
+    .upsert({
+      id: user.id,
+      org_id: newOrg.id,
+      active_org_id: newOrg.id,
+      full_name: user?.user_metadata?.full_name || user?.user_metadata?.name || null,
+      email: user?.email || null,
+      role: 'owner',
+    }, { onConflict: 'id' })
 
-    if (orgError || !newOrg) {
-      console.error('Organisation insert failed:', orgError)
-      throw new Error(`Org creation failed: ${orgError?.message}`)
+  if (profileRepairError) {
+    console.error('Profile repair after org creation failed:', profileRepairError)
+  }
+
+  return newOrg.id as string
+}
+
+export async function completeOnboardingAction(input: OnboardingInput) {
+  try {
+    const supabase = await createServerSupabaseClient()
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
+    if (userError) {
+      console.error('Onboarding auth fetch failed:', userError)
+      return { success: false, error: 'Unauthorized' }
     }
-    orgId = newOrg.id
 
-    // Update with optional fields
-    await adminClient.from('organisations').update({
-      address: input.address,
-      vat_number: input.vatNumber,
-      is_vat_registered: input.isVatRegistered
-    }).eq('id', orgId)
-  } else {
-    // 2. Update existing Organisation
-    const { error: orgError } = await supabase
+    if (!user) {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    let orgId = await ensureValidOrganisation(user, input.companyName)
+
+    if (!orgId) {
+      return { success: false, error: 'Unable to create organisation' }
+    }
+
+    const { data: existingOrg } = await adminClient
+      .from('organisations')
+      .select('id')
+      .eq('id', orgId)
+      .maybeSingle()
+
+    if (!existingOrg) {
+      orgId = await ensureValidOrganisation(user, input.companyName)
+    }
+
+    if (!orgId) {
+      return { success: false, error: 'Unable to repair organisation' }
+    }
+
+    const { error: orgError } = await adminClient
       .from('organisations')
       .update({
         name: input.companyName,
         address: input.address,
         vat_number: input.vatNumber,
-        is_vat_registered: input.isVatRegistered
+        is_vat_registered: input.isVatRegistered,
       })
       .eq('id', orgId)
 
     if (orgError) {
       console.error('Org update failed:', orgError)
-      // Fallback: name only if columns missing (though migration should be applied)
-      await supabase
+      await adminClient
         .from('organisations')
         .update({ name: input.companyName })
         .eq('id', orgId)
     }
-  }
 
-  // 3. Handle Logo Upload (if provided)
-  let finalLogoUrl = input.logoUrl
-  if (input.logoUrl && input.logoUrl.startsWith('http')) {
-    const storedUrl = await uploadLogo(input.logoUrl, orgId)
-    if (storedUrl) {
-      finalLogoUrl = storedUrl
-      await adminClient.from('organisations').update({ logo_url: finalLogoUrl }).eq('id', orgId)
+    let finalLogoUrl = input.logoUrl
+    if (input.logoUrl && input.logoUrl.startsWith('http')) {
+      const storedUrl = await uploadLogo(input.logoUrl, orgId)
+      if (storedUrl) {
+        finalLogoUrl = storedUrl
+        await adminClient.from('organisations').update({ logo_url: finalLogoUrl }).eq('id', orgId)
+      }
     }
-  }
 
-  // 4. Update Profile
-  const { error: profileError } = await adminClient
-    .from('profiles')
-    .update({ 
-      org_id: orgId,
-      active_org_id: orgId,
-      onboarding_completed: true 
+    const { error: profileError } = await adminClient
+      .from('profiles')
+      .upsert({
+        id: user.id,
+        org_id: orgId,
+        active_org_id: orgId,
+        full_name: user.user_metadata?.full_name || user.user_metadata?.name || null,
+        email: user.email || null,
+        role: 'owner',
+        onboarding_completed: true,
+      }, { onConflict: 'id' })
+
+    if (profileError) {
+      console.error('Profile update failed:', profileError)
+      return { success: false, error: 'Unable to update profile' }
+    }
+
+    const { error: authError } = await adminClient.auth.admin.updateUserById(user.id, {
+      user_metadata: { onboarding_completed: true }
     })
-    .eq('id', user.id)
 
-  if (profileError) {
-    console.error('Profile update failed:', profileError)
-    throw new Error(`Profile update failed: ${profileError.message}`)
+    await supabase.auth.updateUser({
+      data: { onboarding_completed: true }
+    })
+
+    if (authError) {
+      console.error('Auth metadata update failed:', authError)
+    }
+
+    revalidatePath('/onboarding')
+    return { success: true }
+  } catch (error) {
+    console.error('Onboarding completion failed:', error)
+    return { success: false, error: 'Unable to complete onboarding' }
   }
-
-  // 5. Update User Metadata
-  const { error: authError } = await adminClient.auth.admin.updateUserById(user.id, {
-    user_metadata: { onboarding_completed: true }
-  })
-
-  // Also update via client just in case the session needs to refresh (though redirect usually forces a refresh if middleware checks it properly)
-  await supabase.auth.updateUser({
-    data: { onboarding_completed: true }
-  })
-
-  if (authError) {
-    console.error('Auth metadata update failed:', authError)
-  }
-
-  revalidatePath('/onboarding')
-  return { success: true }
 }

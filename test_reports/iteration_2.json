@@ -1,0 +1,49 @@
+{
+  "summary": "Executed backend-only static regression tests for onboarding stabilisation and Xero callback scope. All 5 scoped static checks passed; one critical runtime redirect risk identified in requireOrg.",
+  "backend_issues": {
+    "critical": [
+      {
+        "endpoint": "lib/auth/requireOrg.ts::requireOrg",
+        "issue": "redirect('/login') is called inside try/catch. In Next.js, redirect() throws; catch swallows it and always redirects to '/onboarding', causing unauthenticated users to be routed incorrectly.",
+        "priority": "CRITICAL"
+      }
+    ],
+    "minor": [
+      {
+        "endpoint": "runtime smoke /api/xero/callback",
+        "issue": "Could not execute live endpoint verification in this environment: no reachable public URL variable found and localhost:3000 was unreachable (connection failed)."
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_onboarding_stabilisation_static.py",
+    "/app/test_reports/pytest/pytest_results_iteration_2.xml"
+  ],
+  "action_items": [
+    "Fix requireOrg to preserve redirect('/login') semantics (rethrow NEXT_REDIRECT or avoid catch around redirect paths).",
+    "After fix, run live auth/org routing smoke tests with a reachable app URL.",
+    "Optionally add runtime integration tests for /api/xero/callback and onboarding/import-review server flows."
+  ],
+  "critical_code_review_comments": [
+    "Critical control-flow bug: catching redirect() throwable in requireOrg changes intended login redirect behavior.",
+    "Onboarding action currently tolerates some org update failures and may continue with partial org field updates; validate whether this silent degradation is acceptable."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_onboarding_stabilisation_static.py",
+    "/app/test_reports/iteration_2.json"
+  ],
+  "success_rate": {
+    "backend": "83%",
+    "frontend": "N/A (skipped by request)"
+  },
+  "seed_data_creation": "None",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Scoped static verification is complete and green. Priority retest should focus on requireOrg runtime behavior with unauthenticated session and missing org states, then validate xero callback redirect behavior on a reachable deployed URL.",
+  "rca of the issue": "RCA: In Next.js App Router, redirect() throws a framework-controlled error to stop execution. Wrapping redirect calls in broad try/catch (requireOrg) captures that throwable. Current catch then forces redirect('/onboarding'), overriding intended redirect('/login') branch. Repro (runtime): call requireOrg with unauthenticated session -> redirect('/login') thrown -> caught -> redirected to /onboarding. Mitigation: either remove try/catch around redirect paths, or detect and rethrow redirect errors before fallback handling."
+}

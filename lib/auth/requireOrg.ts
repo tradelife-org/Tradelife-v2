@@ -1,38 +1,21 @@
 import { redirect } from "next/navigation"
-import { createServerClient } from "@supabase/ssr"
-import { cookies } from "next/headers"
+import { getUserWithOrg } from "@/lib/auth/getUser"
 
 export async function requireOrg() {
+  try {
+    const { user, org_id } = await getUserWithOrg()
 
-  const cookieStore = cookies()
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        }
-      }
+    if (!user) {
+      redirect("/login")
     }
-  )
 
-  const { data: { user } } = await supabase.auth.getUser()
+    if (!org_id) {
+      redirect("/onboarding")
+    }
 
-  if (!user) {
-    redirect("/login")
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("org_id")
-    .eq("id", user.id)
-    .single()
-
-  if (!profile?.org_id) {
+    return { user, org_id }
+  } catch (error) {
+    console.error('requireOrg failed', error)
     redirect("/onboarding")
   }
-
-  return { user, org_id: profile.org_id }
 }
