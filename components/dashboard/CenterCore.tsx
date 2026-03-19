@@ -23,9 +23,9 @@ export function CenterCore() {
           <button
             data-testid="ai-core-button"
             onClick={() => setAiCoreOpen(true)}
-            className="w-24 h-24 rounded-2xl flex items-center justify-center mb-5 cursor-pointer"
+            className="w-24 h-24 rounded-2xl flex items-center justify-center mb-5 cursor-pointer inset-material border border-[var(--panel-border)] hover:border-[var(--border-strong)]"
           >
-            <span className="text-3xl font-bold text-transparent select-none">T</span>
+            <span className="text-3xl font-bold text-[var(--accent)] opacity-30 select-none">T</span>
           </button>
           <h2 className="text-base font-semibold text-[var(--text-primary)]">AI Core</h2>
           <p className="text-xs text-[var(--text-secondary)] mt-1">Intelligent assistant — ready to help</p>
