@@ -91,8 +91,10 @@ function StatusDot({ color }: { color: string }) {
 export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-[var(--bg-base)] relative">
-      {/* ── Background System ───────────────────────────── */}
-      <div className="bg-ambient" />
+      {/* ── Background Environment (4 layers) ────────────── */}
+      <div className="bg-layer-primary" />
+      <div className="bg-layer-secondary" />
+      <div className="bg-layer-floor" />
       <div className="bg-vignette" />
 
       {/* ── Top Bar ─────────────────────────────────────── */}
@@ -105,7 +107,7 @@ export default function DashboardPage() {
           <div
             data-testid="logo"
             className="w-7 h-7 rounded-md bg-[var(--accent)] flex items-center justify-center"
-            style={{ boxShadow: '0 0 12px rgba(var(--glow-color), 0.2)' }}
+            style={{ boxShadow: 'var(--glow-logo)' }}
           >
             <span className="text-white font-bold text-xs">T</span>
           </div>
@@ -248,28 +250,37 @@ export default function DashboardPage() {
 
           {/* ── CENTER COLUMN (6 cols) ────────────────── */}
           <div className="col-span-12 lg:col-span-6 space-y-5">
-            {/* AI Core Placeholder — hero glass */}
-            <Card className="p-6" hero data-testid="ai-core-placeholder">
-              <div className="flex items-center gap-4">
-                <div
-                  className="w-12 h-12 rounded-lg glass-inset border border-[var(--border-strong)] flex items-center justify-center"
-                  style={{ boxShadow: '0 0 20px rgba(var(--glow-color), 0.1)' }}
-                >
-                  <Cpu className="w-5 h-5 text-[var(--accent)]" />
+            {/* AI Core — hero panel with ambient light bleed */}
+            <div className="relative">
+              {/* Ambient light bleed behind hero */}
+              <div
+                className="absolute -inset-3 rounded-[20px] pointer-events-none"
+                style={{
+                  background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(var(--glow-color), 0.04), transparent 70%)',
+                }}
+              />
+              <Card className="p-6 relative" hero data-testid="ai-core-placeholder">
+                <div className="flex items-center gap-4">
+                  <div
+                    className="w-12 h-12 rounded-xl glass-inset border border-[var(--border-strong)] flex items-center justify-center"
+                    style={{ boxShadow: 'var(--glow-icon)' }}
+                  >
+                    <Cpu className="w-5 h-5 text-[var(--accent)]" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-semibold text-[var(--text-primary)]">AI Core</h2>
+                    <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                      Intelligent assistant — ready to help
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-[var(--text-primary)]">AI Core</h2>
-                  <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                    Intelligent assistant — ready to help
+                <div className="mt-4 px-4 py-3 rounded-lg glass-inset border border-[var(--border)]">
+                  <p className="text-xs text-[var(--text-muted)] italic">
+                    Ask me anything about your projects, finances, or schedule...
                   </p>
                 </div>
-              </div>
-              <div className="mt-4 px-4 py-3 rounded-lg glass-inset border border-[var(--border)]">
-                <p className="text-xs text-[var(--text-muted)] italic">
-                  Ask me anything about your projects, finances, or schedule...
-                </p>
-              </div>
-            </Card>
+              </Card>
+            </div>
 
             {/* Action Buttons */}
             <div className="grid grid-cols-3 gap-3" data-testid="action-buttons">
