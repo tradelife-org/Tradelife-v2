@@ -1,0 +1,19 @@
+:root {
+  --bg-base: #0a0a0e;
+  --bg-surface: #121216;
+  --bg-elevated: #1a1a1f;
+  --bg-inset: #0e0e12;
+  --text-primary: #e8e8ec;
+  --text-secondary: #7c7c86;
+  --text-muted: #4a4a52;
+  --border: #1e1e24;
+  --border-strong: #2a2a32;
+  --accent: #f97316;
+  --accent-dim: #c25a0e;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+}
