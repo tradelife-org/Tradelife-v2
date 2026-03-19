@@ -1,45 +1,45 @@
 # TradeLife PRD
 
 ## Problem Statement
-Build a clean, production-ready SaaS dashboard for "TradeLife" using Next.js App Router, TypeScript, TailwindCSS. Linear/Stripe-style UI with dark theme, then upgrade to premium cinematic visual system with true depth.
+Build a clean, production-ready SaaS dashboard for "TradeLife" using Next.js App Router, TypeScript, TailwindCSS. Progressive visual upgrade from flat → cinematic → motion-polished premium UI.
 
 ## Architecture
 - **Frontend**: Next.js 14.2.3 App Router + TypeScript + TailwindCSS
 - **State**: Zustand (persisted theme store)
-- **Styling**: CSS variables on `<html>` element for theming, glass/glow/depth component classes
+- **Styling**: CSS variables on `<html>`, glass/glow/depth component classes, CSS keyframe animations
 - **Backend**: FastAPI proxy (forwards /api/* to Next.js)
 - **No database needed** — static mock data
 
 ## What's Been Implemented
 
 ### Phase 1 — Dashboard Foundation (Jan 2026)
-- 3-column grid dashboard with all sections, static mock data, data-testids
-- **Testing: 18/18 (100%)**
+- 3-column grid, all sections, static mock data, data-testids — **18/18 (100%)**
 
 ### Phase 2 — Theme System (Jan 2026)
-- 3 themes: commercial (blue), molten (orange), remembrance (red)
-- Zustand store + ThemeProvider applying class to `<html>`
-- **Testing: 12/12 (100%)**
+- 3 themes (commercial/molten/remembrance), Zustand + ThemeProvider — **12/12 (100%)**
 
 ### Phase 3 — Visual Upgrade (Jan 2026)
-- Glass, depth, glow, background, panel refinement systems
-- **Testing: 14/14 (100%)**
+- Glass, depth, glow, background, panel refinement — **14/14 (100%)**
 
-### Phase 4 — Cinematic Depth Refinement (Jan 2026)
-- **Background**: 4-layer system (primary glow, secondary ambient, floor gradient, vignette) — environment not flat color
-- **Glass**: 0.45 alpha transparency, blur(16-20px) + saturate, top-edge highlight gradient (::before)
-- **Glow**: Multi-layer diffused box-shadows, ambient light bleed behind hero, per-theme logo/icon glow. No neon/sharp
-- **Depth**: 3-tier shadow (close 1px / mid 6px / far 24-48px), clear bg→panel→content separation
-- **ThemeProvider**: Now applies class to `<html>` (was inner div) so body CSS vars resolve correctly
-- **Testing: 18/18 (100%)**
+### Phase 4 — Cinematic Depth (Jan 2026)
+- 4-layer background, improved glass/glow, ThemeProvider on `<html>` — **18/18 (100%)**
+
+### Phase 5 — Premium Motion & Polish (Jan 2026)
+- **Entrance**: Staggered panel reveal (8 panels, 80ms stagger, 400ms duration, fade+translateY 8px)
+- **Hero**: AI Core scale-in (0.98→1, 500ms, slightly delayed)
+- **Hover**: Panels lift -1px + shadow increase; buttons lift + bg shift + glow
+- **Transitions**: All 200ms with cubic-bezier(0.16,1,0.3,1) / ease-out
+- **AI Presence**: Icon scale pulse (1→1.01→1, 4s loop) + glow opacity breathing
+- **Performance**: CSS-only, will-change for GPU, transform+opacity only
+- **Testing: 19/19 (100%)** — all motion verified, no bouncing/dramatic effects
 
 ## Prioritized Backlog
 - P0: None
-- P1: Theme switcher UI, micro-animations (entrance reveals, hover states)
-- P2: Backend API integration, auth flow
-- P3: AI Core integration, drag-and-drop widgets
+- P1: Theme switcher dropdown UI (settings button)
+- P2: Backend API integration, auth flow, responsive mobile
+- P3: AI Core functional chat, drag-and-drop widgets
 
 ## Next Tasks
-- Theme switcher dropdown in settings
-- Entrance animations (staggered card reveals)
-- Responsive mobile refinements
+- Theme switcher dropdown in top-bar settings
+- Responsive mobile layout
+- Backend API routes
