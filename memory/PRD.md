@@ -1,21 +1,19 @@
-# TradeLife PRD — Mobile + Desktop Final
+# TradeLife PRD — Visual Correction Complete
 
-## Mobile Dashboard (AI-First)
-- **TopBar**: Burger left, TradeLife+EN flag center, notification+avatar right
-- **AI Hero** (MobileAIHero): Blue pulsing orb, "How can I help today?", 4 quick actions (Check finances, Plan week, Risks & delays, Performance)
-- **Content Stack** (MobileContentStack): Attention Needed, Active Projects, Financial Overview (2x2 grid)
-- **Desktop elements hidden** on mobile via `hidden lg:block`
+## AI Orb System (Global)
+- **AIOrb component** (`/app/components/ui/AIOrb.tsx`): 3 sizes (sm/md/lg), 3-layer radial gradient (core bright → mid → outer halo), no text, CSS pulse animation (5s), clickable opens AI overlay
+- **Used on**: Login (md, centered above form), Onboarding (sm, above each step), Dashboard mobile (md, standalone hero), Dashboard desktop (lg, standalone hero), AI Overlay (sm, header badge)
+- **Rule**: Orb is NEVER inside a panel — always standalone
 
-## Desktop Dashboard (3-Column)
-- **Unchanged**: Full LeftStack/CenterCore/RightStack grid
-- **Mobile elements hidden** on desktop via `lg:hidden`
-- **TopBar**: Full brand + Command Center + settings + menu
+## Visual Hierarchy (Fixed)
+- **Login**: Orb → "Welcome back" → Form panel (orb is primary, form secondary)
+- **Onboarding**: Step indicator → Orb → Question → Input (AI-guided, one question per screen)
+- **Dashboard mobile**: Orb → "How can I help today?" → Quick actions → Content panels
+- **Dashboard desktop**: Orb (large) → Action buttons → Stats grid (flanked by side panels)
 
-## Responsive Strategy
-- Mobile-first: `grid-cols-1` default
-- Desktop: `lg:grid-cols-12` activates 3-column
-- Components use `lg:hidden` / `hidden lg:block` for view switching
-- Adaptive padding: `px-4 py-5 sm:px-6 sm:py-6`
+## Removed
+- All "T" text as AI core visual
+- All orb-inside-panel patterns
+- Form-first layouts on login/onboarding
 
-## Testing: 13/13 (95%)
-All viewport switching, component visibility, content counts verified.
+## Testing: 12/12 (95%)
