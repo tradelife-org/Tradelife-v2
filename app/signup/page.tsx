@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
+import { motion } from 'framer-motion'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -14,123 +15,79 @@ export default function SignupPage() {
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault()
     setError('')
-
-    if (!email.trim() || !password.trim()) {
-      setError('Please enter both email and password.')
-      return
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters.')
-      return
-    }
-
+    if (!email.trim() || !password.trim()) { setError('Please enter both email and password.'); return }
+    if (password.length < 6) { setError('Password must be at least 6 characters.'); return }
     setLoading(true)
-
     try {
       const supabase = createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       )
-
-      const { data: signUpData, error: authError } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-      })
-
-      if (authError) {
-        setError(authError.message)
-        setLoading(false)
-        return
-      }
-
-      // Ensure profile row exists
+      const { data: signUpData, error: authError } = await supabase.auth.signUp({ email: email.trim(), password })
+      if (authError) { setError(authError.message); setLoading(false); return }
       if (signUpData.user) {
         await fetch('/api/auth/ensure-profile', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: signUpData.user.id,
-            email: email.trim(),
-          }),
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: signUpData.user.id, email: email.trim() }),
         })
       }
-
       router.push('/onboarding')
-    } catch {
-      setError('Something went wrong. Please try again.')
-      setLoading(false)
-    }
+    } catch { setError('Something went wrong. Please try again.'); setLoading(false) }
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-heading font-bold text-slate-900 text-center mb-8" data-testid="signup-title">
-          Create your account
-        </h1>
+    <main className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      style={{ background: 'var(--bg-base)' }}>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.07] pointer-events-none"
+        style={{ background: `radial-gradient(circle, var(--glow-primary), transparent 70%)` }} />
 
-        <form onSubmit={handleSignup} className="space-y-4">
-          {error && (
-            <div
-              className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-3"
-              data-testid="signup-error"
-            >
-              {error}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
+        className="w-full max-w-[400px] relative z-10">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2.5 mb-3">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center edge-glow"
+              style={{ background: 'var(--glow-primary)' }}>
+              <span className="text-white font-bold text-sm">T</span>
             </div>
-          )}
-
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-blueprint-400 focus:ring-1 focus:ring-blueprint-400 outline-none text-slate-800"
-              data-testid="signup-email-input"
-            />
+            <span className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>TradeLife</span>
           </div>
+          <h1 className="text-2xl font-bold mt-4" style={{ color: 'var(--text-primary)' }} data-testid="signup-title">
+            Create your account
+          </h1>
+          <p className="text-sm mt-1.5" style={{ color: 'var(--text-secondary)' }}>
+            Start managing your trade finances
+          </p>
+        </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="At least 6 characters"
-              className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-blueprint-400 focus:ring-1 focus:ring-blueprint-400 outline-none text-slate-800"
-              data-testid="signup-password-input"
-            />
-          </div>
+        <div className="glass-panel-elevated p-6">
+          <form onSubmit={handleSignup} className="space-y-5">
+            {error && (
+              <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+                className="text-sm px-4 py-3 rounded-lg"
+                style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#fca5a5' }}
+                data-testid="signup-error">{error}</motion.div>
+            )}
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Email</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com" className="glass-input w-full px-4 py-3 text-sm" data-testid="signup-email-input" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Password</label>
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+                placeholder="At least 6 characters" className="glass-input w-full px-4 py-3 text-sm" data-testid="signup-password-input" />
+            </div>
+            <button type="submit" disabled={loading} className="btn-glow w-full py-3 text-sm mt-2" data-testid="signup-submit-button">
+              {loading ? 'Creating account...' : 'Create account'}
+            </button>
+          </form>
+        </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 rounded-lg bg-blueprint-600 text-white font-medium hover:bg-blueprint-700 disabled:opacity-50 transition-colors"
-            data-testid="signup-submit-button"
-          >
-            {loading ? 'Creating account...' : 'Sign up'}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-slate-500 mt-6">
+        <p className="text-center text-sm mt-6" style={{ color: 'var(--text-muted)' }}>
           Already have an account?{' '}
-          <a
-            href="/login"
-            className="text-blueprint-600 hover:text-blueprint-700 font-medium"
-            data-testid="signup-login-link"
-          >
-            Log in
-          </a>
+          <a href="/login" className="font-medium hover:underline" style={{ color: 'var(--glow-primary)' }} data-testid="signup-login-link">Sign in</a>
         </p>
-      </div>
+      </motion.div>
     </main>
   )
 }

@@ -1,17 +1,158 @@
-@import url('https://fonts.googleapis.com/css2?family=Chivo:wght@700;900&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ========== THEME TOKENS ========== */
+
+.theme-commercial {
+  --bg-base: #0b1220;
+  --bg-base-rgb: 11, 18, 32;
+  --surface: #111a2e;
+  --surface-rgb: 17, 26, 46;
+  --surface-elevated: #162035;
+  --surface-elevated-rgb: 22, 32, 53;
+  --glow-primary: #3b82f6;
+  --glow-primary-rgb: 59, 130, 246;
+  --glow-secondary: #60a5fa;
+  --glow-accent: #2563eb;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
+  --border-color: rgba(148, 163, 184, 0.08);
+  --border-glow: rgba(59, 130, 246, 0.15);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}
+
+.theme-molten {
+  --bg-base: #08080c;
+  --bg-base-rgb: 8, 8, 12;
+  --surface: #131316;
+  --surface-rgb: 19, 19, 22;
+  --surface-elevated: #1c1c20;
+  --surface-elevated-rgb: 28, 28, 32;
+  --glow-primary: #f97316;
+  --glow-primary-rgb: 249, 115, 22;
+  --glow-secondary: #fb923c;
+  --glow-accent: #ea580c;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+  --border-color: rgba(161, 161, 170, 0.08);
+  --border-glow: rgba(249, 115, 22, 0.2);
+  --success: #10b981;
+  --warning: #fbbf24;
+  --danger: #ef4444;
+}
+
+.theme-remembrance {
+  --bg-base: #0a0809;
+  --bg-base-rgb: 10, 8, 9;
+  --surface: #171112;
+  --surface-rgb: 23, 17, 18;
+  --surface-elevated: #1e1617;
+  --surface-elevated-rgb: 30, 22, 23;
+  --glow-primary: #dc2626;
+  --glow-primary-rgb: 220, 38, 38;
+  --glow-secondary: #f87171;
+  --glow-accent: #b91c1c;
+  --text-primary: #fafaf9;
+  --text-secondary: #a8a29e;
+  --text-muted: #57534e;
+  --border-color: rgba(168, 162, 158, 0.08);
+  --border-glow: rgba(220, 38, 38, 0.15);
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+}
+
+/* ========== BASE ========== */
+
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--border-color);
   }
   body {
-    @apply bg-background text-slate-900 font-body antialiased;
-  }
-  h1, h2, h3, h4 {
-    @apply font-heading tracking-tight;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
+
+/* ========== GLASS PANEL ========== */
+
+.glass-panel {
+  background: rgba(var(--surface-rgb), 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.glass-panel-elevated {
+  background: rgba(var(--surface-elevated-rgb), 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.glass-input {
+  background: rgba(var(--surface-rgb), 0.5);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 10px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.glass-input:focus {
+  border-color: var(--glow-primary);
+  box-shadow: 0 0 0 2px rgba(var(--glow-primary-rgb), 0.15);
+  outline: none;
+}
+
+.glass-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ========== GLOW BUTTON ========== */
+
+.btn-glow {
+  background: var(--glow-primary);
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: box-shadow 0.2s, opacity 0.2s;
+}
+
+.btn-glow:hover {
+  box-shadow: 0 0 20px rgba(var(--glow-primary-rgb), 0.4);
+}
+
+.btn-glow:disabled {
+  opacity: 0.4;
+}
+
+/* ========== EDGE GLOW ========== */
+
+.edge-glow {
+  box-shadow: 0 0 1px rgba(var(--glow-primary-rgb), 0.3),
+              inset 0 0 1px rgba(var(--glow-primary-rgb), 0.1);
+}
+
+.edge-glow-strong {
+  box-shadow: 0 0 8px rgba(var(--glow-primary-rgb), 0.2),
+              0 0 1px rgba(var(--glow-primary-rgb), 0.4);
+}
+
+/* ========== SCROLLBAR ========== */
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
