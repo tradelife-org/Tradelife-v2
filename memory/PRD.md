@@ -8,16 +8,18 @@
 
 ## Implemented (all passed)
 
-### Phase 6-14 — Shell → Material → WebGL → PostFX → Core T → Embers → Lighting → Drag → AI Overlay
+### Phase 6-15 — Shell → Material → WebGL → PostFX → Core T → Embers → Lighting → Drag → AI Overlay → Route Intensity
 
-### Phase 15 — Route-Aware Visual Engine (Jan 2026)
-- **VisualEngine** reads `usePathname()`, maps to intensity: `/login`→0.3, `/onboarding`→0.5, `/dashboard`→1.0
-- **All components scale by intensity**: CoreTElement (emissive×i, lights×i), CoreLight (ambient×i, halos×i), EmberSystem (count×i, opacity×i), PostFX (bloom×i, vignette scaled)
-- **data-intensity attribute** on visual-engine div for verification
-- **One unified system** across all routes — same scene, different energy
-- **Testing: 11/11 (100%)**
+### Phase 16 — Cinematic Integration Pass (Jan 2026)
+- **Center light influence**: Warm core-wash overlay (z-2, screen blend, radial gradient of accent at 0.025 alpha) tints center panels warm
+- **Panel light reaction**: `::before` now combines directional gradient (top→down) + warm radial (center→out), borders softened to 0.035 alpha, panels more transparent (0.42)
+- **Atmosphere**: 3 overlay layers (lighting-overlay z-1, core-wash z-2, atmosphere-haze z-3) create depth
+- **Reduced contrast**: Text dimmed to #dcdce0, secondary to #727280, borders near-invisible, panels blend into environment
+- **Core dominance**: Bloom boosted to 0.8, threshold lowered to 0.08, vignette darkness 0.9 — T is clearly the brightest element
+- **Radius increased**: panels from 14px to 16px for softer feel
+- **Testing: 12/12 core (100%)**
 
 ## Next Tasks
 - P0: Theme switching UI
-- P1: Connect real AI API (GPT/Claude)
-- P2: Mobile responsive layout
+- P1: Connect real AI API
+- P2: Mobile responsive
