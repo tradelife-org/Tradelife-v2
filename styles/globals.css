@@ -19,14 +19,14 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   PANEL MATERIAL — light-reactive surfaces
+   PANEL MATERIAL — physically-lit glass surfaces
    ═══════════════════════════════════════════════════════════ */
 
 @layer components {
   .panel-material {
     background: var(--panel-bg);
-    backdrop-filter: blur(16px) saturate(1.15);
-    -webkit-backdrop-filter: blur(16px) saturate(1.15);
+    backdrop-filter: blur(18px) saturate(1.2);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
     border: 1px solid var(--panel-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--panel-shadow);
@@ -34,16 +34,31 @@
     overflow: hidden;
   }
 
-  /* Directional gradient: top slightly lighter (catching overhead light)
-     + warm tint from center core bleeding in */
+  /* Multi-layer light reaction:
+     1. Directional — top catches light, bottom darker
+     2. Warm radial — center-facing warmth from core
+     3. Edge highlight — top edge catches rim light */
   .panel-material::before {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
     background:
-      linear-gradient(175deg, var(--panel-highlight) 0%, transparent 30%),
-      radial-gradient(ellipse 120% 80% at 50% 0%, var(--panel-warm) 0%, transparent 60%);
+      linear-gradient(178deg, var(--panel-highlight) 0%, transparent 25%, rgba(0,0,0,0.04) 100%),
+      radial-gradient(ellipse 150% 100% at 50% -20%, var(--panel-warm) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Rim light — very thin bright top edge */
+  .panel-material::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
     pointer-events: none;
     z-index: 0;
   }
@@ -55,32 +70,32 @@
 
   .topbar-material {
     background: var(--panel-bg);
-    backdrop-filter: blur(20px) saturate(1.15);
-    -webkit-backdrop-filter: blur(20px) saturate(1.15);
+    backdrop-filter: blur(22px) saturate(1.2);
+    -webkit-backdrop-filter: blur(22px) saturate(1.2);
     border-bottom: 1px solid var(--panel-border);
   }
 
   .btn-material {
     background: var(--panel-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     border: 1px solid var(--panel-border);
     border-radius: var(--radius-md);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
     transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
   }
 
   .btn-material:hover {
     border-color: var(--border-strong);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 4px 12px -4px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15), 0 6px 16px -4px rgba(0,0,0,0.12);
   }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   LIGHTING + ATMOSPHERE OVERLAYS
+   CSS OVERLAY STACK — cinematic polish above UI
    ═══════════════════════════════════════════════════════════ */
 
-/* Radial vignette — center bright, edges dark */
+/* Layer 1: Strong radial vignette */
 .lighting-overlay {
   position: fixed;
   inset: 0;
@@ -88,14 +103,14 @@
   pointer-events: none;
   background:
     radial-gradient(
-      ellipse 50% 45% at 50% 32%,
+      ellipse 45% 40% at 50% 30%,
       transparent 0%,
-      rgba(0, 0, 0, 0.3) 55%,
-      rgba(0, 0, 0, 0.65) 100%
+      rgba(0, 0, 0, 0.35) 50%,
+      rgba(0, 0, 0, 0.72) 100%
     );
 }
 
-/* Warm center tint — simulates the T core's light washing over UI */
+/* Layer 2: Core light wash — warm tint from T */
 .core-wash {
   position: fixed;
   inset: 0;
@@ -103,14 +118,15 @@
   pointer-events: none;
   background:
     radial-gradient(
-      ellipse 40% 35% at 50% 30%,
-      rgba(249, 115, 22, 0.025) 0%,
+      ellipse 35% 30% at 50% 28%,
+      rgba(249, 115, 22, 0.03) 0%,
+      rgba(200, 80, 15, 0.01) 40%,
       transparent 70%
     );
   mix-blend-mode: screen;
 }
 
-/* Atmospheric haze — very subtle fog over everything */
+/* Layer 3: Atmosphere haze */
 .atmosphere-haze {
   position: fixed;
   inset: 0;
@@ -119,8 +135,8 @@
   background:
     radial-gradient(
       ellipse 100% 80% at 50% 50%,
-      rgba(14, 10, 8, 0.06) 0%,
-      rgba(8, 8, 11, 0.12) 100%
+      rgba(10, 8, 6, 0.05) 0%,
+      rgba(6, 6, 8, 0.15) 100%
     );
 }
 
@@ -128,6 +144,6 @@
    SCROLLBAR
    ═══════════════════════════════════════════════════════════ */
 
-::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 2px; }

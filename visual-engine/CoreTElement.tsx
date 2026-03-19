@@ -13,26 +13,29 @@ export function CoreTElement({ intensity = 1 }: CoreTElementProps) {
   const matRef = useRef<THREE.MeshStandardMaterial>(null)
   const primaryRef = useRef<THREE.PointLight>(null)
   const fillRef = useRef<THREE.PointLight>(null)
+  const rearRef = useRef<THREE.PointLight>(null)
 
   useFrame(({ clock }) => {
-    if (!matRef.current || !primaryRef.current || !fillRef.current) return
+    if (!matRef.current || !primaryRef.current || !fillRef.current || !rearRef.current) return
     const t = clock.getElapsedTime()
 
-    const pulse = 0.85 + Math.sin(t * 0.8) * 0.15
+    const pulse = 0.88 + Math.sin(t * 0.6) * 0.12
     const flicker = 1.0
-      + Math.sin(t * 3.7) * 0.03
-      + Math.sin(t * 7.3) * 0.015
-      + Math.sin(t * 13.1) * 0.008
+      + Math.sin(t * 3.7) * 0.025
+      + Math.sin(t * 7.3) * 0.012
+      + Math.sin(t * 13.1) * 0.006
 
     const base = pulse * flicker
 
-    matRef.current.emissiveIntensity = base * 3 * intensity
-    primaryRef.current.intensity = base * 8 * intensity
-    fillRef.current.intensity = base * 3 * intensity
+    matRef.current.emissiveIntensity = base * 4 * intensity
+    primaryRef.current.intensity = base * 10 * intensity
+    fillRef.current.intensity = base * 4 * intensity
+    rearRef.current.intensity = base * 2 * intensity
   })
 
   return (
     <group position={[0, 0.6, 0]}>
+      {/* The T letter — emissive, bloom catches it */}
       <Text
         fontSize={1.2}
         font="/fonts/inter-bold.ttf"
@@ -43,30 +46,42 @@ export function CoreTElement({ intensity = 1 }: CoreTElementProps) {
         T
         <meshStandardMaterial
           ref={matRef}
-          color={new THREE.Color(0.15, 0.08, 0.02)}
-          emissive={new THREE.Color(1, 0.45, 0.08)}
-          emissiveIntensity={3 * intensity}
-          roughness={0.3}
-          metalness={0.7}
+          color={new THREE.Color(0.12, 0.06, 0.01)}
+          emissive={new THREE.Color(1, 0.5, 0.1)}
+          emissiveIntensity={4 * intensity}
+          roughness={0.2}
+          metalness={0.8}
           toneMapped={false}
         />
       </Text>
 
+      {/* Primary — strong center emission */}
       <pointLight
         ref={primaryRef}
         color={new THREE.Color(1, 0.5, 0.12)}
-        intensity={8 * intensity}
-        distance={20}
+        intensity={10 * intensity}
+        distance={22}
         decay={2}
       />
 
+      {/* Forward fill — pushes warmth toward camera */}
       <pointLight
         ref={fillRef}
-        color={new THREE.Color(0.9, 0.4, 0.1)}
-        intensity={3 * intensity}
-        distance={10}
+        color={new THREE.Color(0.95, 0.4, 0.08)}
+        intensity={4 * intensity}
+        distance={12}
         decay={2.5}
-        position={[0, 0, 2]}
+        position={[0, 0, 2.5]}
+      />
+
+      {/* Rear fill — creates depth behind core */}
+      <pointLight
+        ref={rearRef}
+        color={new THREE.Color(0.7, 0.25, 0.05)}
+        intensity={2 * intensity}
+        distance={8}
+        decay={3}
+        position={[0, 0, -2]}
       />
     </group>
   )

@@ -1,13 +1,13 @@
 :root {
-  --bg-base: #08080b;
-  --bg-surface: #101014;
-  --bg-elevated: #18181d;
-  --bg-inset: #0c0c10;
-  --text-primary: #dcdce0;
-  --text-secondary: #727280;
-  --text-muted: #45454e;
-  --border: rgba(255, 255, 255, 0.04);
-  --border-strong: rgba(255, 255, 255, 0.07);
+  --bg-base: #060608;
+  --bg-surface: #0d0d11;
+  --bg-elevated: #151518;
+  --bg-inset: #0a0a0e;
+  --text-primary: #d4d4d8;
+  --text-secondary: #6b6b76;
+  --text-muted: #404048;
+  --border: rgba(255, 255, 255, 0.03);
+  --border-strong: rgba(255, 255, 255, 0.06);
   --accent: #f97316;
   --accent-dim: #c25a0e;
   --success: #22c55e;
@@ -17,13 +17,13 @@
   --radius-md: 12px;
   --radius-lg: 16px;
 
-  --panel-bg: rgba(14, 14, 18, 0.42);
-  --panel-border: rgba(255, 255, 255, 0.035);
-  --panel-highlight: rgba(255, 255, 255, 0.025);
-  --panel-warm: rgba(249, 115, 22, 0.015);
+  --panel-bg: rgba(12, 12, 16, 0.38);
+  --panel-border: rgba(255, 255, 255, 0.03);
+  --panel-highlight: rgba(255, 255, 255, 0.02);
+  --panel-warm: rgba(249, 115, 22, 0.012);
   --panel-shadow:
-    0 1px 1px rgba(0,0,0,0.18),
-    0 2px 8px rgba(0,0,0,0.1),
-    0 8px 32px -4px rgba(0,0,0,0.2);
-  --inset-bg: rgba(20, 20, 26, 0.45);
+    0 1px 1px rgba(0,0,0,0.2),
+    0 4px 12px rgba(0,0,0,0.15),
+    0 12px 40px -8px rgba(0,0,0,0.25);
+  --inset-bg: rgba(16, 16, 22, 0.4);
 }
