@@ -8,9 +8,9 @@ export function Panel({ children, className = '', 'data-testid': testId }: Panel
   return (
     <div
       data-testid={testId}
-      className={`bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] p-5 ${className}`}
+      className={`panel-material p-5 ${className}`}
     >
-      {children}
+      <div className="relative z-[1]">{children}</div>
     </div>
   )
 }

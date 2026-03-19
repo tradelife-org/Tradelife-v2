@@ -35,7 +35,7 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-[var(--bg-base)] flex flex-col">
       {/* Minimal top bar */}
-      <div className="h-14 border-b border-[var(--border)] bg-[var(--bg-surface)] px-6 flex items-center">
+      <div className="h-14 border-b border-[var(--panel-border)] topbar-material px-6 flex items-center">
         <div className="w-7 h-7 rounded-md bg-[var(--accent)] flex items-center justify-center">
           <span className="text-white font-bold text-xs">T</span>
         </div>
@@ -59,7 +59,7 @@ export default function OnboardingPage() {
           {/* Step panel */}
           <div
             data-testid="onboarding-panel"
-            className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] p-8"
+            className="panel-material p-8"
           >
             {/* Step 0: Welcome */}
             {step === 0 && (
@@ -93,7 +93,7 @@ export default function OnboardingPage() {
                     <button
                       key={t}
                       data-testid={`trade-option-${t.toLowerCase().replace(/\s/g, '-')}`}
-                      className={`px-3 py-2.5 rounded-[var(--radius-md)] text-xs font-medium text-left border ${tradeType === t ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--bg-elevated)]' : 'border-[var(--border)] text-[var(--text-secondary)] bg-[var(--bg-inset)]'}`}
+                      className={`px-3 py-2.5 rounded-[var(--radius-md)] text-xs font-medium text-left border ${tradeType === t ? 'border-[var(--accent)] text-[var(--accent)] inset-material' : 'border-[var(--panel-border)] text-[var(--text-secondary)] inset-material'}`}
                       onClick={() => setTradeType(t)}
                     >
                       {t}
@@ -117,7 +117,7 @@ export default function OnboardingPage() {
                     <button
                       key={s}
                       data-testid={`team-option-${s.replace(/[^a-z0-9]/gi, '-').toLowerCase()}`}
-                      className={`px-4 py-2.5 rounded-[var(--radius-md)] text-xs font-medium border ${teamSize === s ? 'border-[var(--accent)] text-[var(--accent)] bg-[var(--bg-elevated)]' : 'border-[var(--border)] text-[var(--text-secondary)] bg-[var(--bg-inset)]'}`}
+                      className={`px-4 py-2.5 rounded-[var(--radius-md)] text-xs font-medium border ${teamSize === s ? 'border-[var(--accent)] text-[var(--accent)] inset-material' : 'border-[var(--panel-border)] text-[var(--text-secondary)] inset-material'}`}
                       onClick={() => setTeamSize(s)}
                     >
                       {s}
@@ -141,7 +141,7 @@ export default function OnboardingPage() {
                     <button
                       key={t.id}
                       data-testid={`theme-option-${t.id}`}
-                      className={`w-full px-4 py-3 rounded-[var(--radius-md)] text-left border flex items-center gap-3 ${theme === t.id ? 'border-[var(--accent)] bg-[var(--bg-elevated)]' : 'border-[var(--border)] bg-[var(--bg-inset)]'}`}
+                      className={`w-full px-4 py-3 rounded-[var(--radius-md)] text-left border flex items-center gap-3 ${theme === t.id ? 'border-[var(--accent)] inset-material' : 'border-[var(--panel-border)] inset-material'}`}
                       onClick={() => setTheme(t.id)}
                     >
                       <div className={`w-3 h-3 rounded-full ${t.id === 'molten' ? 'bg-orange-500' : t.id === 'commercial' ? 'bg-blue-500' : 'bg-red-600'}`} />
@@ -162,7 +162,7 @@ export default function OnboardingPage() {
             {/* Step 5: Finish */}
             {step === 5 && (
               <div data-testid="step-finish" className="text-center">
-                <div className="w-16 h-16 rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-strong)] flex items-center justify-center mx-auto mb-5">
+                <div className="w-16 h-16 rounded-2xl inset-material border border-[var(--panel-border)] flex items-center justify-center mx-auto mb-5">
                   <span className="text-2xl font-bold text-[var(--accent)]">T</span>
                 </div>
                 <h2 className="text-lg font-semibold text-[var(--text-primary)] mb-1">You&apos;re all set</h2>

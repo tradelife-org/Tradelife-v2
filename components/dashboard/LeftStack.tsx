@@ -36,7 +36,7 @@ export function LeftStack() {
             <div
               key={item.id}
               data-testid={`attention-item-${item.id}`}
-              className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-[var(--bg-elevated)]"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-[var(--radius-md)] inset-material"
             >
               <div
                 className="w-1.5 h-1.5 rounded-full shrink-0"
@@ -53,7 +53,7 @@ export function LeftStack() {
         <SectionHeader>Active Projects</SectionHeader>
         <div className="space-y-2.5" data-testid="active-projects-list">
           {activeProjects.map((project) => (
-            <div key={project.id} data-testid={`project-${project.id}`} className="px-3 py-3 rounded-lg bg-[var(--bg-elevated)]">
+            <div key={project.id} data-testid={`project-${project.id}`} className="px-3 py-3 rounded-[var(--radius-md)] inset-material">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-medium text-[var(--text-primary)]">{project.name}</span>
                 <span className="text-[10px] font-medium text-[var(--accent)]">{project.progress}%</span>
@@ -72,7 +72,7 @@ export function LeftStack() {
         <SectionHeader>Active Trades</SectionHeader>
         <div className="space-y-2" data-testid="active-trades-list">
           {activeTrades.map((trade) => (
-            <div key={trade.id} data-testid={`trade-${trade.id}`} className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-[var(--bg-elevated)]">
+            <div key={trade.id} data-testid={`trade-${trade.id}`} className="flex items-center justify-between px-3 py-2.5 rounded-[var(--radius-md)] inset-material">
               <div className="flex items-center gap-2">
                 <div
                   className="w-1.5 h-1.5 rounded-full shrink-0"

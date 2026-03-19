@@ -33,7 +33,7 @@ export default function LoginPage() {
         {/* Login Panel */}
         <div
           data-testid="login-panel"
-          className="bg-[var(--bg-surface)] border border-[var(--border)] rounded-[var(--radius-lg)] p-8"
+          className="panel-material p-8"
         >
           <h1 className="text-lg font-semibold text-[var(--text-primary)] mb-1">Sign in</h1>
           <p className="text-xs text-[var(--text-secondary)] mb-6">Welcome back to your command center</p>

@@ -19,13 +19,13 @@ export function CenterCore() {
         <div className="flex flex-col items-center justify-center py-12 px-6">
           <button
             data-testid="ai-core-button"
-            className="w-24 h-24 rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-strong)] flex items-center justify-center mb-5"
+            className="w-24 h-24 rounded-2xl inset-material border border-[var(--panel-border)] flex items-center justify-center mb-5"
           >
             <span className="text-3xl font-bold text-[var(--accent)]">T</span>
           </button>
           <h2 className="text-base font-semibold text-[var(--text-primary)]">AI Core</h2>
           <p className="text-xs text-[var(--text-secondary)] mt-1">Intelligent assistant — ready to help</p>
-          <div className="mt-4 w-full max-w-md px-4 py-3 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border)]">
+          <div className="mt-4 w-full max-w-md px-4 py-3 rounded-[var(--radius-md)] inset-material border border-[var(--panel-border)]">
             <p className="text-xs text-[var(--text-muted)] text-center italic">Ask me anything about your projects, finances, or schedule...</p>
           </div>
         </div>

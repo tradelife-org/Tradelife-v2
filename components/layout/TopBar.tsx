@@ -6,7 +6,7 @@ export function TopBar() {
   return (
     <header
       data-testid="top-bar"
-      className="sticky top-0 z-50 h-14 bg-[var(--bg-surface)] border-b border-[var(--border)] px-6 flex items-center justify-between"
+      className="sticky top-0 z-50 h-14 topbar-material px-6 flex items-center justify-between"
     >
       {/* Left */}
       <div className="flex items-center gap-3">

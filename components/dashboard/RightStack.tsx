@@ -28,7 +28,7 @@ export function RightStack() {
         <SectionHeader>Schedule</SectionHeader>
         <div className="space-y-2" data-testid="schedule-list">
           {scheduleItems.map((item) => (
-            <div key={item.id} data-testid={`schedule-item-${item.id}`} className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[var(--bg-elevated)]">
+            <div key={item.id} data-testid={`schedule-item-${item.id}`} className="flex items-center gap-3 px-3 py-2.5 rounded-[var(--radius-md)] inset-material">
               <span className="text-[10px] font-mono font-medium text-[var(--accent)] w-10 shrink-0">{item.time}</span>
               <span className="text-xs text-[var(--text-primary)] flex-1 truncate">{item.label}</span>
             </div>
@@ -41,7 +41,7 @@ export function RightStack() {
         <SectionHeader>Urgent Tasks</SectionHeader>
         <div className="space-y-2" data-testid="urgent-tasks-list">
           {urgentTasks.map((task) => (
-            <div key={task.id} data-testid={`urgent-task-${task.id}`} className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-[var(--bg-elevated)]">
+            <div key={task.id} data-testid={`urgent-task-${task.id}`} className="flex items-center gap-2.5 px-3 py-2.5 rounded-[var(--radius-md)] inset-material">
               <div className="w-1.5 h-1.5 rounded-full shrink-0 bg-[var(--danger)]" />
               <span className="text-xs text-[var(--text-primary)]">{task.label}</span>
             </div>
@@ -58,7 +58,7 @@ export function RightStack() {
               <span className="text-xs text-[var(--text-secondary)]">Total Revenue</span>
               <span className="text-sm font-semibold text-[var(--text-primary)]">£24,500</span>
             </div>
-            <div className="w-full h-1.5 rounded-full bg-[var(--bg-elevated)]">
+            <div className="w-full h-1.5 rounded-full inset-material">
               <div className="h-full rounded-full bg-[var(--success)] w-[75%]" />
             </div>
           </div>
@@ -67,7 +67,7 @@ export function RightStack() {
               <span className="text-xs text-[var(--text-secondary)]">Expenses</span>
               <span className="text-sm font-semibold text-[var(--text-primary)]">£8,200</span>
             </div>
-            <div className="w-full h-1.5 rounded-full bg-[var(--bg-elevated)]">
+            <div className="w-full h-1.5 rounded-full inset-material">
               <div className="h-full rounded-full bg-[var(--danger)] w-[33%]" />
             </div>
           </div>
@@ -76,7 +76,7 @@ export function RightStack() {
               <span className="text-xs text-[var(--text-secondary)]">Net Profit</span>
               <span className="text-sm font-semibold text-[var(--success)]">£16,300</span>
             </div>
-            <div className="w-full h-1.5 rounded-full bg-[var(--bg-elevated)]">
+            <div className="w-full h-1.5 rounded-full inset-material">
               <div className="h-full rounded-full bg-[var(--accent)] w-[66%]" />
             </div>
           </div>
