@@ -1,50 +1,21 @@
-# TradeLife PRD — Commercial Theme Final
+# TradeLife PRD — Mobile + Desktop Final
 
-## Architecture
-- **Frontend**: Next.js 14.2.3 + TypeScript + TailwindCSS
-- **Visual Engine**: R3F 8.18 + Three.js 0.170 + postprocessing 6.36.4 + Custom GLSL
-- **Drag**: @dnd-kit/core 6.3.1 + sortable 8.0.0
-- **State**: Zustand (persisted)
+## Mobile Dashboard (AI-First)
+- **TopBar**: Burger left, TradeLife+EN flag center, notification+avatar right
+- **AI Hero** (MobileAIHero): Blue pulsing orb, "How can I help today?", 4 quick actions (Check finances, Plan week, Risks & delays, Performance)
+- **Content Stack** (MobileContentStack): Attention Needed, Active Projects, Financial Overview (2x2 grid)
+- **Desktop elements hidden** on mobile via `hidden lg:block`
 
-## Commercial Theme (Final)
+## Desktop Dashboard (3-Column)
+- **Unchanged**: Full LeftStack/CenterCore/RightStack grid
+- **Mobile elements hidden** on desktop via `lg:hidden`
+- **TopBar**: Full brand + Command Center + settings + menu
 
-### Color System
-- bg-base: #0b0f14 (charcoal/anthracite)
-- bg-surface: #111620 (slightly lighter)
-- bg-elevated: #18202c
-- accent: #3b82f6 (soft blue)
-- text-primary: #d8dce3
-- borders: rgba(148,180,214,0.06) — blue-tinted, nearly invisible
+## Responsive Strategy
+- Mobile-first: `grid-cols-1` default
+- Desktop: `lg:grid-cols-12` activates 3-column
+- Components use `lg:hidden` / `hidden lg:block` for view switching
+- Adaptive padding: `px-4 py-5 sm:px-6 sm:py-6`
 
-### Panel Material
-- bg: rgba(17,22,32,0.5), blur(16px), saturate(1.1)
-- ::before: directional gradient + blue radial tint
-- ::after: thin rim light (blue-tinted)
-- shadow: 3-tier soft (no strong elevation)
-
-### WebGL Engine (Blue)
-- MoltenCore GLSL: white→light blue→blue→deep navy→black color ramp
-- CoreTElement: blue emissive (0.3, 0.55, 1.0), 3 blue point lights
-- EmberSystem: 3 layers in blue tones
-- Fog: #0b0f14
-
-### CSS Overlays
-- lighting-overlay: radial vignette (charcoal edges)
-- core-wash: blue tint center (screen blend)
-- atmosphere-haze: subtle depth fog
-
-### Mobile Responsive
-- grid-cols-1 default, lg:grid-cols-12 for desktop
-- TopBar: EN flag + "Command Center" hidden on small screens
-- Panels: p-6 sm:p-8 adaptive padding
-- Action buttons/overview: gap-2 sm:gap-3
-
-### Consistency
-- Same panel-material across login, onboarding, dashboard
-- Same btn-material for all secondary buttons
-- Same inset-material for all nested items
-- Same topbar-material for all top bars
-- Same Input component everywhere
-
-## All Phases Complete
-Phases 6-17 implemented and tested. Commercial theme finalized.
+## Testing: 13/13 (95%)
+All viewport switching, component visibility, content counts verified.
