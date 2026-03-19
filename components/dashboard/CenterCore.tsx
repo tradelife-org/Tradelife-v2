@@ -3,6 +3,7 @@
 import { Cpu, Plus, FileText, BarChart3, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { Panel } from '@/components/ui/Panel'
 import { Button } from '@/components/ui/Button'
+import { useUIStore } from '@/store/useUIStore'
 
 const overviewStats = [
   { label: 'Revenue', value: '£24,500', change: '+12%', positive: true },
@@ -12,6 +13,8 @@ const overviewStats = [
 ]
 
 export function CenterCore() {
+  const setAiCoreOpen = useUIStore((s) => s.setAiCoreOpen)
+
   return (
     <div className="col-span-12 lg:col-span-6 space-y-5">
       {/* AI Core Hero */}
@@ -19,7 +22,8 @@ export function CenterCore() {
         <div className="flex flex-col items-center justify-center py-12 px-6">
           <button
             data-testid="ai-core-button"
-            className="w-24 h-24 rounded-2xl flex items-center justify-center mb-5"
+            onClick={() => setAiCoreOpen(true)}
+            className="w-24 h-24 rounded-2xl flex items-center justify-center mb-5 cursor-pointer"
           >
             <span className="text-3xl font-bold text-transparent select-none">T</span>
           </button>
