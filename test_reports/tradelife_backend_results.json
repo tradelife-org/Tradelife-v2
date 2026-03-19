@@ -1,0 +1,100 @@
+{
+  "summary": {
+    "tests_run": 6,
+    "tests_passed": 4,
+    "success_rate": "66.7%"
+  },
+  "results": [
+    {
+      "test": "App Accessibility",
+      "success": true,
+      "timestamp": "2026-03-19T10:53:37.738962",
+      "status_code": 200,
+      "content_type": "text/html; charset=utf-8",
+      "error": null
+    },
+    {
+      "test": "API Classification",
+      "success": true,
+      "timestamp": "2026-03-19T10:53:38.419836",
+      "status_code": 200,
+      "transactions_classified": 4,
+      "screwfix_classification": "business/materials",
+      "tesco_classification": "personal/groceries",
+      "response_data": {
+        "transactions": [
+          {
+            "id": "tx-1",
+            "merchant": "Screwfix",
+            "amount": 120,
+            "description": "Screwfix Direct",
+            "date": "2025-01-15",
+            "type": "business",
+            "category": "materials",
+            "confidence": 0.95
+          },
+          {
+            "id": "tx-2",
+            "merchant": "Tesco",
+            "amount": 45,
+            "description": "Tesco Superstore",
+            "date": "2025-01-15",
+            "type": "personal",
+            "category": "groceries",
+            "confidence": 0.95
+          },
+          {
+            "id": "tx-3",
+            "merchant": "Shell",
+            "amount": 60,
+            "description": "Shell Fuel Station",
+            "date": "2025-01-14",
+            "type": "business",
+            "category": "fuel",
+            "confidence": 0.9
+          },
+          {
+            "id": "tx-4",
+            "merchant": "Amazon",
+            "amount": 30,
+            "description": "Amazon.co.uk",
+            "date": "2025-01-14",
+            "type": "personal",
+            "category": "other",
+            "confidence": 0.7
+          }
+        ]
+      }
+    },
+    {
+      "test": "Transactions GET",
+      "success": true,
+      "timestamp": "2026-03-19T10:53:38.830172",
+      "status_code": 200,
+      "transaction_count": 0,
+      "response_structure": "Valid"
+    },
+    {
+      "test": "Transactions POST",
+      "success": false,
+      "timestamp": "2026-03-19T10:53:38.979597",
+      "status_code": 500,
+      "error": "POST transactions failed: {\"error\":\"Failed to save transactions\"}"
+    },
+    {
+      "test": "User Rules GET",
+      "success": true,
+      "timestamp": "2026-03-19T10:53:39.216164",
+      "status_code": 200,
+      "rules_count": 0,
+      "response_structure": "Valid"
+    },
+    {
+      "test": "User Rules POST",
+      "success": false,
+      "timestamp": "2026-03-19T10:53:39.359482",
+      "status_code": 500,
+      "error": "POST user rules failed: {\"error\":\"Failed to save rule\"}"
+    }
+  ]
+}

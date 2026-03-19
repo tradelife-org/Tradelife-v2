@@ -1,4 +1,9 @@
-export const dynamic = 'force-dynamic'
+import './globals.css'
+
+export const metadata = {
+  title: 'TradeLife',
+  description: 'Smart finance for tradespeople',
+}
 
 export default function RootLayout({
   children,
