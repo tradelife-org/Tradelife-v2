@@ -70,22 +70,22 @@ void main() {
   float flicker = 1.0 + sin(uTime * 3.7) * 0.04 + sin(uTime * 7.3) * 0.02;
   energy *= flicker;
 
-  // Color ramp: white-hot center → orange → deep red → black
-  vec3 colBlack = vec3(0.02, 0.005, 0.0);
-  vec3 colRed = vec3(0.6, 0.08, 0.01);
-  vec3 colOrange = vec3(1.0, 0.4, 0.05);
-  vec3 colYellow = vec3(1.0, 0.75, 0.2);
-  vec3 colWhite = vec3(1.0, 0.95, 0.85);
+  // Color ramp: white center → light blue → blue → deep navy → black
+  vec3 colBlack = vec3(0.0, 0.005, 0.02);
+  vec3 colDeep = vec3(0.02, 0.06, 0.2);
+  vec3 colBlue = vec3(0.15, 0.35, 0.9);
+  vec3 colLight = vec3(0.5, 0.7, 1.0);
+  vec3 colWhite = vec3(0.9, 0.95, 1.0);
 
   vec3 color;
   if (energy < 0.15) {
-    color = mix(colBlack, colRed, energy / 0.15);
+    color = mix(colBlack, colDeep, energy / 0.15);
   } else if (energy < 0.35) {
-    color = mix(colRed, colOrange, (energy - 0.15) / 0.2);
+    color = mix(colDeep, colBlue, (energy - 0.15) / 0.2);
   } else if (energy < 0.55) {
-    color = mix(colOrange, colYellow, (energy - 0.35) / 0.2);
+    color = mix(colBlue, colLight, (energy - 0.35) / 0.2);
   } else {
-    color = mix(colYellow, colWhite, clamp((energy - 0.55) / 0.45, 0.0, 1.0));
+    color = mix(colLight, colWhite, clamp((energy - 0.55) / 0.45, 0.0, 1.0));
   }
 
   // Brightness boost for bloom to catch

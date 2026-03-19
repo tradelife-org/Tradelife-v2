@@ -20,7 +20,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center px-4 py-8 sm:p-6">
       <div className="w-full max-w-[420px]">
         {/* Branding */}
         <div className="flex items-center justify-center gap-3 mb-10">
@@ -33,7 +33,7 @@ export default function LoginPage() {
         {/* Login Panel */}
         <div
           data-testid="login-panel"
-          className="panel-material p-8"
+          className="panel-material p-6 sm:p-8"
         >
           <h1 className="text-lg font-semibold text-[var(--text-primary)] mb-1">Sign in</h1>
           <p className="text-xs text-[var(--text-secondary)] mb-6">Welcome back to your command center</p>

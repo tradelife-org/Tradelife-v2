@@ -59,7 +59,7 @@ export function SceneCanvas({ intensity = 1 }: SceneCanvasProps) {
         dpr={[1, 1.5]}
         style={{ background: 'transparent' }}
       >
-        <fog attach="fog" args={['#06060a', 2.5, 11]} />
+        <fog attach="fog" args={['#0b0f14', 2.5, 11]} />
         <CoreLight intensity={intensity} />
         <MoltenCore intensity={intensity} />
         <CoreTElement intensity={intensity} />

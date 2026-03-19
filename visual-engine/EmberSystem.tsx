@@ -15,9 +15,9 @@ interface LayerConfig {
 }
 
 const LAYERS: LayerConfig[] = [
-  { count: 25, zRange: [-4, -2], speed: [0.06, 0.15], size: 0.008, opacity: 0.2, color: new THREE.Color(0.7, 0.3, 0.08), spread: [10, 8] },
-  { count: 20, zRange: [-2, 0], speed: [0.1, 0.25], size: 0.014, opacity: 0.4, color: new THREE.Color(0.95, 0.45, 0.1), spread: [7, 6] },
-  { count: 10, zRange: [0, 1.5], speed: [0.18, 0.4], size: 0.02, opacity: 0.55, color: new THREE.Color(1, 0.55, 0.15), spread: [5, 5] },
+  { count: 25, zRange: [-4, -2], speed: [0.06, 0.15], size: 0.008, opacity: 0.15, color: new THREE.Color(0.15, 0.3, 0.6), spread: [10, 8] },
+  { count: 20, zRange: [-2, 0], speed: [0.1, 0.25], size: 0.014, opacity: 0.3, color: new THREE.Color(0.25, 0.5, 0.9), spread: [7, 6] },
+  { count: 10, zRange: [0, 1.5], speed: [0.18, 0.4], size: 0.02, opacity: 0.4, color: new THREE.Color(0.4, 0.65, 1.0), spread: [5, 5] },
 ]
 
 function EmberLayer({ config, intensity }: { config: LayerConfig; intensity: number }) {

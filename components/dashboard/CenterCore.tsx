@@ -16,7 +16,7 @@ export function CenterCore() {
   const setAiCoreOpen = useUIStore((s) => s.setAiCoreOpen)
 
   return (
-    <div className="col-span-12 lg:col-span-6 space-y-5">
+    <div className="lg:col-span-6 space-y-4 sm:space-y-5">
       {/* AI Core Hero */}
       <Panel data-testid="ai-core-placeholder" className="!p-0">
         <div className="flex flex-col items-center justify-center py-12 px-6">
@@ -36,7 +36,7 @@ export function CenterCore() {
       </Panel>
 
       {/* Action Buttons */}
-      <div className="grid grid-cols-3 gap-3" data-testid="action-buttons">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3" data-testid="action-buttons">
         <Button data-testid="action-new-quote" className="gap-2">
           <Plus className="w-3.5 h-3.5" /> New Quote
         </Button>
@@ -49,7 +49,7 @@ export function CenterCore() {
       </div>
 
       {/* Overview Grid */}
-      <div className="grid grid-cols-2 gap-3" data-testid="overview-grid">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3" data-testid="overview-grid">
         {overviewStats.map((stat) => (
           <Panel key={stat.label}>
             <div className="flex items-center justify-between mb-2">

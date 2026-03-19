@@ -46,8 +46,8 @@ export function CoreTElement({ intensity = 1 }: CoreTElementProps) {
         T
         <meshStandardMaterial
           ref={matRef}
-          color={new THREE.Color(0.12, 0.06, 0.01)}
-          emissive={new THREE.Color(1, 0.5, 0.1)}
+          color={new THREE.Color(0.02, 0.04, 0.12)}
+          emissive={new THREE.Color(0.3, 0.55, 1.0)}
           emissiveIntensity={4 * intensity}
           roughness={0.2}
           metalness={0.8}
@@ -58,7 +58,7 @@ export function CoreTElement({ intensity = 1 }: CoreTElementProps) {
       {/* Primary — strong center emission */}
       <pointLight
         ref={primaryRef}
-        color={new THREE.Color(1, 0.5, 0.12)}
+        color={new THREE.Color(0.3, 0.55, 1.0)}
         intensity={10 * intensity}
         distance={22}
         decay={2}
@@ -67,7 +67,7 @@ export function CoreTElement({ intensity = 1 }: CoreTElementProps) {
       {/* Forward fill — pushes warmth toward camera */}
       <pointLight
         ref={fillRef}
-        color={new THREE.Color(0.95, 0.4, 0.08)}
+        color={new THREE.Color(0.2, 0.45, 0.9)}
         intensity={4 * intensity}
         distance={12}
         decay={2.5}
@@ -77,7 +77,7 @@ export function CoreTElement({ intensity = 1 }: CoreTElementProps) {
       {/* Rear fill — creates depth behind core */}
       <pointLight
         ref={rearRef}
-        color={new THREE.Color(0.7, 0.25, 0.05)}
+        color={new THREE.Color(0.12, 0.25, 0.6)}
         intensity={2 * intensity}
         distance={8}
         decay={3}

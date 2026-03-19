@@ -6,28 +6,28 @@ export function TopBar() {
   return (
     <header
       data-testid="top-bar"
-      className="sticky top-0 z-50 h-14 topbar-material px-6 flex items-center justify-between"
+      className="sticky top-0 z-50 h-14 topbar-material px-4 sm:px-6 flex items-center justify-between"
     >
       {/* Left */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <div
           data-testid="logo"
-          className="w-7 h-7 rounded-md bg-[var(--accent)] flex items-center justify-center"
+          className="w-7 h-7 rounded-md bg-[var(--accent)] flex items-center justify-center shrink-0"
         >
           <span className="text-white font-bold text-xs">T</span>
         </div>
         <div
           data-testid="flag"
-          className="w-6 h-4 rounded-sm bg-[var(--bg-elevated)] border border-[var(--border)] flex items-center justify-center overflow-hidden"
+          className="hidden sm:flex w-6 h-4 rounded-sm bg-[var(--bg-elevated)] border border-[var(--border)] items-center justify-center overflow-hidden"
         >
           <span className="text-[8px] text-[var(--text-muted)]">EN</span>
         </div>
         <span className="font-semibold text-sm text-[var(--text-primary)] tracking-tight">TradeLife</span>
-        <span className="text-[11px] font-medium text-[var(--text-muted)] ml-1">Command Center</span>
+        <span className="hidden sm:inline text-[11px] font-medium text-[var(--text-muted)] ml-1">Command Center</span>
       </div>
 
       {/* Right */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-0.5 sm:gap-1">
         <button
           data-testid="notifications-button"
           className="w-8 h-8 rounded-md flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]"
@@ -48,7 +48,7 @@ export function TopBar() {
         </button>
         <div
           data-testid="user-avatar"
-          className="w-7 h-7 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] flex items-center justify-center ml-2"
+          className="w-7 h-7 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] flex items-center justify-center ml-1.5 sm:ml-2"
         >
           <User className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
         </div>

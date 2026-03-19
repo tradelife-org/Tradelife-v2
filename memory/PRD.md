@@ -1,4 +1,4 @@
-# TradeLife PRD — Final State
+# TradeLife PRD — Commercial Theme Final
 
 ## Architecture
 - **Frontend**: Next.js 14.2.3 + TypeScript + TailwindCSS
@@ -6,30 +6,45 @@
 - **Drag**: @dnd-kit/core 6.3.1 + sortable 8.0.0
 - **State**: Zustand (persisted)
 
-## Complete Feature Set
+## Commercial Theme (Final)
 
-### Platform Shell
-- Login (email/password + Google), Onboarding (6 steps), Dashboard (3-column grid)
-- TopBar, DashboardLayout, LeftStack, CenterCore, RightStack
-- Panel, Button, Input primitives
+### Color System
+- bg-base: #0b0f14 (charcoal/anthracite)
+- bg-surface: #111620 (slightly lighter)
+- bg-elevated: #18202c
+- accent: #3b82f6 (soft blue)
+- text-primary: #d8dce3
+- borders: rgba(148,180,214,0.06) — blue-tinted, nearly invisible
 
-### Visual Engine
-- **MoltenCore** (GLSL): Custom ShaderMaterial with fbm noise, animated organic flow, radial falloff, white-hot→orange→red→black color ramp, additive blending
-- **CoreTElement**: Emissive T text (intensity 4, toneMapped false), 3 PointLights (primary 10, fill 4, rear 2), pulse + multi-freq flicker
-- **CoreLight**: Low ambient (0.3), 3-tier halo (0.4/1.6/4.0r), edge absorber (r=9), depth haze, floor shadow
-- **EmberSystem**: 3 layers (far 25, mid 20, near 10), upward drift, additive blending
-- **PostFX**: Bloom (0.7, threshold 0.06, mipmapBlur), Vignette (0.95), ChromaticAberration (0.0004), Noise (0.08)
+### Panel Material
+- bg: rgba(17,22,32,0.5), blur(16px), saturate(1.1)
+- ::before: directional gradient + blue radial tint
+- ::after: thin rim light (blue-tinted)
+- shadow: 3-tier soft (no strong elevation)
 
-### Route-Aware Intensity
-- Login: 0.3 | Onboarding: 0.5 | Dashboard: 1.0
+### WebGL Engine (Blue)
+- MoltenCore GLSL: white→light blue→blue→deep navy→black color ramp
+- CoreTElement: blue emissive (0.3, 0.55, 1.0), 3 blue point lights
+- EmberSystem: 3 layers in blue tones
+- Fog: #0b0f14
 
-### CSS Material System
-- panel-material: 0.38 alpha, blur(18px), directional gradient, warm radial tint, rim light (::after)
-- 3 overlay layers: lighting-overlay (vignette), core-wash (warm screen), atmosphere-haze
-- Crushed blacks: bg #060608, borders 0.03 alpha
+### CSS Overlays
+- lighting-overlay: radial vignette (charcoal edges)
+- core-wash: blue tint center (screen blend)
+- atmosphere-haze: subtle depth fog
 
-### Interactions
-- Widget drag (dnd-kit, vertical-only, constrained zones, persisted order)
-- AI Core overlay (Jarvis-style, daily brief, mock conversational AI)
+### Mobile Responsive
+- grid-cols-1 default, lg:grid-cols-12 for desktop
+- TopBar: EN flag + "Command Center" hidden on small screens
+- Panels: p-6 sm:p-8 adaptive padding
+- Action buttons/overview: gap-2 sm:gap-3
 
-## Testing History: All iterations 100%
+### Consistency
+- Same panel-material across login, onboarding, dashboard
+- Same btn-material for all secondary buttons
+- Same inset-material for all nested items
+- Same topbar-material for all top bars
+- Same Input component everywhere
+
+## All Phases Complete
+Phases 6-17 implemented and tested. Commercial theme finalized.

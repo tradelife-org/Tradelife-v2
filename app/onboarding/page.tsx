@@ -35,7 +35,7 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-[var(--bg-base)] flex flex-col">
       {/* Minimal top bar */}
-      <div className="h-14 border-b border-[var(--panel-border)] topbar-material px-6 flex items-center">
+      <div className="h-14 border-b border-[var(--panel-border)] topbar-material px-4 sm:px-6 flex items-center">
         <div className="w-7 h-7 rounded-md bg-[var(--accent)] flex items-center justify-center">
           <span className="text-white font-bold text-xs">T</span>
         </div>
@@ -43,7 +43,7 @@ export default function OnboardingPage() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex items-center justify-center p-6">
+      <div className="flex-1 flex items-center justify-center px-4 py-6 sm:p-6">
         <div className="w-full max-w-[520px]">
           {/* Step indicator */}
           <div className="flex items-center gap-1.5 mb-8" data-testid="onboarding-steps">
@@ -59,7 +59,7 @@ export default function OnboardingPage() {
           {/* Step panel */}
           <div
             data-testid="onboarding-panel"
-            className="panel-material p-8"
+            className="panel-material p-6 sm:p-8"
           >
             {/* Step 0: Welcome */}
             {step === 0 && (

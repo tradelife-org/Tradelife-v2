@@ -15,18 +15,19 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     margin: 0;
+    line-height: 1.5;
   }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   PANEL MATERIAL — physically-lit glass surfaces
+   PANEL MATERIAL
    ═══════════════════════════════════════════════════════════ */
 
 @layer components {
   .panel-material {
     background: var(--panel-bg);
-    backdrop-filter: blur(18px) saturate(1.2);
-    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    backdrop-filter: blur(16px) saturate(1.1);
+    -webkit-backdrop-filter: blur(16px) saturate(1.1);
     border: 1px solid var(--panel-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--panel-shadow);
@@ -34,31 +35,26 @@
     overflow: hidden;
   }
 
-  /* Multi-layer light reaction:
-     1. Directional — top catches light, bottom darker
-     2. Warm radial — center-facing warmth from core
-     3. Edge highlight — top edge catches rim light */
   .panel-material::before {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
     background:
-      linear-gradient(178deg, var(--panel-highlight) 0%, transparent 25%, rgba(0,0,0,0.04) 100%),
-      radial-gradient(ellipse 150% 100% at 50% -20%, var(--panel-warm) 0%, transparent 50%);
+      linear-gradient(178deg, var(--panel-highlight) 0%, transparent 30%),
+      radial-gradient(ellipse 140% 80% at 50% -10%, var(--panel-tint) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
   }
 
-  /* Rim light — very thin bright top edge */
   .panel-material::after {
     content: '';
     position: absolute;
     top: 0;
-    left: 10%;
-    right: 10%;
+    left: 12%;
+    right: 12%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+    background: linear-gradient(90deg, transparent, rgba(148,180,214,0.06), transparent);
     pointer-events: none;
     z-index: 0;
   }
@@ -70,32 +66,31 @@
 
   .topbar-material {
     background: var(--panel-bg);
-    backdrop-filter: blur(22px) saturate(1.2);
-    -webkit-backdrop-filter: blur(22px) saturate(1.2);
+    backdrop-filter: blur(20px) saturate(1.1);
+    -webkit-backdrop-filter: blur(20px) saturate(1.1);
     border-bottom: 1px solid var(--panel-border);
   }
 
   .btn-material {
     background: var(--panel-bg);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--panel-border);
     border-radius: var(--radius-md);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
   }
 
   .btn-material:hover {
     border-color: var(--border-strong);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.15), 0 6px 16px -4px rgba(0,0,0,0.12);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 4px 12px -4px rgba(0,0,0,0.08);
   }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   CSS OVERLAY STACK — cinematic polish above UI
+   OVERLAY STACK — soft blue ambient
    ═══════════════════════════════════════════════════════════ */
 
-/* Layer 1: Strong radial vignette */
 .lighting-overlay {
   position: fixed;
   inset: 0;
@@ -103,14 +98,13 @@
   pointer-events: none;
   background:
     radial-gradient(
-      ellipse 45% 40% at 50% 30%,
+      ellipse 55% 50% at 50% 35%,
       transparent 0%,
-      rgba(0, 0, 0, 0.35) 50%,
-      rgba(0, 0, 0, 0.72) 100%
+      rgba(6, 10, 16, 0.3) 55%,
+      rgba(4, 6, 12, 0.6) 100%
     );
 }
 
-/* Layer 2: Core light wash — warm tint from T */
 .core-wash {
   position: fixed;
   inset: 0;
@@ -118,15 +112,14 @@
   pointer-events: none;
   background:
     radial-gradient(
-      ellipse 35% 30% at 50% 28%,
-      rgba(249, 115, 22, 0.03) 0%,
-      rgba(200, 80, 15, 0.01) 40%,
+      ellipse 40% 35% at 50% 30%,
+      rgba(59, 130, 246, 0.015) 0%,
+      rgba(30, 80, 180, 0.005) 40%,
       transparent 70%
     );
   mix-blend-mode: screen;
 }
 
-/* Layer 3: Atmosphere haze */
 .atmosphere-haze {
   position: fixed;
   inset: 0;
@@ -135,8 +128,8 @@
   background:
     radial-gradient(
       ellipse 100% 80% at 50% 50%,
-      rgba(10, 8, 6, 0.05) 0%,
-      rgba(6, 6, 8, 0.15) 100%
+      rgba(11, 15, 20, 0.04) 0%,
+      rgba(6, 8, 14, 0.1) 100%
     );
 }
 
