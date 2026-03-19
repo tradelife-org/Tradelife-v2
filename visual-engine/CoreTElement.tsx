@@ -5,7 +5,11 @@ import { useFrame } from '@react-three/fiber'
 import { Text } from '@react-three/drei'
 import * as THREE from 'three'
 
-export function CoreTElement() {
+interface CoreTElementProps {
+  intensity?: number
+}
+
+export function CoreTElement({ intensity = 1 }: CoreTElementProps) {
   const matRef = useRef<THREE.MeshStandardMaterial>(null)
   const primaryRef = useRef<THREE.PointLight>(null)
   const fillRef = useRef<THREE.PointLight>(null)
@@ -20,11 +24,11 @@ export function CoreTElement() {
       + Math.sin(t * 7.3) * 0.015
       + Math.sin(t * 13.1) * 0.008
 
-    const intensity = pulse * flicker
+    const base = pulse * flicker
 
-    matRef.current.emissiveIntensity = intensity * 3
-    primaryRef.current.intensity = intensity * 8
-    fillRef.current.intensity = intensity * 3
+    matRef.current.emissiveIntensity = base * 3 * intensity
+    primaryRef.current.intensity = base * 8 * intensity
+    fillRef.current.intensity = base * 3 * intensity
   })
 
   return (
@@ -41,27 +45,25 @@ export function CoreTElement() {
           ref={matRef}
           color={new THREE.Color(0.15, 0.08, 0.02)}
           emissive={new THREE.Color(1, 0.45, 0.08)}
-          emissiveIntensity={3}
+          emissiveIntensity={3 * intensity}
           roughness={0.3}
           metalness={0.7}
           toneMapped={false}
         />
       </Text>
 
-      {/* Primary point light — strong, focused */}
       <pointLight
         ref={primaryRef}
         color={new THREE.Color(1, 0.5, 0.12)}
-        intensity={8}
+        intensity={8 * intensity}
         distance={20}
         decay={2}
       />
 
-      {/* Forward fill — pushes light toward camera, illuminates near-UI space */}
       <pointLight
         ref={fillRef}
         color={new THREE.Color(0.9, 0.4, 0.1)}
-        intensity={3}
+        intensity={3 * intensity}
         distance={10}
         decay={2.5}
         position={[0, 0, 2]}

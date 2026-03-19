@@ -7,18 +7,18 @@ import { EmberSystem } from './EmberSystem'
 import { CoreLight } from './CoreLight'
 import { CoreTElement } from './CoreTElement'
 
-function PostFX() {
+function PostFX({ intensity }: { intensity: number }) {
   return (
     <EffectComposer multisampling={0}>
       <Bloom
-        intensity={0.6}
+        intensity={0.6 * intensity}
         luminanceThreshold={0.1}
         luminanceSmoothing={0.9}
         mipmapBlur
       />
       <Vignette
         offset={0.2}
-        darkness={0.8}
+        darkness={0.65 + 0.15 * intensity}
         blendFunction={BlendFunction.NORMAL}
       />
       <Noise
@@ -30,10 +30,15 @@ function PostFX() {
   )
 }
 
-export function SceneCanvas() {
+interface SceneCanvasProps {
+  intensity?: number
+}
+
+export function SceneCanvas({ intensity = 1 }: SceneCanvasProps) {
   return (
     <div
       data-testid="visual-engine"
+      data-intensity={intensity}
       style={{
         position: 'fixed',
         inset: 0,
@@ -48,10 +53,10 @@ export function SceneCanvas() {
         style={{ background: 'transparent' }}
       >
         <fog attach="fog" args={['#08080c', 3, 12]} />
-        <CoreLight />
-        <CoreTElement />
-        <EmberSystem />
-        <PostFX />
+        <CoreLight intensity={intensity} />
+        <CoreTElement intensity={intensity} />
+        <EmberSystem intensity={intensity} />
+        <PostFX intensity={intensity} />
       </Canvas>
     </div>
   )
