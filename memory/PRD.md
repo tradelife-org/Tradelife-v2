@@ -1,63 +1,65 @@
 # TradeLife PRD
 
 ## Problem Statement
-Build and enhance TradeLife using Next.js App Router + Supabase + OpenAI + Tailwind CSS. Three phases:
-1. Initial MVP: onboarding → dashboard → transaction classification → review
-2. Enhancement: Remove localStorage, persist via Supabase, add Companies House mock, logo generation, route protection, user rule learning
-3. Auth UI: Full login/signup flow with Supabase Auth
+Premium SaaS platform for UK tradespeople. Built with Next.js App Router + Supabase + OpenAI + Tailwind CSS.
 
 ## Architecture
-- **Frontend**: Next.js 14.2.3 App Router (client components)
-- **API Routes**: Next.js /app/api/* (classify, transactions, user-rules, auth/me, auth/ensure-profile, onboarding/complete)
-- **Backend Proxy**: FastAPI on port 8001 proxies /api/* to Next.js on port 3000 (K8s ingress compat)
-- **Database**: Supabase (PostgreSQL) — transactions, user_rules, profiles, organisations
-- **Auth**: Supabase Auth (email/password signInWithPassword, signUp)
-- **AI**: OpenAI gpt-4o via Emergent LLM key for transaction classification fallback
-- **Styling**: Tailwind CSS with blueprint theme
+- **Frontend**: Next.js 14.2.3 App Router, Framer Motion, Zustand
+- **API Routes**: /app/api/* (classify, transactions, user-rules, auth/me, auth/ensure-profile, onboarding/complete)
+- **Backend Proxy**: FastAPI on port 8001 → Next.js port 3000
+- **Database**: Supabase PostgreSQL
+- **Auth**: Supabase Auth (email/password)
+- **AI**: OpenAI gpt-4o via Emergent LLM key
+- **Styling**: Tailwind CSS + CSS custom properties (3-theme system)
 
-## What's Been Implemented
+## Implemented Features
 
 ### Phase 1 - MVP
-- [x] Onboarding with multi-step flow (Sole Trader, Limited, Not set up yet)
-- [x] Dashboard with Connect Bank and classification results
-- [x] Transaction classifier (3-tier: hardcoded → user rules → OpenAI)
-- [x] Review page with Business/Personal buttons
+- [x] Transaction classifier (hardcoded → user rules → OpenAI)
+- [x] Onboarding multi-step flow
+- [x] Dashboard with classification results
+- [x] Review page with reclassification
 
-### Phase 2 - Enhancement
-- [x] Removed ALL localStorage, Supabase-only persistence
-- [x] Companies House mock lookup, auto-generated logos
-- [x] Classifier fetches user rules from Supabase before AI fallback
-- [x] Middleware route protection (auth cookie check)
+### Phase 2 - Supabase Persistence
+- [x] All data via Supabase (transactions, user_rules, profiles)
+- [x] Companies House mock lookup + auto-generated logos
+- [x] Route protection middleware
 
 ### Phase 3 - Auth UI
-- [x] Login page: email/password form, Supabase signInWithPassword
-- [x] Signup page: email/password form, Supabase signUp + profile creation
-- [x] Error handling: empty fields, invalid credentials, short password
-- [x] Post-login redirect: onboarding_complete → /dashboard, else → /onboarding
-- [x] Post-signup redirect: → /onboarding
-- [x] /api/auth/ensure-profile: creates profile row if not exists
-- [x] Navigation links between login ↔ signup
-- [x] Clean Tailwind UI, centered forms, no blank screens
+- [x] Login page (Supabase signInWithPassword)
+- [x] Signup page (Supabase signUp + profile creation)
+
+### Phase 4 - Premium Visual System
+- [x] 3-theme system: Molten (orange), Commercial (blue), Remembrance (crimson)
+- [x] CSS variable tokens at root level, zero hardcoded colors
+- [x] Zustand store with persist middleware for theme state
+- [x] Theme selection step in onboarding
+- [x] Settings panel with instant theme switching on dashboard
+- [x] Dark glassmorphism UI across all screens
+- [x] 3-column command center dashboard layout
+- [x] AI Core centerpiece, glass panels, soft edge glow
+- [x] Framer Motion entrance animations
+- [x] Login/Signup with ambient glow and glass panels
+- [x] All existing functionality preserved (100% test pass)
 
 ## Key Files
-- `/app/app/login/page.tsx` - Login form
-- `/app/app/signup/page.tsx` - Signup form
-- `/app/app/api/auth/ensure-profile/route.ts` - Profile creation after signup
-- `/app/app/api/auth/me/route.ts` - Auth state check
-- `/app/app/onboarding/page.tsx` - Multi-step onboarding
-- `/app/app/dashboard/page.tsx` - Dashboard with Supabase data
-- `/app/app/transactions/review/page.tsx` - Transaction review
-- `/app/middleware.ts` - Route protection
+- `/app/app/globals.css` - Theme CSS variables + glass panel classes
+- `/app/lib/stores/theme-store.ts` - Zustand theme state
+- `/app/components/theme-provider.tsx` - Dynamic theme class application
+- `/app/app/login/page.tsx`, `/app/app/signup/page.tsx` - Auth UI
+- `/app/app/onboarding/page.tsx` - Multi-step + theme selection
+- `/app/app/dashboard/page.tsx` - 3-column command center
+- `/app/app/transactions/review/page.tsx` - Review with dark theme
 
-## Prioritized Backlog
+## Backlog
 ### P0
-- Email confirmation flow (if Supabase requires it)
-- Password reset flow
+- Real bank connection (Plaid)
+- Email confirmation flow
 
 ### P1
 - Real Companies House API
-- Real bank connection via Plaid
+- Receipt upload
+- Password reset
 
 ### P2
-- Social login (Google)
-- Transaction export, VAT calculation
+- Social login, transaction export, VAT calc
