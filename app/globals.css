@@ -4,7 +4,8 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+/* ─── Theme: Commercial (default) ── cool blue, clean ──── */
+.theme-commercial {
   --bg-base: #0b0b0f;
   --bg-surface: #141419;
   --bg-elevated: #1c1c22;
@@ -13,12 +14,52 @@
   --text-muted: #54545e;
   --border: rgba(255, 255, 255, 0.06);
   --border-strong: rgba(255, 255, 255, 0.1);
-  --accent: #6366f1;
-  --accent-muted: rgba(99, 102, 241, 0.12);
+  --accent: #3b82f6;
+  --accent-muted: rgba(59, 130, 246, 0.12);
   --success: #22c55e;
   --success-muted: rgba(34, 197, 94, 0.12);
   --warning: #eab308;
   --warning-muted: rgba(234, 179, 8, 0.12);
+  --danger: #ef4444;
+  --danger-muted: rgba(239, 68, 68, 0.12);
+}
+
+/* ─── Theme: Molten ── warm orange accent ────────────────── */
+.theme-molten {
+  --bg-base: #08080c;
+  --bg-surface: #111114;
+  --bg-elevated: #1a1a1e;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.1);
+  --accent: #f97316;
+  --accent-muted: rgba(249, 115, 22, 0.12);
+  --success: #22c55e;
+  --success-muted: rgba(34, 197, 94, 0.12);
+  --warning: #fbbf24;
+  --warning-muted: rgba(251, 191, 36, 0.12);
+  --danger: #ef4444;
+  --danger-muted: rgba(239, 68, 68, 0.12);
+}
+
+/* ─── Theme: Remembrance ── deep red, muted contrast ─── */
+.theme-remembrance {
+  --bg-base: #0a0809;
+  --bg-surface: #141112;
+  --bg-elevated: #1e1a1b;
+  --text-primary: #f5f0f1;
+  --text-secondary: #a8a0a2;
+  --text-muted: #5c5456;
+  --border: rgba(255, 255, 255, 0.05);
+  --border-strong: rgba(255, 255, 255, 0.09);
+  --accent: #dc2626;
+  --accent-muted: rgba(220, 38, 38, 0.12);
+  --success: #22c55e;
+  --success-muted: rgba(34, 197, 94, 0.12);
+  --warning: #f59e0b;
+  --warning-muted: rgba(245, 158, 11, 0.12);
   --danger: #ef4444;
   --danger-muted: rgba(239, 68, 68, 0.12);
 }
