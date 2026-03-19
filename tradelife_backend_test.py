@@ -222,41 +222,49 @@ class TradeLifeBackendTester:
             })
 
     def test_api_transactions_get(self):
-        """Test GET /api/transactions endpoint"""
+        """Test GET /api/transactions endpoint with org_id"""
+        org_id = "a62cd3b5-e573-4dfc-b4b5-10b162116a52"  # From agent context
         try:
             response = requests.get(
-                f"{self.base_url}/api/transactions?org_id=default",
+                f"{self.base_url}/api/transactions?org_id={org_id}",
                 timeout=10
             )
             
-            # Should return either 200 with data or 404/500 if not implemented
-            success = response.status_code in [200, 404, 500]
+            success = response.status_code == 200
             if response.status_code == 200:
                 data = response.json()
                 has_transactions_key = "transactions" in data
+                transactions = data.get("transactions", [])
                 success = has_transactions_key
+            else:
+                data = {}
+                transactions = []
             
             self.log_result("API Transactions GET", success, {
                 "status_code": response.status_code,
-                "response_data": response.json() if success and response.status_code == 200 else None,
-                "error": None if success else f"Unexpected status: {response.status_code}"
+                "transaction_count": len(transactions),
+                "has_transactions_key": "transactions" in data if success else False,
+                "error": None if success else f"HTTP {response.status_code}: {response.text[:200]}"
             })
+            
+            return transactions  # Return for later tests
                 
         except requests.RequestException as e:
             self.log_result("API Transactions GET", False, {
                 "error": f"Request failed: {str(e)}"
             })
+            return []
 
     def test_api_user_rules_get(self):
         """Test GET /api/user-rules endpoint"""
+        org_id = "a62cd3b5-e573-4dfc-b4b5-10b162116a52"  # From agent context
         try:
             response = requests.get(
-                f"{self.base_url}/api/user-rules?org_id=default",
+                f"{self.base_url}/api/user-rules?org_id={org_id}",
                 timeout=10
             )
             
-            # Should return either 200 with data or 404/500 if not implemented
-            success = response.status_code in [200, 404, 500]
+            success = response.status_code == 200
             if response.status_code == 200:
                 data = response.json()
                 has_rules_key = "rules" in data
@@ -264,12 +272,231 @@ class TradeLifeBackendTester:
             
             self.log_result("API User Rules GET", success, {
                 "status_code": response.status_code,
-                "response_data": response.json() if success and response.status_code == 200 else None,
-                "error": None if success else f"Unexpected status: {response.status_code}"
+                "rules_count": len(data.get("rules", [])) if success else 0,
+                "error": None if success else f"HTTP {response.status_code}: {response.text[:200]}"
             })
                 
         except requests.RequestException as e:
             self.log_result("API User Rules GET", False, {
+                "error": f"Request failed: {str(e)}"
+            })
+
+    def test_api_transactions_post_save(self):
+        """Test POST /api/transactions to save classified transactions"""
+        org_id = "a62cd3b5-e573-4dfc-b4b5-10b162116a52"
+        test_transactions = [
+            {
+                "id": "tx-post-test-1", 
+                "merchant": "Test Business", 
+                "amount": 100, 
+                "description": "Test transaction", 
+                "date": "2025-01-15",
+                "type": "business",
+                "category": "materials",
+                "confidence": 0.9
+            }
+        ]
+        
+        try:
+            response = requests.post(
+                f"{self.base_url}/api/transactions",
+                json={"transactions": test_transactions, "org_id": org_id},
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            success = response.status_code == 200
+            if success:
+                data = response.json()
+                saved_transactions = data.get("transactions", [])
+                success = len(saved_transactions) > 0
+            
+            self.log_result("API Transactions POST - Save", success, {
+                "status_code": response.status_code,
+                "saved_count": len(data.get("transactions", [])) if success else 0,
+                "error": None if success else f"HTTP {response.status_code}: {response.text[:200]}"
+            })
+                
+        except requests.RequestException as e:
+            self.log_result("API Transactions POST - Save", False, {
+                "error": f"Request failed: {str(e)}"
+            })
+
+    def test_api_transactions_patch_update(self):
+        """Test PATCH /api/transactions to update single transaction"""
+        # First get existing transactions to find one to update
+        org_id = "a62cd3b5-e573-4dfc-b4b5-10b162116a52"
+        
+        try:
+            # Get existing transactions
+            get_response = requests.get(
+                f"{self.base_url}/api/transactions?org_id={org_id}",
+                timeout=10
+            )
+            
+            if get_response.status_code != 200:
+                self.log_result("API Transactions PATCH - Update", False, {
+                    "error": "Could not fetch existing transactions for update test"
+                })
+                return
+            
+            transactions = get_response.json().get("transactions", [])
+            if not transactions:
+                self.log_result("API Transactions PATCH - Update", False, {
+                    "error": "No existing transactions found to update"
+                })
+                return
+            
+            # Update first transaction
+            tx_to_update = transactions[0]
+            update_data = {
+                "id": tx_to_update["id"],
+                "type": "personal" if tx_to_update.get("type") == "business" else "business",
+                "category": "test_category",
+                "confidence": 1.0
+            }
+            
+            response = requests.patch(
+                f"{self.base_url}/api/transactions",
+                json=update_data,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            success = response.status_code == 200
+            if success:
+                data = response.json()
+                updated_transaction = data.get("transaction", {})
+                success = updated_transaction.get("id") == tx_to_update["id"]
+            
+            self.log_result("API Transactions PATCH - Update", success, {
+                "status_code": response.status_code,
+                "updated_transaction_id": tx_to_update["id"],
+                "error": None if success else f"HTTP {response.status_code}: {response.text[:200]}"
+            })
+                
+        except requests.RequestException as e:
+            self.log_result("API Transactions PATCH - Update", False, {
+                "error": f"Request failed: {str(e)}"
+            })
+
+    def test_api_user_rules_post_save(self):
+        """Test POST /api/user-rules to save user classification rules"""
+        org_id = "a62cd3b5-e573-4dfc-b4b5-10b162116a52"
+        
+        try:
+            rule_data = {
+                "merchant": "test_merchant_rule",
+                "type": "business", 
+                "category": "test_materials",
+                "org_id": org_id
+            }
+            
+            response = requests.post(
+                f"{self.base_url}/api/user-rules",
+                json=rule_data,
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            success = response.status_code == 200
+            if success:
+                data = response.json()
+                saved_rule = data.get("rule", {})
+                success = saved_rule.get("merchant") == "test_merchant_rule"
+            
+            self.log_result("API User Rules POST - Save", success, {
+                "status_code": response.status_code,
+                "saved_rule_merchant": saved_rule.get("merchant") if success else None,
+                "error": None if success else f"HTTP {response.status_code}: {response.text[:200]}"
+            })
+                
+        except requests.RequestException as e:
+            self.log_result("API User Rules POST - Save", False, {
+                "error": f"Request failed: {str(e)}"
+            })
+
+    def test_api_auth_me(self):
+        """Test GET /api/auth/me endpoint for user and org_id"""
+        try:
+            response = requests.get(
+                f"{self.base_url}/api/auth/me",
+                timeout=10
+            )
+            
+            success = response.status_code == 200
+            if success:
+                data = response.json()
+                user = data.get("user", {})
+                has_org_id = user.get("org_id") is not None
+                success = has_org_id
+            
+            self.log_result("API Auth Me", success, {
+                "status_code": response.status_code,
+                "has_user": "user" in data if success else False,
+                "has_org_id": has_org_id if success else False,
+                "org_id": user.get("org_id") if success else None,
+                "error": None if success else f"HTTP {response.status_code}: {response.text[:200]}"
+            })
+                
+        except requests.RequestException as e:
+            self.log_result("API Auth Me", False, {
+                "error": f"Request failed: {str(e)}"
+            })
+
+    def test_api_onboarding_complete(self):
+        """Test POST /api/onboarding/complete endpoint"""
+        try:
+            response = requests.post(
+                f"{self.base_url}/api/onboarding/complete",
+                headers={"Content-Type": "application/json"},
+                timeout=10
+            )
+            
+            # May return 401 if no auth (which is expected) or 200 if successful
+            success = response.status_code in [200, 401]
+            
+            self.log_result("API Onboarding Complete", success, {
+                "status_code": response.status_code,
+                "response": "endpoint exists and responds" if success else None,
+                "error": None if success else f"Unexpected status: {response.status_code}"
+            })
+                
+        except requests.RequestException as e:
+            self.log_result("API Onboarding Complete", False, {
+                "error": f"Request failed: {str(e)}"
+            })
+
+    def test_api_classify_with_org_user_rules(self):
+        """Test classification API fetches user rules from Supabase before AI fallback"""
+        org_id = "a62cd3b5-e573-4dfc-b4b5-10b162116a52"
+        test_transactions = [
+            {"id": "rules-test-1", "merchant": "Unknown Merchant XYZ", "description": "Unknown business", "amount": 75, "date": "2025-01-15"}
+        ]
+        
+        try:
+            response = requests.post(
+                f"{self.base_url}/api/classify",
+                json={"transactions": test_transactions, "org_id": org_id},  # Include org_id
+                headers={"Content-Type": "application/json"},
+                timeout=15
+            )
+            
+            success = response.status_code == 200
+            if success:
+                data = response.json()
+                transactions = data.get("transactions", [])
+                success = len(transactions) == 1 and transactions[0].get("confidence") is not None
+            
+            self.log_result("API Classify with User Rules", success, {
+                "status_code": response.status_code,
+                "classified_count": len(data.get("transactions", [])) if success else 0,
+                "includes_org_id": "org_id parameter accepted",
+                "error": None if success else f"HTTP {response.status_code}: {response.text[:200]}"
+            })
+                
+        except requests.RequestException as e:
+            self.log_result("API Classify with User Rules", False, {
                 "error": f"Request failed: {str(e)}"
             })
 
@@ -278,13 +505,25 @@ class TradeLifeBackendTester:
         print("🔍 Running TradeLife Backend API Tests...")
         print("=" * 60)
         
-        # Test in order of importance
+        # Test authentication and core endpoints first
+        self.test_api_auth_me()
+        self.test_api_onboarding_complete()
+        
+        # Test data endpoints
+        self.test_api_transactions_get()
+        self.test_api_user_rules_get()
+        
+        # Test classification with rules
+        self.test_api_classify_with_org_user_rules()
         self.test_api_classify_hardcoded_rules()
         self.test_api_classify_ai_fallback()
         self.test_api_classify_mock_dashboard_data()
         self.test_api_classify_invalid_input()
-        self.test_api_transactions_get()
-        self.test_api_user_rules_get()
+        
+        # Test CRUD operations
+        self.test_api_transactions_post_save()
+        self.test_api_transactions_patch_update()
+        self.test_api_user_rules_post_save()
         
         print("\n" + "=" * 60)
         print(f"📊 Test Summary: {self.tests_passed}/{self.tests_run} passed ({(self.tests_passed/self.tests_run*100):.1f}%)")

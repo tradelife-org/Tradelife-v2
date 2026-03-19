@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 
 interface ClassifiedTransaction {
@@ -15,50 +15,100 @@ interface ClassifiedTransaction {
 }
 
 const MOCK_TRANSACTIONS = [
-  { id: 'tx-1', merchant: 'Screwfix', amount: 120, description: 'Screwfix Direct', date: '2025-01-15' },
-  { id: 'tx-2', merchant: 'Tesco', amount: 45, description: 'Tesco Superstore', date: '2025-01-15' },
-  { id: 'tx-3', merchant: 'Shell', amount: 60, description: 'Shell Fuel Station', date: '2025-01-14' },
-  { id: 'tx-4', merchant: 'Amazon', amount: 30, description: 'Amazon.co.uk', date: '2025-01-14' },
+  { id: crypto.randomUUID(), merchant: 'Screwfix', amount: 120, description: 'Screwfix Direct', date: '2025-01-15' },
+  { id: crypto.randomUUID(), merchant: 'Tesco', amount: 45, description: 'Tesco Superstore', date: '2025-01-15' },
+  { id: crypto.randomUUID(), merchant: 'Shell', amount: 60, description: 'Shell Fuel Station', date: '2025-01-14' },
+  { id: crypto.randomUUID(), merchant: 'Amazon', amount: 30, description: 'Amazon.co.uk', date: '2025-01-14' },
 ]
 
 export default function DashboardPage() {
   const router = useRouter()
+  const [orgId, setOrgId] = useState<string | null>(null)
   const [connected, setConnected] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [pageLoading, setPageLoading] = useState(true)
   const [transactions, setTransactions] = useState<ClassifiedTransaction[]>([])
 
   const businessCount = transactions.filter((t) => t.type === 'business').length
   const personalCount = transactions.filter((t) => t.type === 'personal').length
   const reviewCount = transactions.filter((t) => t.confidence < 0.7).length
 
+  const loadTransactions = useCallback(async (oid: string) => {
+    try {
+      const res = await fetch(`/api/transactions?org_id=${oid}`)
+      const data = await res.json()
+      if (data.transactions && data.transactions.length > 0) {
+        setTransactions(data.transactions)
+        setConnected(true)
+      }
+    } catch (err) {
+      console.error('Failed to load transactions:', err)
+    }
+  }, [])
+
+  useEffect(() => {
+    async function init() {
+      try {
+        const res = await fetch('/api/auth/me')
+        const data = await res.json()
+        if (data.user?.org_id) {
+          setOrgId(data.user.org_id)
+          await loadTransactions(data.user.org_id)
+        }
+      } catch (err) {
+        console.error('Auth check failed:', err)
+      } finally {
+        setPageLoading(false)
+      }
+    }
+    init()
+  }, [loadTransactions])
+
   async function handleConnectBank() {
     setLoading(true)
     try {
+      // Classify with user rules from Supabase
       const res = await fetch('/api/classify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transactions: MOCK_TRANSACTIONS }),
+        body: JSON.stringify({
+          transactions: MOCK_TRANSACTIONS,
+          org_id: orgId,
+        }),
       })
       const data = await res.json()
       if (data.transactions) {
-        setTransactions(data.transactions)
-        setConnected(true)
-
-        // Store in localStorage for review page
-        localStorage.setItem('tradelife_transactions', JSON.stringify(data.transactions))
-
-        // Also try to save to Supabase (non-blocking)
-        fetch('/api/transactions', {
+        // Save to Supabase
+        const saveRes = await fetch('/api/transactions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ transactions: data.transactions }),
-        }).catch(() => {})
+          body: JSON.stringify({
+            transactions: data.transactions,
+            org_id: orgId,
+          }),
+        })
+        const saved = await saveRes.json()
+
+        if (saved.transactions) {
+          setTransactions(saved.transactions)
+        } else {
+          setTransactions(data.transactions)
+        }
+        setConnected(true)
       }
     } catch (err) {
       console.error('Failed to classify:', err)
     } finally {
       setLoading(false)
     }
+  }
+
+  if (pageLoading) {
+    return (
+      <main className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <p className="text-slate-500">Loading dashboard...</p>
+      </main>
+    )
   }
 
   return (
@@ -113,7 +163,6 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Transaction list */}
             <div className="bg-white border border-slate-200 rounded-lg divide-y divide-slate-100">
               {transactions.map((tx) => (
                 <div key={tx.id} className="px-4 py-3 flex items-center justify-between" data-testid={`transaction-${tx.id}`}>

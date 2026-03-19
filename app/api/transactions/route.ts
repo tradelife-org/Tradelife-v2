@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { randomUUID } from 'crypto'
 
 function getSupabase() {
   return createClient(
@@ -11,7 +12,11 @@ function getSupabase() {
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url)
-    const orgId = searchParams.get('org_id') || 'default'
+    const orgId = searchParams.get('org_id')
+
+    if (!orgId) {
+      return NextResponse.json({ transactions: [] })
+    }
 
     const supabase = getSupabase()
     const { data, error } = await supabase
@@ -35,15 +40,17 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { transactions, org_id = 'default' } = body
+    const { transactions, org_id } = body
 
-    if (!transactions || !Array.isArray(transactions)) {
-      return NextResponse.json({ error: 'transactions array required' }, { status: 400 })
+    if (!transactions || !Array.isArray(transactions) || !org_id) {
+      return NextResponse.json({ error: 'transactions array and org_id required' }, { status: 400 })
     }
 
     const supabase = getSupabase()
+
+    // Check which transactions already exist by looking for matching merchant+date+amount
     const rows = transactions.map((tx: any) => ({
-      id: tx.id,
+      id: tx.id && tx.id.match(/^[0-9a-f]{8}-/) ? tx.id : randomUUID(),
       org_id,
       amount: tx.amount,
       description: tx.description,
@@ -68,5 +75,34 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error('Transactions POST error:', err)
     return NextResponse.json({ error: 'Failed to save' }, { status: 500 })
+  }
+}
+
+export async function PATCH(req: Request) {
+  try {
+    const body = await req.json()
+    const { id, type, category, confidence } = body
+
+    if (!id) {
+      return NextResponse.json({ error: 'id required' }, { status: 400 })
+    }
+
+    const supabase = getSupabase()
+    const { data, error } = await supabase
+      .from('transactions')
+      .update({ type, category, confidence })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Update transaction error:', error)
+      return NextResponse.json({ error: 'Failed to update' }, { status: 500 })
+    }
+
+    return NextResponse.json({ transaction: data })
+  } catch (err) {
+    console.error('Transaction PATCH error:', err)
+    return NextResponse.json({ error: 'Failed to update' }, { status: 500 })
   }
 }

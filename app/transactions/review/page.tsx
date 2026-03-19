@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 
 interface Transaction {
@@ -16,74 +16,83 @@ interface Transaction {
 
 export default function ReviewPage() {
   const router = useRouter()
+  const [orgId, setOrgId] = useState<string | null>(null)
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchTransactions()
-  }, [])
-
-  async function fetchTransactions() {
+  const loadTransactions = useCallback(async (oid: string) => {
     try {
-      // Try API first
-      const res = await fetch('/api/transactions?org_id=default')
+      const res = await fetch(`/api/transactions?org_id=${oid}`)
       const data = await res.json()
-      if (data.transactions && data.transactions.length > 0) {
+      if (data.transactions) {
         setTransactions(data.transactions)
-        setLoading(false)
-        return
       }
     } catch (err) {
-      console.error('API fetch failed:', err)
+      console.error('Failed to fetch transactions:', err)
+    } finally {
+      setLoading(false)
     }
+  }, [])
 
-    // Fallback to localStorage
-    try {
-      const stored = localStorage.getItem('tradelife_transactions')
-      if (stored) {
-        setTransactions(JSON.parse(stored))
+  useEffect(() => {
+    async function init() {
+      try {
+        const res = await fetch('/api/auth/me')
+        const data = await res.json()
+        if (data.user?.org_id) {
+          setOrgId(data.user.org_id)
+          await loadTransactions(data.user.org_id)
+        } else {
+          setLoading(false)
+        }
+      } catch {
+        setLoading(false)
       }
-    } catch {}
-    setLoading(false)
-  }
+    }
+    init()
+  }, [loadTransactions])
 
   async function handleClassify(txId: string, type: 'business' | 'personal') {
     setSaving(txId)
     const tx = transactions.find((t) => t.id === txId)
-    if (!tx) return
+    if (!tx) { setSaving(null); return }
 
     const category = type === 'business' ? 'business expense' : 'personal expense'
 
-    // Update local state
-    const updated = transactions.map((t) =>
-      t.id === txId ? { ...t, type, category, confidence: 1.0 } : t
+    // Optimistic local update
+    setTransactions((prev) =>
+      prev.map((t) =>
+        t.id === txId ? { ...t, type, category, confidence: 1.0 } : t
+      )
     )
-    setTransactions(updated)
 
-    // Save to localStorage
-    localStorage.setItem('tradelife_transactions', JSON.stringify(updated))
+    try {
+      // Update transaction in Supabase
+      await fetch('/api/transactions', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: txId, type, category, confidence: 1.0 }),
+      })
 
-    // Also try API (non-blocking)
-    fetch('/api/transactions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        transactions: [{ ...tx, type, category, confidence: 1.0 }],
-      }),
-    }).catch(() => {})
-
-    fetch('/api/user-rules', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        merchant: tx.merchant.toLowerCase(),
-        type,
-        category,
-      }),
-    }).catch(() => {})
-
-    setSaving(null)
+      // Insert/update user rule in Supabase
+      if (orgId) {
+        await fetch('/api/user-rules', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            merchant: tx.merchant.toLowerCase(),
+            type,
+            category,
+            org_id: orgId,
+          }),
+        })
+      }
+    } catch (err) {
+      console.error('Failed to save classification:', err)
+    } finally {
+      setSaving(null)
+    }
   }
 
   if (loading) {

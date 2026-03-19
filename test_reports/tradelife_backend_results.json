@@ -1,15 +1,59 @@
 {
   "summary": {
-    "tests_run": 6,
-    "tests_passed": 6,
+    "tests_run": 12,
+    "tests_passed": 12,
     "success_rate": "100.0%",
-    "timestamp": "2026-03-19T11:01:30.615074"
+    "timestamp": "2026-03-19T11:29:44.088086"
   },
   "results": [
     {
+      "test": "API Auth Me",
+      "success": true,
+      "timestamp": "2026-03-19T11:29:36.865172",
+      "status_code": 200,
+      "has_user": true,
+      "has_org_id": true,
+      "org_id": "a62cd3b5-e573-4dfc-b4b5-10b162116a52",
+      "error": null
+    },
+    {
+      "test": "API Onboarding Complete",
+      "success": true,
+      "timestamp": "2026-03-19T11:29:38.080583",
+      "status_code": 401,
+      "response": "endpoint exists and responds",
+      "error": null
+    },
+    {
+      "test": "API Transactions GET",
+      "success": true,
+      "timestamp": "2026-03-19T11:29:38.531576",
+      "status_code": 200,
+      "transaction_count": 4,
+      "has_transactions_key": true,
+      "error": null
+    },
+    {
+      "test": "API User Rules GET",
+      "success": true,
+      "timestamp": "2026-03-19T11:29:39.304550",
+      "status_code": 200,
+      "rules_count": 0,
+      "error": null
+    },
+    {
+      "test": "API Classify with User Rules",
+      "success": true,
+      "timestamp": "2026-03-19T11:29:40.504691",
+      "status_code": 200,
+      "classified_count": 1,
+      "includes_org_id": "org_id parameter accepted",
+      "error": null
+    },
+    {
       "test": "API Classify - Hardcoded Rules",
       "success": true,
-      "timestamp": "2026-03-19T11:01:26.647378",
+      "timestamp": "2026-03-19T11:29:40.637066",
       "status_code": 200,
       "screwfix_classification": {
         "id": "test-1",
@@ -36,7 +80,7 @@
     {
       "test": "API Classify - AI Fallback",
       "success": true,
-      "timestamp": "2026-03-19T11:01:28.129794",
+      "timestamp": "2026-03-19T11:29:41.693863",
       "status_code": 200,
       "shell_classification": {
         "id": "test-3",
@@ -63,7 +107,7 @@
     {
       "test": "API Classify - Mock Dashboard Data",
       "success": true,
-      "timestamp": "2026-03-19T11:01:29.098352",
+      "timestamp": "2026-03-19T11:29:42.616600",
       "status_code": 200,
       "total_transactions": 4,
       "business_count": 2,
@@ -76,7 +120,7 @@
     {
       "test": "API Classify - Invalid Input Handling",
       "success": true,
-      "timestamp": "2026-03-19T11:01:29.236584",
+      "timestamp": "2026-03-19T11:29:42.752696",
       "status_code": 400,
       "response_data": {
         "error": "transactions array required"
@@ -84,23 +128,27 @@
       "error": null
     },
     {
-      "test": "API Transactions GET",
+      "test": "API Transactions POST - Save",
       "success": true,
-      "timestamp": "2026-03-19T11:01:30.172306",
+      "timestamp": "2026-03-19T11:29:43.073011",
       "status_code": 200,
-      "response_data": {
-        "transactions": []
-      },
+      "saved_count": 1,
       "error": null
     },
     {
-      "test": "API User Rules GET",
+      "test": "API Transactions PATCH - Update",
       "success": true,
-      "timestamp": "2026-03-19T11:01:30.614402",
+      "timestamp": "2026-03-19T11:29:43.624801",
       "status_code": 200,
-      "response_data": {
-        "rules": []
-      },
+      "updated_transaction_id": "6f4275ea-2182-4130-9f25-42d7da8293dc",
+      "error": null
+    },
+    {
+      "test": "API User Rules POST - Save",
+      "success": true,
+      "timestamp": "2026-03-19T11:29:44.087331",
+      "status_code": 200,
+      "saved_rule_merchant": "test_merchant_rule",
       "error": null
     }
   ]

@@ -11,7 +11,11 @@ function getSupabase() {
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url)
-    const orgId = searchParams.get('org_id') || 'default'
+    const orgId = searchParams.get('org_id')
+
+    if (!orgId) {
+      return NextResponse.json({ rules: [] })
+    }
 
     const supabase = getSupabase()
     const { data, error } = await supabase
@@ -34,27 +38,50 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { merchant, type, category, org_id = 'default' } = body
+    const { merchant, type, category, org_id } = body
 
-    if (!merchant || !type || !category) {
-      return NextResponse.json({ error: 'merchant, type, category required' }, { status: 400 })
+    if (!merchant || !type || !category || !org_id) {
+      return NextResponse.json({ error: 'merchant, type, category, org_id required' }, { status: 400 })
     }
 
     const supabase = getSupabase()
-    const { data, error } = await supabase
+
+    // Check if rule exists for this merchant + org
+    const { data: existing } = await supabase
       .from('user_rules')
-      .upsert(
-        { merchant: merchant.toLowerCase(), type, category, org_id },
-        { onConflict: 'merchant,org_id' }
-      )
-      .select()
+      .select('id')
+      .eq('org_id', org_id)
+      .eq('merchant', merchant.toLowerCase())
+      .limit(1)
 
-    if (error) {
-      console.error('Upsert user rule error:', error)
-      return NextResponse.json({ error: 'Failed to save rule' }, { status: 500 })
+    if (existing && existing.length > 0) {
+      // Update existing rule
+      const { data, error } = await supabase
+        .from('user_rules')
+        .update({ type, category })
+        .eq('id', existing[0].id)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Update user rule error:', error)
+        return NextResponse.json({ error: 'Failed to update rule' }, { status: 500 })
+      }
+      return NextResponse.json({ rule: data })
+    } else {
+      // Insert new rule
+      const { data, error } = await supabase
+        .from('user_rules')
+        .insert({ merchant: merchant.toLowerCase(), type, category, org_id })
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Insert user rule error:', error)
+        return NextResponse.json({ error: 'Failed to save rule' }, { status: 500 })
+      }
+      return NextResponse.json({ rule: data })
     }
-
-    return NextResponse.json({ rule: data?.[0] })
   } catch (err) {
     console.error('User rules POST error:', err)
     return NextResponse.json({ error: 'Failed to save' }, { status: 500 })

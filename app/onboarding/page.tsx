@@ -8,9 +8,41 @@ type BankUsage = 'personal' | 'business' | 'not_sure' | null
 type SetupChoice = 'sole_trader' | 'limited' | null
 type LimitedOption = 'setup_fast' | 'register_only' | 'skip' | null
 
-interface CompanyPreview {
-  name: string
-  address: string
+// Mock Companies House data
+const MOCK_COMPANIES: Record<string, { name: string; address: string }> = {
+  '12345678': { name: 'Smith Construction Ltd', address: '123 High Street, London, EC1V 9NL' },
+  '87654321': { name: 'Jones Plumbing Services Ltd', address: '45 Victoria Road, Birmingham, B1 1BB' },
+  '11223344': { name: 'Taylor Electrical Ltd', address: '78 Park Lane, Manchester, M1 4BH' },
+  '55667788': { name: 'Wilson Roofing Ltd', address: '12 Bridge Street, Bristol, BS1 2EJ' },
+}
+
+const LOGO_COLORS = [
+  '#0047AB', '#2563eb', '#059669', '#d97706', '#dc2626',
+  '#7c3aed', '#0891b2', '#be185d', '#4f46e5', '#0d9488',
+]
+
+function getLogoColor(name: string): string {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return LOGO_COLORS[Math.abs(hash) % LOGO_COLORS.length]
+}
+
+function simulateCompanyLookup(query: string): { name: string; address: string } | null {
+  const trimmed = query.trim()
+  // Check by company number
+  if (MOCK_COMPANIES[trimmed]) {
+    return MOCK_COMPANIES[trimmed]
+  }
+  // Check by name (partial match)
+  const lower = trimmed.toLowerCase()
+  for (const company of Object.values(MOCK_COMPANIES)) {
+    if (company.name.toLowerCase().includes(lower)) {
+      return company
+    }
+  }
+  return null
 }
 
 export default function OnboardingPage() {
@@ -21,14 +53,25 @@ export default function OnboardingPage() {
   const [setupChoice, setSetupChoice] = useState<SetupChoice>(null)
   const [limitedOption, setLimitedOption] = useState<LimitedOption>(null)
   const [businessName, setBusinessName] = useState('')
+  const [companyQuery, setCompanyQuery] = useState('')
+  const [companyAddress, setCompanyAddress] = useState('')
+  const [lookupResult, setLookupResult] = useState<{ name: string; address: string } | null>(null)
   const [isEditing, setIsEditing] = useState(false)
+  const [confirming, setConfirming] = useState(false)
+  const [ready, setReady] = useState(true)
+
+  const isLimitedFlow =
+    businessType === 'limited' ||
+    (businessType === 'not_set_up' && setupChoice === 'limited')
 
   const totalSteps = getStepCount()
 
   function getStepCount() {
     if (businessType === 'sole_trader') return 4
-    if (businessType === 'not_set_up') return 5
     if (businessType === 'limited') return 5
+    if (businessType === 'not_set_up') {
+      return setupChoice === 'limited' ? 6 : 5
+    }
     return 4
   }
 
@@ -37,6 +80,10 @@ export default function OnboardingPage() {
     setBankUsage(null)
     setSetupChoice(null)
     setLimitedOption(null)
+    setBusinessName('')
+    setCompanyQuery('')
+    setCompanyAddress('')
+    setLookupResult(null)
     setStep(2)
   }
 
@@ -48,13 +95,75 @@ export default function OnboardingPage() {
     if (step > 1) setStep(step - 1)
   }
 
-  function handleConfirm() {
+  function handleCompanySearch(value: string) {
+    setCompanyQuery(value)
+    if (value.trim().length >= 3) {
+      const result = simulateCompanyLookup(value)
+      if (result) {
+        setLookupResult(result)
+        setBusinessName(result.name)
+        setCompanyAddress(result.address)
+      } else {
+        setLookupResult(null)
+        setBusinessName(value.trim())
+        setCompanyAddress('')
+      }
+    } else {
+      setLookupResult(null)
+    }
+  }
+
+  async function handleConfirm() {
+    setConfirming(true)
+    try {
+      await fetch('/api/onboarding/complete', { method: 'POST' })
+    } catch (err) {
+      console.error('Failed to complete onboarding:', err)
+    }
     router.push('/dashboard')
   }
 
-  const preview: CompanyPreview = {
-    name: businessName || 'Your Business',
-    address: 'Enter your business address',
+  const logoLetter = (businessName || 'B')[0].toUpperCase()
+  const logoColor = getLogoColor(businessName || 'B')
+
+  // Safety: always show UI
+  if (!ready) {
+    return (
+      <main className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <p className="text-slate-500" data-testid="onboarding-fallback">Setting up your workspace...</p>
+      </main>
+    )
+  }
+
+  // Determine which step content to show for Limited Company flow
+  function isCompanySearchStep(): boolean {
+    if (businessType === 'limited' && step === 3) return true
+    if (businessType === 'not_set_up' && setupChoice === 'limited' && step === 4) return true
+    return false
+  }
+
+  function isBusinessNameStep(): boolean {
+    if (businessType === 'sole_trader' && step === 3) return true
+    if (businessType === 'not_set_up' && setupChoice === 'sole_trader' && step === 3) return true
+    // For limited: business name is set via company search, so name step = search step + 1
+    if (businessType === 'limited' && step === 4 && !isLimitedFlow) return true
+    if (businessType === 'not_set_up' && setupChoice === 'sole_trader' && step === 4) return false
+    return false
+  }
+
+  function isPreviewStep(): boolean {
+    if (businessType === 'sole_trader' && step === 4) return true
+    if (businessType === 'limited' && step === 5) return true
+    if (businessType === 'not_set_up' && setupChoice === 'sole_trader' && step === 4) return true
+    if (businessType === 'not_set_up' && setupChoice === 'limited' && step === 6) return true
+    return false
+  }
+
+  // For limited flow: after company search, go to a "confirm name" step, then preview
+  function isLimitedNameConfirmStep(): boolean {
+    if (businessType === 'limited' && step === 4) return true
+    if (businessType === 'not_set_up' && setupChoice === 'limited' && step === 5) return true
+    return false
   }
 
   return (
@@ -111,15 +220,13 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 2: Conditional based on business type */}
+          {/* Step 2: Sole Trader → Bank usage */}
           {step === 2 && businessType === 'sole_trader' && (
             <div data-testid="step-bank-usage">
               <h2 className="text-xl font-heading font-bold text-slate-900 mb-2">
                 How do you currently use your bank?
               </h2>
-              <p className="text-slate-500 text-sm mb-6">
-                This helps us organise your transactions
-              </p>
+              <p className="text-slate-500 text-sm mb-6">This helps us organise your transactions</p>
               <div className="space-y-3">
                 {[
                   { value: 'personal' as const, label: 'Personal' },
@@ -139,6 +246,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
+          {/* Step 2: Not set up → Choose type */}
           {step === 2 && businessType === 'not_set_up' && (
             <div data-testid="step-setup-choice">
               <h2 className="text-xl font-heading font-bold text-slate-900 mb-2">
@@ -163,6 +271,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
+          {/* Step 2: Limited → Options */}
           {step === 2 && businessType === 'limited' && (
             <div data-testid="step-limited-options">
               <h2 className="text-xl font-heading font-bold text-slate-900 mb-2">
@@ -188,7 +297,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 3 for not_set_up with limited choice */}
+          {/* Step 3: not_set_up + limited → Limited options */}
           {step === 3 && businessType === 'not_set_up' && setupChoice === 'limited' && (
             <div data-testid="step-limited-options-from-setup">
               <h2 className="text-xl font-heading font-bold text-slate-900 mb-2">
@@ -214,10 +323,56 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Business Name Step */}
-          {((step === 3 && (businessType === 'sole_trader' || businessType === 'limited')) ||
-            (step === 3 && businessType === 'not_set_up' && setupChoice === 'sole_trader') ||
-            (step === 4 && businessType === 'not_set_up' && setupChoice === 'limited')) && (
+          {/* Company Search Step (Limited flows) */}
+          {isCompanySearchStep() && (
+            <div data-testid="step-company-search">
+              <h2 className="text-xl font-heading font-bold text-slate-900 mb-2">
+                Company name or number
+              </h2>
+              <p className="text-slate-500 text-sm mb-6">
+                Enter your company name or Companies House number
+              </p>
+              <input
+                type="text"
+                value={companyQuery}
+                onChange={(e) => handleCompanySearch(e.target.value)}
+                placeholder="e.g. Smith Construction Ltd or 12345678"
+                className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-blueprint-400 focus:ring-1 focus:ring-blueprint-400 outline-none text-slate-800"
+                data-testid="company-search-input"
+              />
+
+              {lookupResult && (
+                <div className="mt-4 p-4 rounded-lg border border-emerald-200 bg-emerald-50" data-testid="company-lookup-result">
+                  <div className="flex items-start gap-3">
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                      style={{ backgroundColor: logoColor }}
+                    >
+                      <span className="text-white font-heading font-bold text-lg">
+                        {lookupResult.name[0].toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-800">{lookupResult.name}</p>
+                      <p className="text-sm text-slate-500 mt-0.5">{lookupResult.address}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={handleNext}
+                disabled={!companyQuery.trim() || companyQuery.trim().length < 3}
+                className="mt-6 w-full py-3 rounded-lg bg-blueprint-600 text-white font-medium hover:bg-blueprint-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                data-testid="company-search-continue"
+              >
+                Continue
+              </button>
+            </div>
+          )}
+
+          {/* Business Name Step (Sole Trader flows) */}
+          {isBusinessNameStep() && (
             <div data-testid="step-business-name">
               <h2 className="text-xl font-heading font-bold text-slate-900 mb-2">
                 What&apos;s your business name?
@@ -242,10 +397,46 @@ export default function OnboardingPage() {
             </div>
           )}
 
+          {/* Confirm Name Step (Limited flows - after company search) */}
+          {isLimitedNameConfirmStep() && (
+            <div data-testid="step-confirm-name">
+              <h2 className="text-xl font-heading font-bold text-slate-900 mb-2">
+                Confirm your business name
+              </h2>
+              <p className="text-slate-500 text-sm mb-6">
+                {lookupResult ? 'We found your company details' : 'Enter your business name'}
+              </p>
+              <input
+                type="text"
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
+                placeholder="Business name"
+                className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-blueprint-400 focus:ring-1 focus:ring-blueprint-400 outline-none text-slate-800"
+                data-testid="confirm-name-input"
+              />
+              {companyAddress && (
+                <input
+                  type="text"
+                  value={companyAddress}
+                  onChange={(e) => setCompanyAddress(e.target.value)}
+                  placeholder="Business address"
+                  className="w-full mt-3 px-4 py-3 rounded-lg border border-slate-200 focus:border-blueprint-400 focus:ring-1 focus:ring-blueprint-400 outline-none text-slate-800"
+                  data-testid="confirm-address-input"
+                />
+              )}
+              <button
+                onClick={handleNext}
+                disabled={!businessName.trim()}
+                className="mt-6 w-full py-3 rounded-lg bg-blueprint-600 text-white font-medium hover:bg-blueprint-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                data-testid="confirm-name-continue"
+              >
+                Continue
+              </button>
+            </div>
+          )}
+
           {/* Preview / Confirm Step */}
-          {((step === 4 && (businessType === 'sole_trader' || businessType === 'limited')) ||
-            (step === 4 && businessType === 'not_set_up' && setupChoice === 'sole_trader') ||
-            (step === 5 && businessType === 'not_set_up' && setupChoice === 'limited')) && (
+          {isPreviewStep() && (
             <div data-testid="step-preview">
               <h2 className="text-xl font-heading font-bold text-slate-900 mb-2">
                 Looking good?
@@ -254,32 +445,48 @@ export default function OnboardingPage() {
 
               <div className="border border-slate-200 rounded-lg p-5">
                 <div className="flex items-start gap-4">
-                  {/* Logo placeholder */}
-                  <div className="w-14 h-14 rounded-lg bg-blueprint-50 border border-blueprint-100 flex items-center justify-center shrink-0">
-                    <span className="text-blueprint-600 font-heading font-bold text-xl">
-                      {(businessName || 'B')[0].toUpperCase()}
+                  {/* Generated logo */}
+                  <div
+                    className="w-14 h-14 rounded-full flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: logoColor }}
+                    data-testid="preview-logo"
+                  >
+                    <span className="text-white font-heading font-bold text-xl">
+                      {logoLetter}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
                     {isEditing ? (
-                      <input
-                        type="text"
-                        value={businessName}
-                        onChange={(e) => setBusinessName(e.target.value)}
-                        className="w-full px-3 py-1.5 rounded border border-slate-200 focus:border-blueprint-400 outline-none text-slate-800 font-medium mb-1"
-                        data-testid="preview-edit-name"
-                        autoFocus
-                      />
+                      <>
+                        <input
+                          type="text"
+                          value={businessName}
+                          onChange={(e) => setBusinessName(e.target.value)}
+                          className="w-full px-3 py-1.5 rounded border border-slate-200 focus:border-blueprint-400 outline-none text-slate-800 font-medium mb-2"
+                          data-testid="preview-edit-name"
+                          autoFocus
+                        />
+                        <input
+                          type="text"
+                          value={companyAddress}
+                          onChange={(e) => setCompanyAddress(e.target.value)}
+                          placeholder="Business address"
+                          className="w-full px-3 py-1.5 rounded border border-slate-200 focus:border-blueprint-400 outline-none text-slate-800 text-sm"
+                          data-testid="preview-edit-address"
+                        />
+                      </>
                     ) : (
-                      <h3 className="font-heading font-bold text-slate-900 text-lg" data-testid="preview-name">
-                        {preview.name}
-                      </h3>
+                      <>
+                        <h3 className="font-heading font-bold text-slate-900 text-lg" data-testid="preview-name">
+                          {businessName || 'Your Business'}
+                        </h3>
+                        <p className="text-sm text-slate-500 mt-0.5" data-testid="preview-address">
+                          {companyAddress || 'Enter your business address'}
+                        </p>
+                      </>
                     )}
-                    <p className="text-sm text-slate-500 mt-0.5">{preview.address}</p>
                     <span className="inline-block mt-2 text-xs font-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 capitalize">
-                      {businessType === 'not_set_up'
-                        ? setupChoice === 'limited' ? 'Limited Company' : 'Sole Trader'
-                        : businessType === 'limited' ? 'Limited Company' : 'Sole Trader'}
+                      {isLimitedFlow ? 'Limited Company' : 'Sole Trader'}
                     </span>
                   </div>
                 </div>
@@ -295,19 +502,28 @@ export default function OnboardingPage() {
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className="flex-1 py-3 rounded-lg bg-blueprint-600 text-white font-medium hover:bg-blueprint-700 transition-colors"
+                  disabled={confirming}
+                  className="flex-1 py-3 rounded-lg bg-blueprint-600 text-white font-medium hover:bg-blueprint-700 disabled:opacity-50 transition-colors"
                   data-testid="preview-confirm-button"
                 >
-                  Confirm
+                  {confirming ? 'Confirming...' : 'Confirm'}
                 </button>
               </div>
-              <button
-                onClick={handleConfirm}
-                className="mt-3 w-full py-2.5 text-sm text-slate-500 hover:text-slate-700 font-medium transition-colors"
-                data-testid="preview-continue-button"
-              >
-                Continue to Dashboard
-              </button>
+            </div>
+          )}
+
+          {/* Fallback: no step matched - safety */}
+          {step > 1 &&
+            !isCompanySearchStep() &&
+            !isBusinessNameStep() &&
+            !isLimitedNameConfirmStep() &&
+            !isPreviewStep() &&
+            !(step === 2 && businessType === 'sole_trader') &&
+            !(step === 2 && businessType === 'not_set_up') &&
+            !(step === 2 && businessType === 'limited') &&
+            !(step === 3 && businessType === 'not_set_up' && setupChoice === 'limited') && (
+            <div data-testid="onboarding-fallback">
+              <p className="text-slate-500">Setting up your workspace...</p>
             </div>
           )}
         </div>
