@@ -2,26 +2,30 @@
 
 ## Architecture
 - **Frontend**: Next.js 14.2.3 App Router + TypeScript + TailwindCSS
-- **State**: Zustand (`/app/store/useUIStore.ts`)
-- **Styling**: CSS tokens (`/app/styles/tokens.css`), globals + material system (`/app/styles/globals.css`)
+- **Visual Engine**: React Three Fiber 8.18.0 + Three.js 0.170.0
+- **State**: Zustand
+- **Styling**: CSS tokens + material system
 
 ## What's Been Implemented
 
-### Phase 6 — Platform Shell (Jan 2026)
-- Login, Onboarding (6 steps), Dashboard (3-column grid)
-- Component architecture: Panel, Button, Input, TopBar, DashboardLayout, LeftStack, CenterCore, RightStack
-- **Testing: 17/17 (100%)**
+### Phase 6 — Platform Shell
+- Login, Onboarding (6 steps), Dashboard (3-column grid) — **17/17 (100%)**
 
-### Phase 7 — Premium Material System (Jan 2026)
-- **panel-material**: Semi-transparent bg (0.55 alpha), backdrop blur(14px) + saturate(1.1), top-edge inner gradient via ::before, soft multi-layer shadow
-- **inset-material**: Subtle translucent background for nested items
-- **topbar-material**: Glass-like top bar with blur(16px)
-- **btn-material**: Glass action buttons with blur(10px), soft border hover
-- Applied uniformly: 11 panels, 23 insets, 3 buttons, 1 topbar on dashboard; login + onboarding panels also upgraded
-- CSS tokens: `--panel-bg`, `--panel-border`, `--panel-highlight`, `--panel-shadow`, `--inset-bg`
-- **Testing: 14/14 (100%)**
+### Phase 7 — Premium Material System
+- panel-material, inset-material, topbar-material, btn-material — **14/14 (100%)**
+
+### Phase 8 — WebGL Visual Engine (Jan 2026)
+- **SceneCanvas**: Full-screen fixed canvas, z-index 0, pointer-events none, alpha transparent
+- **CoreLight**: Central warm point light (intensity 4, distance 15), ambient fill, core orb (additive blend), halo ring, atmospheric halo
+- **EmberSystem**: 50 instanced mesh particles, slow upward drift, depth variation, additive blending
+- **VisualEngine**: Client-side lazy-loaded wrapper (next/dynamic, ssr:false)
+- **Mounting**: Root layout.tsx — engine renders behind UI div (z-10)
+- **Fog**: Subtle haze at 4-14 distance
+- **Persistence**: Same engine on all routes (login, onboarding, dashboard)
+- **Dependencies**: @react-three/fiber@8.18.0 + @react-three/drei@9 + three@0.170.0 (React 18 compatible)
+- **Testing: 17/17 (100%)** — DOM presence, z-index layering, full flow, interactivity, no JS errors
 
 ## Next Tasks
-- P0: WebGL visual engine (React Three Fiber)
-- P1: Widget drag-and-drop (constrained zones)
-- P2: AI Core interaction overlay
+- P0: Widget drag-and-drop (constrained zones)
+- P1: AI Core interaction overlay (Jarvis-style)
+- P2: Route-aware intensity (login calm, dashboard full)
