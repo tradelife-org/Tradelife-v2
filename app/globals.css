@@ -8,9 +8,9 @@
    THEME TOKENS
    ═══════════════════════════════════════════════════════════ */
 
-/* ─── Commercial ── cool blue, clarity-focused ──────────── */
+/* ─── Commercial ── cool blue ───────────────────────────── */
 .theme-commercial {
-  --bg-base: #09090d;
+  --bg-base: #060609;
   --bg-surface: #141419;
   --bg-elevated: #1c1c22;
   --text-primary: #ededf0;
@@ -41,11 +41,14 @@
     0 6px 32px -4px rgba(0, 0, 0, 0.4),
     0 0 20px -8px rgba(59, 130, 246, 0.04);
   --glow-hero:
-    0 0 0 0.5px rgba(59, 130, 246, 0.06),
-    0 8px 40px -8px rgba(59, 130, 246, 0.06),
-    0 4px 24px -4px rgba(0, 0, 0, 0.4);
+    0 0 0 0.5px rgba(59, 130, 246, 0.1),
+    0 0 40px -4px rgba(59, 130, 246, 0.1),
+    0 0 80px -8px rgba(59, 130, 246, 0.06),
+    0 8px 40px -8px rgba(0, 0, 0, 0.4);
   --glow-logo: 0 0 16px rgba(59, 130, 246, 0.15);
-  --glow-icon: 0 0 24px rgba(59, 130, 246, 0.08);
+  --glow-icon:
+    0 0 16px rgba(59, 130, 246, 0.2),
+    0 0 40px rgba(59, 130, 246, 0.08);
 
   --shadow-panel:
     0 1px 1px rgba(0, 0, 0, 0.25),
@@ -60,15 +63,23 @@
     0 4px 12px rgba(0, 0, 0, 0.2),
     0 16px 48px -8px rgba(0, 0, 0, 0.3);
 
-  --bg-primary-glow: rgba(59, 130, 246, 0.03);
-  --bg-secondary-glow: rgba(59, 130, 246, 0.012);
-  --bg-floor: rgba(20, 20, 30, 0.4);
-  --bg-vignette-opacity: 0.7;
+  /* Core energy system */
+  --core-inner: rgba(59, 130, 246, 0.12);
+  --core-mid: rgba(59, 130, 246, 0.05);
+  --core-outer: rgba(59, 130, 246, 0.02);
+  --core-bleed: rgba(59, 130, 246, 0.06);
+
+  /* Background — centered on AI Core position */
+  --bg-primary-glow: rgba(59, 130, 246, 0.05);
+  --bg-secondary-glow: rgba(59, 130, 246, 0.02);
+  --bg-floor: rgba(10, 10, 20, 0.5);
+  --bg-vignette-opacity: 0.8;
+  --side-dim: rgba(0, 0, 0, 0.12);
 }
 
-/* ─── Molten ── warm amber, slightly stronger atmosphere ── */
+/* ─── Molten ── warm amber ──────────────────────────────── */
 .theme-molten {
-  --bg-base: #070709;
+  --bg-base: #050507;
   --bg-surface: #111114;
   --bg-elevated: #1a1a1e;
   --text-primary: #f5f5f7;
@@ -99,11 +110,14 @@
     0 6px 32px -4px rgba(0, 0, 0, 0.45),
     0 0 20px -8px rgba(249, 115, 22, 0.06);
   --glow-hero:
-    0 0 0 0.5px rgba(249, 115, 22, 0.08),
-    0 8px 40px -8px rgba(249, 115, 22, 0.08),
-    0 4px 24px -4px rgba(0, 0, 0, 0.45);
+    0 0 0 0.5px rgba(249, 115, 22, 0.12),
+    0 0 40px -4px rgba(249, 115, 22, 0.12),
+    0 0 80px -8px rgba(249, 115, 22, 0.07),
+    0 8px 40px -8px rgba(0, 0, 0, 0.45);
   --glow-logo: 0 0 16px rgba(249, 115, 22, 0.2);
-  --glow-icon: 0 0 24px rgba(249, 115, 22, 0.1);
+  --glow-icon:
+    0 0 16px rgba(249, 115, 22, 0.25),
+    0 0 40px rgba(249, 115, 22, 0.1);
 
   --shadow-panel:
     0 1px 1px rgba(0, 0, 0, 0.3),
@@ -118,15 +132,21 @@
     0 4px 12px rgba(0, 0, 0, 0.25),
     0 16px 48px -8px rgba(0, 0, 0, 0.35);
 
-  --bg-primary-glow: rgba(249, 115, 22, 0.035);
-  --bg-secondary-glow: rgba(249, 115, 22, 0.015);
-  --bg-floor: rgba(20, 14, 10, 0.3);
-  --bg-vignette-opacity: 0.75;
+  --core-inner: rgba(249, 115, 22, 0.15);
+  --core-mid: rgba(249, 115, 22, 0.06);
+  --core-outer: rgba(249, 115, 22, 0.025);
+  --core-bleed: rgba(249, 115, 22, 0.08);
+
+  --bg-primary-glow: rgba(249, 115, 22, 0.06);
+  --bg-secondary-glow: rgba(249, 115, 22, 0.025);
+  --bg-floor: rgba(12, 8, 4, 0.5);
+  --bg-vignette-opacity: 0.82;
+  --side-dim: rgba(0, 0, 0, 0.14);
 }
 
-/* ─── Remembrance ── deep red, calm & muted ─────────────── */
+/* ─── Remembrance ── deep red ───────────────────────────── */
 .theme-remembrance {
-  --bg-base: #080607;
+  --bg-base: #060405;
   --bg-surface: #131011;
   --bg-elevated: #1c1819;
   --text-primary: #f0ebec;
@@ -157,11 +177,14 @@
     0 6px 32px -4px rgba(0, 0, 0, 0.4),
     0 0 20px -8px rgba(220, 38, 38, 0.03);
   --glow-hero:
-    0 0 0 0.5px rgba(220, 38, 38, 0.05),
-    0 8px 40px -8px rgba(220, 38, 38, 0.04),
-    0 4px 24px -4px rgba(0, 0, 0, 0.4);
+    0 0 0 0.5px rgba(220, 38, 38, 0.08),
+    0 0 40px -4px rgba(220, 38, 38, 0.07),
+    0 0 80px -8px rgba(220, 38, 38, 0.035),
+    0 8px 40px -8px rgba(0, 0, 0, 0.4);
   --glow-logo: 0 0 16px rgba(220, 38, 38, 0.12);
-  --glow-icon: 0 0 24px rgba(220, 38, 38, 0.06);
+  --glow-icon:
+    0 0 16px rgba(220, 38, 38, 0.15),
+    0 0 40px rgba(220, 38, 38, 0.06);
 
   --shadow-panel:
     0 1px 1px rgba(0, 0, 0, 0.25),
@@ -176,10 +199,16 @@
     0 4px 12px rgba(0, 0, 0, 0.2),
     0 16px 48px -8px rgba(0, 0, 0, 0.3);
 
-  --bg-primary-glow: rgba(220, 38, 38, 0.025);
-  --bg-secondary-glow: rgba(220, 38, 38, 0.01);
-  --bg-floor: rgba(18, 12, 12, 0.3);
-  --bg-vignette-opacity: 0.7;
+  --core-inner: rgba(220, 38, 38, 0.1);
+  --core-mid: rgba(220, 38, 38, 0.04);
+  --core-outer: rgba(220, 38, 38, 0.015);
+  --core-bleed: rgba(220, 38, 38, 0.05);
+
+  --bg-primary-glow: rgba(220, 38, 38, 0.04);
+  --bg-secondary-glow: rgba(220, 38, 38, 0.015);
+  --bg-floor: rgba(12, 6, 6, 0.5);
+  --bg-vignette-opacity: 0.78;
+  --side-dim: rgba(0, 0, 0, 0.1);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -187,9 +216,7 @@
    ═══════════════════════════════════════════════════════════ */
 
 @layer base {
-  * {
-    border-color: var(--border);
-  }
+  * { border-color: var(--border); }
 
   body {
     background-color: var(--bg-base);
@@ -205,39 +232,30 @@
    ═══════════════════════════════════════════════════════════ */
 
 @keyframes panel-reveal {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes hero-reveal {
-  from {
-    opacity: 0;
-    transform: translateY(6px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* AI Core presence — very subtle breathing */
 @keyframes ai-breathe {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.01); }
+  50% { transform: scale(1.015); }
 }
 
 @keyframes glow-breathe {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 1.4; }
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
 }
 
-/* Staggered entrance class — applied per panel */
+@keyframes core-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.02); }
+}
+
 .anim-reveal {
   opacity: 0;
   animation: panel-reveal 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -247,12 +265,11 @@
 
 .anim-hero-reveal {
   opacity: 0;
-  animation: hero-reveal 500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: hero-reveal 600ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
   animation-delay: var(--delay, 0ms);
   will-change: opacity, transform;
 }
 
-/* AI Core continuous subtle pulse */
 .ai-presence {
   animation: ai-breathe 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   will-change: transform;
@@ -263,13 +280,17 @@
   will-change: opacity;
 }
 
+.core-pulse {
+  animation: core-pulse 5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: opacity, transform;
+}
+
 /* ═══════════════════════════════════════════════════════════
    GLASS SYSTEM
    ═══════════════════════════════════════════════════════════ */
 
 @layer components {
 
-  /* ── Primary glass panel ─────────────────────────────── */
   .glass-panel {
     background: var(--glass-bg);
     backdrop-filter: blur(16px) saturate(1.1);
@@ -293,21 +314,15 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(
-      170deg,
-      var(--glass-highlight) 0%,
-      transparent 35%,
-      transparent 100%
-    );
+    background: linear-gradient(170deg, var(--glass-highlight) 0%, transparent 35%);
     pointer-events: none;
     z-index: 0;
   }
 
-  /* ── Hero glass panel (AI Core) ──────────────────────── */
   .glass-panel-hero {
     background: var(--glass-bg);
-    backdrop-filter: blur(20px) saturate(1.15);
-    -webkit-backdrop-filter: blur(20px) saturate(1.15);
+    backdrop-filter: blur(24px) saturate(1.2);
+    -webkit-backdrop-filter: blur(24px) saturate(1.2);
     border: 1px solid var(--glass-border);
     border-radius: 14px;
     box-shadow: var(--shadow-elevated), var(--glow-hero);
@@ -320,23 +335,16 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(
-      170deg,
-      var(--glass-highlight) 0%,
-      transparent 40%,
-      transparent 100%
-    );
+    background: linear-gradient(170deg, var(--glass-highlight) 0%, transparent 40%);
     pointer-events: none;
     z-index: 0;
   }
 
-  /* ── Inset surface ────────────────────────────────────── */
   .glass-inset {
     background: var(--glass-elevated-bg);
     border-radius: 10px;
   }
 
-  /* ── Top bar ─────────────────────────────────────────── */
   .glass-topbar {
     background: var(--glass-bg);
     backdrop-filter: blur(20px) saturate(1.1);
@@ -344,7 +352,6 @@
     border-bottom: 1px solid var(--glass-border);
   }
 
-  /* ── Action buttons ──────────────────────────────────── */
   .glass-action {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
@@ -367,59 +374,90 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   BACKGROUND SYSTEM
+   BACKGROUND SYSTEM — AI Core as light source
    ═══════════════════════════════════════════════════════════ */
 
+/* Primary glow — centered on AI Core position (upper center of content) */
 .bg-layer-primary {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(
-      ellipse 60% 45% at 50% 20%,
-      var(--bg-primary-glow) 0%,
-      transparent 70%
-    );
+    radial-gradient(ellipse 50% 40% at 50% 28%, var(--bg-primary-glow) 0%, transparent 70%);
 }
 
+/* Secondary ambient — wider diffusion from center */
 .bg-layer-secondary {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(
-      ellipse 80% 60% at 55% 65%,
-      var(--bg-secondary-glow) 0%,
-      transparent 65%
-    );
+    radial-gradient(ellipse 90% 70% at 50% 35%, var(--bg-secondary-glow) 0%, transparent 60%);
 }
 
+/* Floor gradient — grounds the environment */
 .bg-layer-floor {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  background:
-    linear-gradient(
-      to top,
-      var(--bg-floor) 0%,
-      transparent 40%
-    );
+  background: linear-gradient(to top, var(--bg-floor) 0%, transparent 45%);
 }
 
+/* Vignette — stronger cinematic framing */
 .bg-vignette {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(
-      ellipse 75% 70% at 50% 45%,
-      transparent 30%,
-      rgba(0, 0, 0, var(--bg-vignette-opacity)) 100%
-    );
+    radial-gradient(ellipse 65% 60% at 50% 35%, transparent 25%, rgba(0, 0, 0, var(--bg-vignette-opacity)) 100%);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CORE ENERGY SYSTEM — multi-ring radial from AI Core
+   ═══════════════════════════════════════════════════════════ */
+
+/* Inner ring — tight bright core */
+.core-ring-inner {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--core-inner) 0%, transparent 70%);
+}
+
+/* Mid ring — spreading energy */
+.core-ring-mid {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--core-mid) 0%, transparent 70%);
+}
+
+/* Outer ring — faintest reach */
+.core-ring-outer {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--core-outer) 0%, transparent 70%);
+}
+
+/* Side column dimming — tertiary hierarchy */
+.side-dim {
+  position: relative;
+}
+
+.side-dim::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 0;
+  background: var(--side-dim);
+  z-index: 0;
+  mix-blend-mode: multiply;
 }
 
 /* ═══════════════════════════════════════════════════════════

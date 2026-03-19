@@ -1,22 +1,8 @@
 'use client'
 
 import {
-  Bell,
-  Settings,
-  User,
-  AlertCircle,
-  FolderOpen,
-  TrendingUp,
-  Cpu,
-  FileText,
-  BarChart3,
-  Plus,
-  Clock,
-  CircleDot,
-  DollarSign,
-  ArrowUpRight,
-  ArrowDownRight,
-  Calendar,
+  Bell, Settings, User, Cpu, FileText, BarChart3, Plus,
+  ArrowUpRight, ArrowDownRight,
 } from 'lucide-react'
 
 /* ─── Mock Data ──────────────────────────────────────────── */
@@ -61,88 +47,56 @@ const overviewStats = [
   { label: 'Outstanding', value: '£4,100', change: '-8%', positive: true },
 ]
 
-/* ─── Stagger delay helper ──────────────────────────────── */
+/* ─── Helpers ────────────────────────────────────────────── */
 
 function delay(ms: number): React.CSSProperties {
   return { '--delay': `${ms}ms` } as React.CSSProperties
 }
 
-/* ─── Small Components ──────────────────────────────────── */
-
 function Card({ children, className = '', hero = false, 'data-testid': testId }: { children: React.ReactNode; className?: string; hero?: boolean; 'data-testid'?: string }) {
   return (
-    <div
-      data-testid={testId || "card"}
-      className={`${hero ? 'glass-panel-hero' : 'glass-panel'} ${className}`}
-    >
+    <div data-testid={testId || "card"} className={`${hero ? 'glass-panel-hero' : 'glass-panel'} ${className}`}>
       <div className="relative z-[1]">{children}</div>
     </div>
   )
 }
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
-  return (
-    <h3 className="text-[11px] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-3">
-      {children}
-    </h3>
-  )
+  return <h3 className="text-[11px] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-3">{children}</h3>
 }
 
 function StatusDot({ color }: { color: string }) {
   return <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
 }
 
-/* ─── Dashboard Page ─────────────────────────────────────── */
+/* ─── Dashboard ──────────────────────────────────────────── */
 
 export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-[var(--bg-base)] relative">
-      {/* ── Background Environment (4 layers) ────────────── */}
+      {/* ── Background Environment ──────────────────────── */}
       <div className="bg-layer-primary" />
       <div className="bg-layer-secondary" />
       <div className="bg-layer-floor" />
       <div className="bg-vignette" />
 
       {/* ── Top Bar ─────────────────────────────────────── */}
-      <header
-        data-testid="top-bar"
-        className="sticky top-0 z-50 h-14 glass-topbar px-6 flex items-center justify-between"
-      >
-        {/* Left */}
+      <header data-testid="top-bar" className="sticky top-0 z-50 h-14 glass-topbar px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div
-            data-testid="logo"
-            className="w-7 h-7 rounded-md bg-[var(--accent)] flex items-center justify-center"
-            style={{ boxShadow: 'var(--glow-logo)' }}
-          >
+          <div data-testid="logo" className="w-7 h-7 rounded-md bg-[var(--accent)] flex items-center justify-center" style={{ boxShadow: 'var(--glow-logo)' }}>
             <span className="text-white font-bold text-xs">T</span>
           </div>
-          <span className="font-semibold text-sm text-[var(--text-primary)] tracking-tight">
-            TradeLife
-          </span>
-          <span className="text-[11px] font-medium text-[var(--text-muted)] ml-1">
-            Command Center
-          </span>
+          <span className="font-semibold text-sm text-[var(--text-primary)] tracking-tight">TradeLife</span>
+          <span className="text-[11px] font-medium text-[var(--text-muted)] ml-1">Command Center</span>
         </div>
-
-        {/* Right */}
         <div className="flex items-center gap-1">
-          <button
-            data-testid="notifications-button"
-            className="w-8 h-8 rounded-md flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all duration-200 ease-out"
-          >
+          <button data-testid="notifications-button" className="w-8 h-8 rounded-md flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all duration-200 ease-out">
             <Bell className="w-4 h-4" />
           </button>
-          <button
-            data-testid="settings-button"
-            className="w-8 h-8 rounded-md flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all duration-200 ease-out"
-          >
+          <button data-testid="settings-button" className="w-8 h-8 rounded-md flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all duration-200 ease-out">
             <Settings className="w-4 h-4" />
           </button>
-          <div
-            data-testid="user-avatar"
-            className="w-7 h-7 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] flex items-center justify-center ml-2"
-          >
+          <div data-testid="user-avatar" className="w-7 h-7 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] flex items-center justify-center ml-2">
             <User className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
           </div>
         </div>
@@ -150,30 +104,17 @@ export default function DashboardPage() {
 
       {/* ── Main Grid ───────────────────────────────────── */}
       <main className="p-6 relative z-10">
-        <div
-          data-testid="dashboard-grid"
-          className="grid grid-cols-12 gap-5 max-w-[1440px] mx-auto"
-        >
-          {/* ── LEFT COLUMN (3 cols) ──────────────────── */}
-          <div className="col-span-12 lg:col-span-3 space-y-5">
-            {/* Attention Needed — stagger 0 */}
-            <div className="anim-reveal" style={delay(0)}>
+        <div data-testid="dashboard-grid" className="grid grid-cols-12 gap-5 max-w-[1440px] mx-auto">
+
+          {/* ── LEFT COLUMN — tertiary, slightly dimmed ── */}
+          <div className="col-span-12 lg:col-span-3 space-y-5" data-testid="left-column">
+            <div className="anim-reveal" style={delay(60)}>
               <Card className="p-5">
                 <SectionHeader>Attention Needed</SectionHeader>
                 <div className="space-y-2" data-testid="attention-needed-list">
                   {attentionItems.map((item) => (
-                    <div
-                      key={item.id}
-                      data-testid={`attention-item-${item.id}`}
-                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg"
-                      style={{
-                        backgroundColor:
-                          item.type === 'danger' ? 'var(--danger-muted)' : 'var(--warning-muted)',
-                      }}
-                    >
-                      <StatusDot
-                        color={item.type === 'danger' ? 'var(--danger)' : 'var(--warning)'}
-                      />
+                    <div key={item.id} data-testid={`attention-item-${item.id}`} className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg" style={{ backgroundColor: item.type === 'danger' ? 'var(--danger-muted)' : 'var(--warning-muted)' }}>
+                      <StatusDot color={item.type === 'danger' ? 'var(--danger)' : 'var(--warning)'} />
                       <span className="text-xs text-[var(--text-primary)]">{item.label}</span>
                     </div>
                   ))}
@@ -181,76 +122,37 @@ export default function DashboardPage() {
               </Card>
             </div>
 
-            {/* Active Projects — stagger 1 */}
-            <div className="anim-reveal" style={delay(80)}>
+            <div className="anim-reveal" style={delay(140)}>
               <Card className="p-5">
                 <SectionHeader>Active Projects</SectionHeader>
                 <div className="space-y-2.5" data-testid="active-projects-list">
                   {activeProjects.map((project) => (
-                    <div
-                      key={project.id}
-                      data-testid={`project-${project.id}`}
-                      className="px-3 py-3 rounded-lg glass-inset"
-                    >
+                    <div key={project.id} data-testid={`project-${project.id}`} className="px-3 py-3 rounded-lg glass-inset">
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-xs font-medium text-[var(--text-primary)]">
-                          {project.name}
-                        </span>
-                        <span className="text-[10px] font-medium text-[var(--accent)]">
-                          {project.progress}%
-                        </span>
+                        <span className="text-xs font-medium text-[var(--text-primary)]">{project.name}</span>
+                        <span className="text-[10px] font-medium text-[var(--accent)]">{project.progress}%</span>
                       </div>
                       <div className="w-full h-1 rounded-full bg-[var(--border-strong)]">
-                        <div
-                          className="h-full rounded-full bg-[var(--accent)]"
-                          style={{ width: `${project.progress}%` }}
-                        />
+                        <div className="h-full rounded-full bg-[var(--accent)]" style={{ width: `${project.progress}%` }} />
                       </div>
-                      <span className="text-[10px] text-[var(--text-muted)] mt-1.5 block">
-                        {project.client}
-                      </span>
+                      <span className="text-[10px] text-[var(--text-muted)] mt-1.5 block">{project.client}</span>
                     </div>
                   ))}
                 </div>
               </Card>
             </div>
 
-            {/* Active Trades — stagger 2 */}
-            <div className="anim-reveal" style={delay(160)}>
+            <div className="anim-reveal" style={delay(220)}>
               <Card className="p-5">
                 <SectionHeader>Active Trades</SectionHeader>
                 <div className="space-y-2" data-testid="active-trades-list">
                   {activeTrades.map((trade) => (
-                    <div
-                      key={trade.id}
-                      data-testid={`trade-${trade.id}`}
-                      className="flex items-center justify-between px-3 py-2.5 rounded-lg glass-inset"
-                    >
+                    <div key={trade.id} data-testid={`trade-${trade.id}`} className="flex items-center justify-between px-3 py-2.5 rounded-lg glass-inset">
                       <div className="flex items-center gap-2">
-                        <StatusDot
-                          color={
-                            trade.status === 'on-site'
-                              ? 'var(--success)'
-                              : trade.status === 'scheduled'
-                                ? 'var(--warning)'
-                                : 'var(--text-muted)'
-                          }
-                        />
-                        <span className="text-xs font-medium text-[var(--text-primary)]">
-                          {trade.name}
-                        </span>
+                        <StatusDot color={trade.status === 'on-site' ? 'var(--success)' : trade.status === 'scheduled' ? 'var(--warning)' : 'var(--text-muted)'} />
+                        <span className="text-xs font-medium text-[var(--text-primary)]">{trade.name}</span>
                       </div>
-                      <span
-                        className="text-[10px] font-medium capitalize"
-                        style={{
-                          color:
-                            trade.status === 'on-site'
-                              ? 'var(--success)'
-                              : trade.status === 'scheduled'
-                                ? 'var(--warning)'
-                                : 'var(--text-muted)',
-                        }}
-                      >
+                      <span className="text-[10px] font-medium capitalize" style={{ color: trade.status === 'on-site' ? 'var(--success)' : trade.status === 'scheduled' ? 'var(--warning)' : 'var(--text-muted)' }}>
                         {trade.status.replace('-', ' ')}
                       </span>
                     </div>
@@ -260,136 +162,96 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* ── CENTER COLUMN (6 cols) ────────────────── */}
+          {/* ── CENTER COLUMN — primary, brightest ─────── */}
           <div className="col-span-12 lg:col-span-6 space-y-5">
-            {/* AI Core — hero reveal + breathing presence */}
+
+            {/* AI CORE — the power source */}
             <div className="anim-hero-reveal relative" style={delay(200)}>
-              {/* Ambient light bleed — breathing */}
+              {/* Core energy rings — multi-layer radial emanating outward */}
+              <div data-testid="core-ring-outer" className="core-ring-outer core-pulse absolute pointer-events-none" style={{ top: '-120px', left: '-160px', right: '-160px', bottom: '-120px' }} />
+              <div data-testid="core-ring-mid" className="core-ring-mid ai-glow-breathe absolute pointer-events-none" style={{ top: '-60px', left: '-80px', right: '-80px', bottom: '-60px' }} />
+              <div data-testid="core-ring-inner" className="core-ring-inner ai-glow-breathe absolute pointer-events-none" style={{ top: '-20px', left: '-30px', right: '-30px', bottom: '-20px', borderRadius: '20px' }} />
+
+              {/* Light bleed into background */}
               <div
                 data-testid="ai-core-light-bleed"
-                className="absolute -inset-3 rounded-[20px] pointer-events-none ai-glow-breathe"
+                className="absolute pointer-events-none ai-glow-breathe"
                 style={{
-                  background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(var(--glow-color), 0.04), transparent 70%)',
+                  top: '-200px', left: '-300px', right: '-300px', bottom: '-200px',
+                  background: 'radial-gradient(ellipse 50% 50% at 50% 50%, var(--core-bleed), transparent 70%)',
                 }}
               />
+
               <Card className="p-6 relative" hero data-testid="ai-core-placeholder">
                 <div className="flex items-center gap-4">
-                  <div
-                    className="w-12 h-12 rounded-xl glass-inset border border-[var(--border-strong)] flex items-center justify-center ai-presence"
-                    style={{ boxShadow: 'var(--glow-icon)' }}
-                  >
-                    <Cpu className="w-5 h-5 text-[var(--accent)]" />
+                  <div className="w-14 h-14 rounded-xl glass-inset border border-[var(--border-strong)] flex items-center justify-center ai-presence" style={{ boxShadow: 'var(--glow-icon)' }}>
+                    <Cpu className="w-6 h-6 text-[var(--accent)]" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-semibold text-[var(--text-primary)]">AI Core</h2>
-                    <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                      Intelligent assistant — ready to help
-                    </p>
+                    <h2 className="text-[15px] font-semibold text-[var(--text-primary)]">AI Core</h2>
+                    <p className="text-xs text-[var(--text-secondary)] mt-0.5">Intelligent assistant — ready to help</p>
                   </div>
                 </div>
                 <div className="mt-4 px-4 py-3 rounded-lg glass-inset border border-[var(--border)]">
-                  <p className="text-xs text-[var(--text-muted)] italic">
-                    Ask me anything about your projects, finances, or schedule...
-                  </p>
+                  <p className="text-xs text-[var(--text-muted)] italic">Ask me anything about your projects, finances, or schedule...</p>
                 </div>
               </Card>
             </div>
 
-            {/* Action Buttons — stagger 3 */}
-            <div className="anim-reveal" style={delay(300)}>
+            {/* Action Buttons */}
+            <div className="anim-reveal" style={delay(320)}>
               <div className="grid grid-cols-3 gap-3" data-testid="action-buttons">
-                <button
-                  data-testid="action-new-quote"
-                  className="glass-action flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  New Quote
+                <button data-testid="action-new-quote" className="glass-action flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                  <Plus className="w-3.5 h-3.5" /> New Quote
                 </button>
-                <button
-                  data-testid="action-new-invoice"
-                  className="glass-action flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                >
-                  <FileText className="w-3.5 h-3.5" />
-                  New Invoice
+                <button data-testid="action-new-invoice" className="glass-action flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                  <FileText className="w-3.5 h-3.5" /> New Invoice
                 </button>
-                <button
-                  data-testid="action-view-reports"
-                  className="glass-action flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                >
-                  <BarChart3 className="w-3.5 h-3.5" />
-                  Reports
+                <button data-testid="action-view-reports" className="glass-action flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]">
+                  <BarChart3 className="w-3.5 h-3.5" /> Reports
                 </button>
               </div>
             </div>
 
-            {/* Overview Grid — stagger 4 */}
-            <div className="anim-reveal" style={delay(380)}>
+            {/* Overview Grid */}
+            <div className="anim-reveal" style={delay(400)}>
               <div className="grid grid-cols-2 gap-3" data-testid="overview-grid">
                 {overviewStats.map((stat) => (
                   <Card key={stat.label} className="p-5">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--text-muted)]">
-                        {stat.label}
-                      </span>
-                      {stat.positive ? (
-                        <ArrowUpRight className="w-3.5 h-3.5 text-[var(--success)]" />
-                      ) : (
-                        <ArrowDownRight className="w-3.5 h-3.5 text-[var(--danger)]" />
-                      )}
+                      <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--text-muted)]">{stat.label}</span>
+                      {stat.positive ? <ArrowUpRight className="w-3.5 h-3.5 text-[var(--success)]" /> : <ArrowDownRight className="w-3.5 h-3.5 text-[var(--danger)]" />}
                     </div>
-                    <div className="text-xl font-semibold text-[var(--text-primary)] tracking-tight">
-                      {stat.value}
-                    </div>
-                    <div
-                      className="text-[11px] font-medium mt-1"
-                      style={{
-                        color: stat.positive ? 'var(--success)' : 'var(--danger)',
-                      }}
-                    >
-                      {stat.change} from last month
-                    </div>
+                    <div className="text-xl font-semibold text-[var(--text-primary)] tracking-tight">{stat.value}</div>
+                    <div className="text-[11px] font-medium mt-1" style={{ color: stat.positive ? 'var(--success)' : 'var(--danger)' }}>{stat.change} from last month</div>
                   </Card>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* ── RIGHT COLUMN (3 cols) ─────────────────── */}
-          <div className="col-span-12 lg:col-span-3 space-y-5">
-            {/* Schedule — stagger 5 */}
+          {/* ── RIGHT COLUMN — tertiary, slightly dimmed ─ */}
+          <div className="col-span-12 lg:col-span-3 space-y-5" data-testid="right-column">
             <div className="anim-reveal" style={delay(120)}>
               <Card className="p-5">
                 <SectionHeader>Schedule</SectionHeader>
                 <div className="space-y-2" data-testid="schedule-list">
                   {scheduleItems.map((item) => (
-                    <div
-                      key={item.id}
-                      data-testid={`schedule-item-${item.id}`}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg glass-inset"
-                    >
-                      <span className="text-[10px] font-mono font-medium text-[var(--accent)] w-10 shrink-0">
-                        {item.time}
-                      </span>
-                      <span className="text-xs text-[var(--text-primary)] flex-1 truncate">
-                        {item.label}
-                      </span>
+                    <div key={item.id} data-testid={`schedule-item-${item.id}`} className="flex items-center gap-3 px-3 py-2.5 rounded-lg glass-inset">
+                      <span className="text-[10px] font-mono font-medium text-[var(--accent)] w-10 shrink-0">{item.time}</span>
+                      <span className="text-xs text-[var(--text-primary)] flex-1 truncate">{item.label}</span>
                     </div>
                   ))}
                 </div>
               </Card>
             </div>
 
-            {/* Urgent Tasks — stagger 6 */}
             <div className="anim-reveal" style={delay(200)}>
               <Card className="p-5">
                 <SectionHeader>Urgent Tasks</SectionHeader>
                 <div className="space-y-2" data-testid="urgent-tasks-list">
                   {urgentTasks.map((task) => (
-                    <div
-                      key={task.id}
-                      data-testid={`urgent-task-${task.id}`}
-                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg glass-inset"
-                    >
+                    <div key={task.id} data-testid={`urgent-task-${task.id}`} className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg glass-inset">
                       <StatusDot color="var(--danger)" />
                       <span className="text-xs text-[var(--text-primary)]">{task.label}</span>
                     </div>
@@ -398,7 +260,6 @@ export default function DashboardPage() {
               </Card>
             </div>
 
-            {/* Financial Overview — stagger 7 */}
             <div className="anim-reveal" style={delay(280)}>
               <Card className="p-5">
                 <SectionHeader>Financial Overview</SectionHeader>
@@ -406,33 +267,23 @@ export default function DashboardPage() {
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="text-xs text-[var(--text-secondary)]">Total Revenue</span>
-                      <span className="text-sm font-semibold text-[var(--text-primary)]">
-                        £24,500
-                      </span>
+                      <span className="text-sm font-semibold text-[var(--text-primary)]">£24,500</span>
                     </div>
-                    <div className="w-full h-1.5 rounded-full glass-inset">
-                      <div className="h-full rounded-full bg-[var(--success)] w-[75%]" />
-                    </div>
+                    <div className="w-full h-1.5 rounded-full glass-inset"><div className="h-full rounded-full bg-[var(--success)] w-[75%]" /></div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="text-xs text-[var(--text-secondary)]">Expenses</span>
-                      <span className="text-sm font-semibold text-[var(--text-primary)]">
-                        £8,200
-                      </span>
+                      <span className="text-sm font-semibold text-[var(--text-primary)]">£8,200</span>
                     </div>
-                    <div className="w-full h-1.5 rounded-full glass-inset">
-                      <div className="h-full rounded-full bg-[var(--danger)] w-[33%]" />
-                    </div>
+                    <div className="w-full h-1.5 rounded-full glass-inset"><div className="h-full rounded-full bg-[var(--danger)] w-[33%]" /></div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="text-xs text-[var(--text-secondary)]">Net Profit</span>
                       <span className="text-sm font-semibold text-[var(--success)]">£16,300</span>
                     </div>
-                    <div className="w-full h-1.5 rounded-full glass-inset">
-                      <div className="h-full rounded-full bg-[var(--accent)] w-[66%]" />
-                    </div>
+                    <div className="w-full h-1.5 rounded-full glass-inset"><div className="h-full rounded-full bg-[var(--accent)] w-[66%]" /></div>
                   </div>
                   <div className="pt-3 border-t border-[var(--border)]">
                     <div className="flex items-center justify-between">
