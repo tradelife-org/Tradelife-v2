@@ -7,16 +7,14 @@ import * as THREE from 'three'
 
 export function CoreTElement() {
   const matRef = useRef<THREE.MeshStandardMaterial>(null)
-  const lightRef = useRef<THREE.PointLight>(null)
+  const primaryRef = useRef<THREE.PointLight>(null)
+  const fillRef = useRef<THREE.PointLight>(null)
 
   useFrame(({ clock }) => {
-    if (!matRef.current || !lightRef.current) return
+    if (!matRef.current || !primaryRef.current || !fillRef.current) return
     const t = clock.getElapsedTime()
 
-    // Slow pulse
     const pulse = 0.85 + Math.sin(t * 0.8) * 0.15
-
-    // Subtle flicker — layered noise at different frequencies
     const flicker = 1.0
       + Math.sin(t * 3.7) * 0.03
       + Math.sin(t * 7.3) * 0.015
@@ -24,13 +22,13 @@ export function CoreTElement() {
 
     const intensity = pulse * flicker
 
-    matRef.current.emissiveIntensity = intensity * 2.5
-    lightRef.current.intensity = intensity * 6
+    matRef.current.emissiveIntensity = intensity * 3
+    primaryRef.current.intensity = intensity * 8
+    fillRef.current.intensity = intensity * 3
   })
 
   return (
     <group position={[0, 0.6, 0]}>
-      {/* The T — emissive text mesh, bloom will catch this */}
       <Text
         fontSize={1.2}
         font="/fonts/inter-bold.ttf"
@@ -43,20 +41,30 @@ export function CoreTElement() {
           ref={matRef}
           color={new THREE.Color(0.15, 0.08, 0.02)}
           emissive={new THREE.Color(1, 0.45, 0.08)}
-          emissiveIntensity={2.5}
+          emissiveIntensity={3}
           roughness={0.3}
           metalness={0.7}
           toneMapped={false}
         />
       </Text>
 
-      {/* Point light — the T emits warm light into the scene */}
+      {/* Primary point light — strong, focused */}
       <pointLight
-        ref={lightRef}
+        ref={primaryRef}
         color={new THREE.Color(1, 0.5, 0.12)}
-        intensity={6}
-        distance={18}
+        intensity={8}
+        distance={20}
         decay={2}
+      />
+
+      {/* Forward fill — pushes light toward camera, illuminates near-UI space */}
+      <pointLight
+        ref={fillRef}
+        color={new THREE.Color(0.9, 0.4, 0.1)}
+        intensity={3}
+        distance={10}
+        decay={2.5}
+        position={[0, 0, 2]}
       />
     </group>
   )

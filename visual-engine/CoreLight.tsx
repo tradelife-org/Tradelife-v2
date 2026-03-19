@@ -7,7 +7,6 @@ import * as THREE from 'three'
 export function CoreLight() {
   const hazeRef = useRef<THREE.Mesh>(null)
 
-  // Very slow haze rotation for living feel
   useFrame(({ clock }) => {
     if (!hazeRef.current) return
     hazeRef.current.rotation.z = clock.getElapsedTime() * 0.01
@@ -15,67 +14,79 @@ export function CoreLight() {
 
   return (
     <group position={[0, 0.5, 0]}>
-      {/* Ambient fill — warm tinted so nothing is pure black */}
-      <ambientLight color={new THREE.Color(0.05, 0.03, 0.015)} intensity={0.6} />
+      {/* Very dim ambient — keeps edges from being pure black */}
+      <ambientLight color={new THREE.Color(0.03, 0.02, 0.01)} intensity={0.4} />
 
-      {/* Inner halo — tight warm sphere, bloom catches it */}
+      {/* Inner halo — bloom catches this as center glow */}
       <mesh>
         <sphereGeometry args={[0.5, 24, 24]} />
         <meshBasicMaterial
-          color={new THREE.Color(0.9, 0.4, 0.08)}
+          color={new THREE.Color(1, 0.45, 0.1)}
           transparent
-          opacity={0.05}
+          opacity={0.07}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
           side={THREE.BackSide}
         />
       </mesh>
 
-      {/* Mid halo — light falloff zone */}
+      {/* Mid halo — light falloff boundary */}
       <mesh>
-        <sphereGeometry args={[1.8, 16, 16]} />
+        <sphereGeometry args={[2.0, 16, 16]} />
         <meshBasicMaterial
-          color={new THREE.Color(0.8, 0.32, 0.06)}
+          color={new THREE.Color(0.8, 0.3, 0.06)}
           transparent
-          opacity={0.02}
+          opacity={0.025}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
           side={THREE.BackSide}
         />
       </mesh>
 
-      {/* Wide atmospheric reach — barely perceptible */}
+      {/* Wide halo — faintest reach of light */}
       <mesh>
-        <sphereGeometry args={[4.0, 12, 12]} />
+        <sphereGeometry args={[4.5, 12, 12]} />
         <meshBasicMaterial
-          color={new THREE.Color(0.6, 0.25, 0.05)}
+          color={new THREE.Color(0.5, 0.2, 0.04)}
           transparent
-          opacity={0.008}
+          opacity={0.01}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
           side={THREE.BackSide}
         />
       </mesh>
 
-      {/* Depth haze plane — flat disc behind the scene, simulates distance fog */}
-      <mesh ref={hazeRef} position={[0, -0.2, -5]} rotation={[0, 0, 0]}>
+      {/* Edge darkening shell — large inverted sphere that absorbs edges */}
+      <mesh>
+        <sphereGeometry args={[8, 16, 16]} />
+        <meshBasicMaterial
+          color={new THREE.Color(0, 0, 0)}
+          transparent
+          opacity={0.2}
+          depthWrite={false}
+          side={THREE.BackSide}
+        />
+      </mesh>
+
+      {/* Depth haze plane */}
+      <mesh ref={hazeRef} position={[0, -0.2, -5]}>
         <planeGeometry args={[20, 14]} />
         <meshBasicMaterial
-          color={new THREE.Color(0.06, 0.03, 0.015)}
+          color={new THREE.Color(0.04, 0.02, 0.01)}
           transparent
-          opacity={0.35}
+          opacity={0.4}
           depthWrite={false}
           side={THREE.DoubleSide}
         />
       </mesh>
 
-      {/* Floor fade — subtle ground plane that darkens the bottom */}
+      {/* Floor fade */}
       <mesh position={[0, -3.5, -1]} rotation={[-Math.PI * 0.45, 0, 0]}>
         <planeGeometry args={[16, 8]} />
         <meshBasicMaterial
-          color={new THREE.Color(0.02, 0.01, 0.005)}
+          color={new THREE.Color(0.015, 0.008, 0.004)}
           transparent
-          opacity={0.3}
+          opacity={0.35}
           depthWrite={false}
           side={THREE.DoubleSide}
         />

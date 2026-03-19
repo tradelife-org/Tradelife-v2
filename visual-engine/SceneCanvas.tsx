@@ -17,8 +17,8 @@ function PostFX() {
         mipmapBlur
       />
       <Vignette
-        offset={0.3}
-        darkness={0.65}
+        offset={0.2}
+        darkness={0.8}
         blendFunction={BlendFunction.NORMAL}
       />
       <Noise

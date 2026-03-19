@@ -11,6 +11,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <VisualEngine />
+        <div className="lighting-overlay" data-testid="lighting-overlay" />
         <div className="relative z-10">{children}</div>
       </body>
     </html>
