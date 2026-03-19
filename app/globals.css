@@ -4,7 +4,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Theme: Commercial (default) ── cool blue, clean ──── */
+/* ═══════════════════════════════════════════════════════════
+   THEME TOKENS
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── Commercial ── cool blue, extremely subtle glow ───── */
 .theme-commercial {
   --bg-base: #0b0b0f;
   --bg-surface: #141419;
@@ -22,9 +26,30 @@
   --warning-muted: rgba(234, 179, 8, 0.12);
   --danger: #ef4444;
   --danger-muted: rgba(239, 68, 68, 0.12);
+
+  /* Glass system */
+  --glass-bg: rgba(20, 20, 25, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.07);
+  --glass-inner-from: rgba(255, 255, 255, 0.03);
+  --glass-inner-to: rgba(255, 255, 255, 0.0);
+  --glass-elevated-bg: rgba(28, 28, 34, 0.5);
+
+  /* Glow system — extremely subtle cool */
+  --glow-color: 59, 130, 246;
+  --glow-ambient: 0 0 80px rgba(59, 130, 246, 0.03), 0 0 160px rgba(59, 130, 246, 0.015);
+  --glow-panel: 0 0 1px rgba(59, 130, 246, 0.06);
+  --glow-hero: 0 0 60px rgba(59, 130, 246, 0.06), 0 0 120px rgba(59, 130, 246, 0.03);
+
+  /* Depth system */
+  --shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-elevated: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.25);
+
+  /* Background system */
+  --bg-gradient-center: rgba(59, 130, 246, 0.025);
+  --bg-vignette-strength: 0.6;
 }
 
-/* ─── Theme: Molten ── warm orange accent ────────────────── */
+/* ─── Molten ── warm orange, slightly stronger glow ──────── */
 .theme-molten {
   --bg-base: #08080c;
   --bg-surface: #111114;
@@ -42,9 +67,30 @@
   --warning-muted: rgba(251, 191, 36, 0.12);
   --danger: #ef4444;
   --danger-muted: rgba(239, 68, 68, 0.12);
+
+  /* Glass system */
+  --glass-bg: rgba(17, 17, 20, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.07);
+  --glass-inner-from: rgba(249, 115, 22, 0.02);
+  --glass-inner-to: rgba(255, 255, 255, 0.0);
+  --glass-elevated-bg: rgba(26, 26, 30, 0.5);
+
+  /* Glow system — slightly stronger warm */
+  --glow-color: 249, 115, 22;
+  --glow-ambient: 0 0 80px rgba(249, 115, 22, 0.045), 0 0 160px rgba(249, 115, 22, 0.02);
+  --glow-panel: 0 0 1px rgba(249, 115, 22, 0.08);
+  --glow-hero: 0 0 60px rgba(249, 115, 22, 0.08), 0 0 120px rgba(249, 115, 22, 0.04);
+
+  /* Depth system */
+  --shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.35), 0 4px 16px rgba(0, 0, 0, 0.25);
+  --shadow-elevated: 0 2px 4px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(0, 0, 0, 0.3);
+
+  /* Background system */
+  --bg-gradient-center: rgba(249, 115, 22, 0.03);
+  --bg-vignette-strength: 0.65;
 }
 
-/* ─── Theme: Remembrance ── deep red, muted contrast ─── */
+/* ─── Remembrance ── deep red, very soft minimal glow ─── */
 .theme-remembrance {
   --bg-base: #0a0809;
   --bg-surface: #141112;
@@ -62,7 +108,32 @@
   --warning-muted: rgba(245, 158, 11, 0.12);
   --danger: #ef4444;
   --danger-muted: rgba(239, 68, 68, 0.12);
+
+  /* Glass system */
+  --glass-bg: rgba(20, 17, 18, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-inner-from: rgba(220, 38, 38, 0.015);
+  --glass-inner-to: rgba(255, 255, 255, 0.0);
+  --glass-elevated-bg: rgba(30, 26, 27, 0.5);
+
+  /* Glow system — very soft, minimal */
+  --glow-color: 220, 38, 38;
+  --glow-ambient: 0 0 80px rgba(220, 38, 38, 0.025), 0 0 160px rgba(220, 38, 38, 0.012);
+  --glow-panel: 0 0 1px rgba(220, 38, 38, 0.05);
+  --glow-hero: 0 0 60px rgba(220, 38, 38, 0.05), 0 0 120px rgba(220, 38, 38, 0.025);
+
+  /* Depth system */
+  --shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-elevated: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.25);
+
+  /* Background system */
+  --bg-gradient-center: rgba(220, 38, 38, 0.02);
+  --bg-vignette-strength: 0.6;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   BASE LAYER
+   ═══════════════════════════════════════════════════════════ */
 
 @layer base {
   * {
@@ -78,7 +149,121 @@
   }
 }
 
-/* Scrollbar */
+/* ═══════════════════════════════════════════════════════════
+   GLASS SYSTEM
+   ═══════════════════════════════════════════════════════════ */
+
+@layer components {
+  /* Primary glass panel — mid-layer depth */
+  .glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-panel), var(--glow-panel);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Subtle inner gradient for glass panels */
+  .glass-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      165deg,
+      var(--glass-inner-from) 0%,
+      var(--glass-inner-to) 40%
+    );
+    pointer-events: none;
+  }
+
+  /* Hero glass panel — for focal elements like AI Core */
+  .glass-panel-hero {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-elevated), var(--glow-hero);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass-panel-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      165deg,
+      var(--glass-inner-from) 0%,
+      var(--glass-inner-to) 50%
+    );
+    pointer-events: none;
+  }
+
+  /* Glass elevated — inner items within panels */
+  .glass-inset {
+    background: var(--glass-elevated-bg);
+    border-radius: 8px;
+  }
+
+  /* Glass top bar */
+  .glass-topbar {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  /* Glass action button */
+  .glass-action {
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .glass-action:hover {
+    border-color: var(--border-strong);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), var(--glow-panel);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BACKGROUND SYSTEM
+   ═══════════════════════════════════════════════════════════ */
+
+/* Ambient gradient — subtle center light */
+.bg-ambient {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 30%, var(--bg-gradient-center) 0%, transparent 70%);
+}
+
+/* Vignette — darker edges create depth */
+.bg-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(0, 0, 0, var(--bg-vignette-strength)) 100%);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLLBAR
+   ═══════════════════════════════════════════════════════════ */
+
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }

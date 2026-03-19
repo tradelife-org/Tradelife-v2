@@ -63,13 +63,13 @@ const overviewStats = [
 
 /* ─── Small Components ──────────────────────────────────── */
 
-function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+function Card({ children, className = '', hero = false }: { children: React.ReactNode; className?: string; hero?: boolean }) {
   return (
     <div
       data-testid="card"
-      className={`bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg ${className}`}
+      className={`${hero ? 'glass-panel-hero' : 'glass-panel'} ${className}`}
     >
-      {children}
+      <div className="relative z-[1]">{children}</div>
     </div>
   )
 }
@@ -90,17 +90,22 @@ function StatusDot({ color }: { color: string }) {
 
 export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-[var(--bg-base)]">
+    <div className="min-h-screen bg-[var(--bg-base)] relative">
+      {/* ── Background System ───────────────────────────── */}
+      <div className="bg-ambient" />
+      <div className="bg-vignette" />
+
       {/* ── Top Bar ─────────────────────────────────────── */}
       <header
         data-testid="top-bar"
-        className="sticky top-0 z-50 h-14 border-b border-[var(--border)] bg-[var(--bg-base)] px-6 flex items-center justify-between"
+        className="sticky top-0 z-50 h-14 glass-topbar px-6 flex items-center justify-between"
       >
         {/* Left */}
         <div className="flex items-center gap-3">
           <div
             data-testid="logo"
             className="w-7 h-7 rounded-md bg-[var(--accent)] flex items-center justify-center"
+            style={{ boxShadow: '0 0 12px rgba(var(--glow-color), 0.2)' }}
           >
             <span className="text-white font-bold text-xs">T</span>
           </div>
@@ -136,7 +141,7 @@ export default function DashboardPage() {
       </header>
 
       {/* ── Main Grid ───────────────────────────────────── */}
-      <main className="p-6">
+      <main className="p-6 relative z-10">
         <div
           data-testid="dashboard-grid"
           className="grid grid-cols-12 gap-5 max-w-[1440px] mx-auto"
@@ -144,14 +149,14 @@ export default function DashboardPage() {
           {/* ── LEFT COLUMN (3 cols) ──────────────────── */}
           <div className="col-span-12 lg:col-span-3 space-y-5">
             {/* Attention Needed */}
-            <Card className="p-4">
+            <Card className="p-5">
               <SectionHeader>Attention Needed</SectionHeader>
               <div className="space-y-2" data-testid="attention-needed-list">
                 {attentionItems.map((item) => (
                   <div
                     key={item.id}
                     data-testid={`attention-item-${item.id}`}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-md"
+                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg"
                     style={{
                       backgroundColor:
                         item.type === 'danger' ? 'var(--danger-muted)' : 'var(--warning-muted)',
@@ -167,14 +172,14 @@ export default function DashboardPage() {
             </Card>
 
             {/* Active Projects */}
-            <Card className="p-4">
+            <Card className="p-5">
               <SectionHeader>Active Projects</SectionHeader>
-              <div className="space-y-2" data-testid="active-projects-list">
+              <div className="space-y-2.5" data-testid="active-projects-list">
                 {activeProjects.map((project) => (
                   <div
                     key={project.id}
                     data-testid={`project-${project.id}`}
-                    className="px-3 py-2.5 rounded-md bg-[var(--bg-elevated)]"
+                    className="px-3 py-3 rounded-lg glass-inset"
                   >
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="text-xs font-medium text-[var(--text-primary)]">
@@ -190,7 +195,7 @@ export default function DashboardPage() {
                         style={{ width: `${project.progress}%` }}
                       />
                     </div>
-                    <span className="text-[10px] text-[var(--text-muted)] mt-1 block">
+                    <span className="text-[10px] text-[var(--text-muted)] mt-1.5 block">
                       {project.client}
                     </span>
                   </div>
@@ -199,14 +204,14 @@ export default function DashboardPage() {
             </Card>
 
             {/* Active Trades */}
-            <Card className="p-4">
+            <Card className="p-5">
               <SectionHeader>Active Trades</SectionHeader>
-              <div className="space-y-1.5" data-testid="active-trades-list">
+              <div className="space-y-2" data-testid="active-trades-list">
                 {activeTrades.map((trade) => (
                   <div
                     key={trade.id}
                     data-testid={`trade-${trade.id}`}
-                    className="flex items-center justify-between px-3 py-2 rounded-md bg-[var(--bg-elevated)]"
+                    className="flex items-center justify-between px-3 py-2.5 rounded-lg glass-inset"
                   >
                     <div className="flex items-center gap-2">
                       <StatusDot
@@ -243,10 +248,13 @@ export default function DashboardPage() {
 
           {/* ── CENTER COLUMN (6 cols) ────────────────── */}
           <div className="col-span-12 lg:col-span-6 space-y-5">
-            {/* AI Core Placeholder */}
-            <Card className="p-6" data-testid="ai-core-placeholder">
+            {/* AI Core Placeholder — hero glass */}
+            <Card className="p-6" hero data-testid="ai-core-placeholder">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-strong)] flex items-center justify-center">
+                <div
+                  className="w-12 h-12 rounded-lg glass-inset border border-[var(--border-strong)] flex items-center justify-center"
+                  style={{ boxShadow: '0 0 20px rgba(var(--glow-color), 0.1)' }}
+                >
                   <Cpu className="w-5 h-5 text-[var(--accent)]" />
                 </div>
                 <div>
@@ -256,7 +264,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <div className="mt-4 px-4 py-3 rounded-md bg-[var(--bg-elevated)] border border-[var(--border)]">
+              <div className="mt-4 px-4 py-3 rounded-lg glass-inset border border-[var(--border)]">
                 <p className="text-xs text-[var(--text-muted)] italic">
                   Ask me anything about your projects, finances, or schedule...
                 </p>
@@ -267,21 +275,21 @@ export default function DashboardPage() {
             <div className="grid grid-cols-3 gap-3" data-testid="action-buttons">
               <button
                 data-testid="action-new-quote"
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-[var(--bg-surface)] border border-[var(--border)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-colors"
+                className="glass-action flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               >
                 <Plus className="w-3.5 h-3.5" />
                 New Quote
               </button>
               <button
                 data-testid="action-new-invoice"
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-[var(--bg-surface)] border border-[var(--border)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-colors"
+                className="glass-action flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               >
                 <FileText className="w-3.5 h-3.5" />
                 New Invoice
               </button>
               <button
                 data-testid="action-view-reports"
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-[var(--bg-surface)] border border-[var(--border)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-colors"
+                className="glass-action flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               >
                 <BarChart3 className="w-3.5 h-3.5" />
                 Reports
@@ -291,7 +299,7 @@ export default function DashboardPage() {
             {/* Overview Grid */}
             <div className="grid grid-cols-2 gap-3" data-testid="overview-grid">
               {overviewStats.map((stat) => (
-                <Card key={stat.label} className="p-4">
+                <Card key={stat.label} className="p-5">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--text-muted)]">
                       {stat.label}
@@ -321,14 +329,14 @@ export default function DashboardPage() {
           {/* ── RIGHT COLUMN (3 cols) ─────────────────── */}
           <div className="col-span-12 lg:col-span-3 space-y-5">
             {/* Schedule */}
-            <Card className="p-4">
+            <Card className="p-5">
               <SectionHeader>Schedule</SectionHeader>
-              <div className="space-y-1.5" data-testid="schedule-list">
+              <div className="space-y-2" data-testid="schedule-list">
                 {scheduleItems.map((item) => (
                   <div
                     key={item.id}
                     data-testid={`schedule-item-${item.id}`}
-                    className="flex items-center gap-3 px-3 py-2 rounded-md bg-[var(--bg-elevated)]"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg glass-inset"
                   >
                     <span className="text-[10px] font-mono font-medium text-[var(--accent)] w-10 shrink-0">
                       {item.time}
@@ -342,14 +350,14 @@ export default function DashboardPage() {
             </Card>
 
             {/* Urgent Tasks */}
-            <Card className="p-4">
+            <Card className="p-5">
               <SectionHeader>Urgent Tasks</SectionHeader>
-              <div className="space-y-1.5" data-testid="urgent-tasks-list">
+              <div className="space-y-2" data-testid="urgent-tasks-list">
                 {urgentTasks.map((task) => (
                   <div
                     key={task.id}
                     data-testid={`urgent-task-${task.id}`}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-md bg-[var(--bg-elevated)]"
+                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg glass-inset"
                   >
                     <StatusDot color="var(--danger)" />
                     <span className="text-xs text-[var(--text-primary)]">{task.label}</span>
@@ -359,41 +367,41 @@ export default function DashboardPage() {
             </Card>
 
             {/* Financial Overview */}
-            <Card className="p-4">
+            <Card className="p-5">
               <SectionHeader>Financial Overview</SectionHeader>
               <div className="space-y-4" data-testid="financial-overview">
                 <div>
-                  <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center justify-between mb-1.5">
                     <span className="text-xs text-[var(--text-secondary)]">Total Revenue</span>
                     <span className="text-sm font-semibold text-[var(--text-primary)]">
                       £24,500
                     </span>
                   </div>
-                  <div className="w-full h-1.5 rounded-full bg-[var(--bg-elevated)]">
+                  <div className="w-full h-1.5 rounded-full glass-inset">
                     <div className="h-full rounded-full bg-[var(--success)] w-[75%]" />
                   </div>
                 </div>
                 <div>
-                  <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center justify-between mb-1.5">
                     <span className="text-xs text-[var(--text-secondary)]">Expenses</span>
                     <span className="text-sm font-semibold text-[var(--text-primary)]">
                       £8,200
                     </span>
                   </div>
-                  <div className="w-full h-1.5 rounded-full bg-[var(--bg-elevated)]">
+                  <div className="w-full h-1.5 rounded-full glass-inset">
                     <div className="h-full rounded-full bg-[var(--danger)] w-[33%]" />
                   </div>
                 </div>
                 <div>
-                  <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center justify-between mb-1.5">
                     <span className="text-xs text-[var(--text-secondary)]">Net Profit</span>
                     <span className="text-sm font-semibold text-[var(--success)]">£16,300</span>
                   </div>
-                  <div className="w-full h-1.5 rounded-full bg-[var(--bg-elevated)]">
+                  <div className="w-full h-1.5 rounded-full glass-inset">
                     <div className="h-full rounded-full bg-[var(--accent)] w-[66%]" />
                   </div>
                 </div>
-                <div className="pt-2 border-t border-[var(--border)]">
+                <div className="pt-3 border-t border-[var(--border)]">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-[var(--text-muted)]">Profit Margin</span>
                     <span className="text-xs font-semibold text-[var(--success)]">66.5%</span>
