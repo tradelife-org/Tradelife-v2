@@ -1,319 +1,409 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { useThemeStore, type ThemeName } from '@/lib/stores/theme-store'
+import {
+  Bell,
+  Settings,
+  User,
+  AlertCircle,
+  FolderOpen,
+  TrendingUp,
+  Cpu,
+  FileText,
+  BarChart3,
+  Plus,
+  Clock,
+  CircleDot,
+  DollarSign,
+  ArrowUpRight,
+  ArrowDownRight,
+  Calendar,
+} from 'lucide-react'
 
-interface ClassifiedTransaction {
-  id: string; merchant: string; amount: number; description: string; date: string
-  type: 'business' | 'personal'; category: string; confidence: number
-}
+/* ─── Mock Data ──────────────────────────────────────────── */
 
-const MOCK_TRANSACTIONS = [
-  { id: crypto.randomUUID(), merchant: 'Screwfix', amount: 120, description: 'Screwfix Direct', date: '2025-01-15' },
-  { id: crypto.randomUUID(), merchant: 'Tesco', amount: 45, description: 'Tesco Superstore', date: '2025-01-15' },
-  { id: crypto.randomUUID(), merchant: 'Shell', amount: 60, description: 'Shell Fuel Station', date: '2025-01-14' },
-  { id: crypto.randomUUID(), merchant: 'Amazon', amount: 30, description: 'Amazon.co.uk', date: '2025-01-14' },
+const attentionItems = [
+  { id: '1', label: '3 invoices overdue', type: 'warning' as const },
+  { id: '2', label: 'VAT return due in 5 days', type: 'danger' as const },
+  { id: '3', label: 'Quote #047 awaiting approval', type: 'warning' as const },
 ]
 
-const THEMES: { key: ThemeName; label: string }[] = [
-  { key: 'molten', label: 'Command' },
-  { key: 'commercial', label: 'Professional' },
-  { key: 'remembrance', label: 'Respect' },
+const activeProjects = [
+  { id: '1', name: 'Kitchen Renovation', client: 'Mrs. Patterson', progress: 72 },
+  { id: '2', name: 'Office Fit-Out', client: 'Apex Ltd', progress: 45 },
+  { id: '3', name: 'Bathroom Remodel', client: 'Mr. Singh', progress: 90 },
 ]
 
-function GlassCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return <div className={`glass-panel p-4 ${className}`}>{children}</div>
-}
+const activeTrades = [
+  { id: '1', name: 'Plumbing', status: 'on-site' as const },
+  { id: '2', name: 'Electrical', status: 'on-site' as const },
+  { id: '3', name: 'Carpentry', status: 'scheduled' as const },
+  { id: '4', name: 'Painting', status: 'completed' as const },
+]
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h3 className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>{children}</h3>
-}
+const scheduleItems = [
+  { id: '1', time: '09:00', label: 'Site visit — Unit 4', tag: 'Visit' },
+  { id: '2', time: '11:30', label: 'Supplier call — BuildCo', tag: 'Call' },
+  { id: '3', time: '14:00', label: 'Client meeting — Smith', tag: 'Meeting' },
+  { id: '4', time: '16:30', label: 'Inspection — Plot 12', tag: 'Inspection' },
+]
 
-function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
+const urgentTasks = [
+  { id: '1', label: 'Submit VAT return' },
+  { id: '2', label: 'Chase invoice #042' },
+  { id: '3', label: 'Order materials for Unit 4' },
+  { id: '4', label: 'Sign off snagging list' },
+]
+
+const overviewStats = [
+  { label: 'Revenue', value: '£24,500', change: '+12%', positive: true },
+  { label: 'Expenses', value: '£8,200', change: '+3%', positive: false },
+  { label: 'Net Profit', value: '£16,300', change: '+18%', positive: true },
+  { label: 'Outstanding', value: '£4,100', change: '-8%', positive: true },
+]
+
+/* ─── Small Components ──────────────────────────────────── */
+
+function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className="glass-panel p-4 text-center">
-      <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>{label}</div>
-      <div className="text-2xl font-bold" style={{ color }}>{value}</div>
+    <div
+      data-testid="card"
+      className={`bg-[var(--bg-surface)] border border-[var(--border)] rounded-lg ${className}`}
+    >
+      {children}
     </div>
   )
 }
 
-export default function DashboardPage() {
-  const router = useRouter()
-  const { theme, setTheme } = useThemeStore()
-  const [orgId, setOrgId] = useState<string | null>(null)
-  const [connected, setConnected] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [pageLoading, setPageLoading] = useState(true)
-  const [transactions, setTransactions] = useState<ClassifiedTransaction[]>([])
-  const [showSettings, setShowSettings] = useState(false)
-
-  const businessCount = transactions.filter(t => t.type === 'business').length
-  const personalCount = transactions.filter(t => t.type === 'personal').length
-  const reviewCount = transactions.filter(t => t.confidence < 0.7).length
-  const totalAmount = transactions.reduce((s, t) => s + t.amount, 0)
-  const businessAmount = transactions.filter(t => t.type === 'business').reduce((s, t) => s + t.amount, 0)
-
-  const loadTransactions = useCallback(async (oid: string) => {
-    try {
-      const res = await fetch(`/api/transactions?org_id=${oid}`)
-      const data = await res.json()
-      if (data.transactions?.length > 0) { setTransactions(data.transactions); setConnected(true) }
-    } catch {}
-  }, [])
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch('/api/auth/me'); const data = await res.json()
-        if (data.user?.org_id) { setOrgId(data.user.org_id); await loadTransactions(data.user.org_id) }
-      } catch {} finally { setPageLoading(false) }
-    })()
-  }, [loadTransactions])
-
-  async function handleConnectBank() {
-    setLoading(true)
-    try {
-      const res = await fetch('/api/classify', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transactions: MOCK_TRANSACTIONS, org_id: orgId }) })
-      const data = await res.json()
-      if (data.transactions) {
-        const saveRes = await fetch('/api/transactions', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ transactions: data.transactions, org_id: orgId }) })
-        const saved = await saveRes.json()
-        setTransactions(saved.transactions || data.transactions); setConnected(true)
-      }
-    } catch {} finally { setLoading(false) }
-  }
-
-  if (pageLoading) {
-    return (
-      <main className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-base)' }}>
-        <div className="flex items-center gap-3">
-          <div className="w-5 h-5 rounded-full animate-pulse" style={{ background: 'var(--glow-primary)' }} />
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Loading command center...</p>
-        </div>
-      </main>
-    )
-  }
-
+function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <main className="min-h-screen relative" style={{ background: 'var(--bg-base)' }}>
-      {/* Ambient glow */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] opacity-[0.04] pointer-events-none"
-        style={{ background: `radial-gradient(ellipse, var(--glow-primary), transparent 70%)` }} />
+    <h3 className="text-[11px] font-semibold uppercase tracking-widest text-[var(--text-muted)] mb-3">
+      {children}
+    </h3>
+  )
+}
 
-      {/* Top Bar */}
-      <header className="sticky top-0 z-50 px-4 md:px-6 h-14 flex items-center justify-between"
-        style={{ background: 'rgba(var(--bg-base-rgb), 0.8)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--border-color)' }}>
+function StatusDot({ color }: { color: string }) {
+  return <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+}
+
+/* ─── Dashboard Page ─────────────────────────────────────── */
+
+export default function DashboardPage() {
+  return (
+    <div className="min-h-screen bg-[var(--bg-base)]">
+      {/* ── Top Bar ─────────────────────────────────────── */}
+      <header
+        data-testid="top-bar"
+        className="sticky top-0 z-50 h-14 border-b border-[var(--border)] bg-[var(--bg-base)] px-6 flex items-center justify-between"
+      >
+        {/* Left */}
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: 'var(--glow-primary)' }}>
+          <div
+            data-testid="logo"
+            className="w-7 h-7 rounded-md bg-[var(--accent)] flex items-center justify-center"
+          >
             <span className="text-white font-bold text-xs">T</span>
           </div>
-          <span className="font-bold text-sm tracking-tight" style={{ color: 'var(--text-primary)' }}>TradeLife</span>
-          <span className="text-xs font-medium px-2 py-0.5 rounded-full ml-1" style={{ color: 'var(--glow-primary)', background: 'rgba(var(--glow-primary-rgb), 0.1)' }}>
+          <span className="font-semibold text-sm text-[var(--text-primary)] tracking-tight">
+            TradeLife
+          </span>
+          <span className="text-[11px] font-medium text-[var(--text-muted)] ml-1">
             Command Center
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          {/* Settings */}
-          <button onClick={() => setShowSettings(!showSettings)} data-testid="settings-button"
-            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-            style={{ background: showSettings ? 'rgba(var(--glow-primary-rgb), 0.15)' : 'transparent', color: 'var(--text-secondary)' }}>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-            </svg>
+
+        {/* Right */}
+        <div className="flex items-center gap-1">
+          <button
+            data-testid="notifications-button"
+            className="w-8 h-8 rounded-md flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors"
+          >
+            <Bell className="w-4 h-4" />
           </button>
-          {/* Avatar */}
-          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-            style={{ background: 'rgba(var(--glow-primary-rgb), 0.15)', color: 'var(--glow-primary)' }}>U</div>
+          <button
+            data-testid="settings-button"
+            className="w-8 h-8 rounded-md flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors"
+          >
+            <Settings className="w-4 h-4" />
+          </button>
+          <div
+            data-testid="user-avatar"
+            className="w-7 h-7 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-strong)] flex items-center justify-center ml-2"
+          >
+            <User className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
+          </div>
         </div>
       </header>
 
-      {/* Settings Panel */}
-      {showSettings && (
-        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-          className="fixed top-14 right-4 z-50 w-64 glass-panel-elevated p-4" data-testid="settings-panel">
-          <h4 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>Appearance</h4>
-          <div className="space-y-1.5">
-            {THEMES.map(t => (
-              <button key={t.key} onClick={() => setTheme(t.key)} data-testid={`theme-switch-${t.key}`}
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-sm transition-all"
-                style={{ background: theme === t.key ? 'rgba(var(--glow-primary-rgb), 0.1)' : 'transparent', color: theme === t.key ? 'var(--glow-primary)' : 'var(--text-secondary)' }}>
-                <div className="w-3 h-3 rounded-full" style={{ background: t.key === 'molten' ? '#f97316' : t.key === 'commercial' ? '#3b82f6' : '#dc2626' }} />
-                <span className="font-medium">{t.label}</span>
-              </button>
-            ))}
-          </div>
-        </motion.div>
-      )}
-
-      {/* 3-Column Grid */}
-      <div className="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-4" data-testid="dashboard-heading">
-        {/* LEFT PANEL */}
-        <div className="lg:col-span-3 space-y-4">
-          <GlassCard>
-            <SectionTitle>Attention Needed</SectionTitle>
-            {reviewCount > 0 ? (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs" style={{ background: 'rgba(245,158,11,0.08)' }}>
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--warning)' }} />
-                  <span style={{ color: 'var(--text-primary)' }}>{reviewCount} transactions need review</span>
-                </div>
+      {/* ── Main Grid ───────────────────────────────────── */}
+      <main className="p-6">
+        <div
+          data-testid="dashboard-grid"
+          className="grid grid-cols-12 gap-5 max-w-[1440px] mx-auto"
+        >
+          {/* ── LEFT COLUMN (3 cols) ──────────────────── */}
+          <div className="col-span-12 lg:col-span-3 space-y-5">
+            {/* Attention Needed */}
+            <Card className="p-4">
+              <SectionHeader>Attention Needed</SectionHeader>
+              <div className="space-y-2" data-testid="attention-needed-list">
+                {attentionItems.map((item) => (
+                  <div
+                    key={item.id}
+                    data-testid={`attention-item-${item.id}`}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-md"
+                    style={{
+                      backgroundColor:
+                        item.type === 'danger' ? 'var(--danger-muted)' : 'var(--warning-muted)',
+                    }}
+                  >
+                    <StatusDot
+                      color={item.type === 'danger' ? 'var(--danger)' : 'var(--warning)'}
+                    />
+                    <span className="text-xs text-[var(--text-primary)]">{item.label}</span>
+                  </div>
+                ))}
               </div>
-            ) : (
-              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>No items need attention</p>
-            )}
-          </GlassCard>
+            </Card>
 
-          <GlassCard>
-            <SectionTitle>Active Projects</SectionTitle>
-            <div className="space-y-2">
-              {['Kitchen Renovation', 'Office Fit-Out'].map(p => (
-                <div key={p} className="flex items-center justify-between px-3 py-2 rounded-lg" style={{ background: 'rgba(var(--surface-elevated-rgb), 0.5)' }}>
-                  <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{p}</span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ color: 'var(--glow-primary)', background: 'rgba(var(--glow-primary-rgb), 0.1)' }}>Active</span>
-                </div>
-              ))}
-            </div>
-          </GlassCard>
-
-          <GlassCard>
-            <SectionTitle>Active Trades</SectionTitle>
-            <div className="space-y-2">
-              {['Plumbing', 'Electrical'].map(t => (
-                <div key={t} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: 'rgba(var(--surface-elevated-rgb), 0.5)' }}>
-                  <div className="w-2 h-2 rounded-full" style={{ background: 'var(--success)' }} />
-                  <span className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{t}</span>
-                </div>
-              ))}
-            </div>
-          </GlassCard>
-        </div>
-
-        {/* CENTER PANEL */}
-        <div className="lg:col-span-6 space-y-4">
-          {/* AI Core */}
-          <GlassCard className="edge-glow text-center py-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 edge-glow-strong"
-              style={{ background: 'rgba(var(--glow-primary-rgb), 0.1)' }}>
-              <div className="w-6 h-6 rounded-full" style={{ background: 'var(--glow-primary)', boxShadow: `0 0 16px rgba(var(--glow-primary-rgb), 0.5)` }} />
-            </div>
-            <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>AI Classification Engine</h2>
-            <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>Intelligent transaction analysis active</p>
-          </GlassCard>
-
-          {/* Quick Actions */}
-          {!connected ? (
-            <GlassCard data-testid="connect-bank-card">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ background: 'rgba(var(--glow-primary-rgb), 0.1)' }}>
-                  <svg className="w-5 h-5" style={{ color: 'var(--glow-primary)' }} fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Connect your bank</h3>
-                  <p className="text-xs mt-1 mb-3" style={{ color: 'var(--text-secondary)' }}>Import and classify transactions automatically</p>
-                  <button onClick={handleConnectBank} disabled={loading} className="btn-glow px-5 py-2 text-xs" data-testid="connect-bank-button">
-                    {loading ? 'Connecting...' : 'Connect Bank'}
-                  </button>
-                </div>
-              </div>
-            </GlassCard>
-          ) : (
-            <div data-testid="classification-results">
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <StatCard label="Business" value={businessCount} color="var(--success)" />
-                <StatCard label="Personal" value={personalCount} color="var(--glow-primary)" />
-                <StatCard label="Review" value={reviewCount} color="var(--warning)" />
-              </div>
-
-              {/* Transactions */}
-              <GlassCard className="!p-0 overflow-hidden">
-                <div className="px-4 pt-3 pb-2"><SectionTitle>Recent Transactions</SectionTitle></div>
-                <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
-                  {transactions.slice(0, 6).map(tx => (
-                    <div key={tx.id} className="px-4 py-3 flex items-center justify-between" data-testid={`transaction-${tx.id}`}>
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
-                          style={{ background: 'rgba(var(--surface-elevated-rgb), 0.8)', color: 'var(--text-secondary)' }}>
-                          {tx.merchant[0]}
-                        </div>
-                        <div>
-                          <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{tx.merchant}</span>
-                          <span className="text-xs ml-2" style={{ color: 'var(--text-muted)' }}>{tx.category}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm font-mono" style={{ color: 'var(--text-primary)' }}>{'\u00A3'}{tx.amount}</span>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                          style={{ background: tx.type === 'business' ? 'rgba(16,185,129,0.1)' : 'rgba(var(--glow-primary-rgb),0.1)',
-                            color: tx.type === 'business' ? 'var(--success)' : 'var(--glow-primary)' }}>
-                          {tx.type}
-                        </span>
-                      </div>
+            {/* Active Projects */}
+            <Card className="p-4">
+              <SectionHeader>Active Projects</SectionHeader>
+              <div className="space-y-2" data-testid="active-projects-list">
+                {activeProjects.map((project) => (
+                  <div
+                    key={project.id}
+                    data-testid={`project-${project.id}`}
+                    className="px-3 py-2.5 rounded-md bg-[var(--bg-elevated)]"
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-medium text-[var(--text-primary)]">
+                        {project.name}
+                      </span>
+                      <span className="text-[10px] font-medium text-[var(--accent)]">
+                        {project.progress}%
+                      </span>
                     </div>
-                  ))}
-                </div>
-              </GlassCard>
+                    <div className="w-full h-1 rounded-full bg-[var(--border-strong)]">
+                      <div
+                        className="h-full rounded-full bg-[var(--accent)]"
+                        style={{ width: `${project.progress}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-[var(--text-muted)] mt-1 block">
+                      {project.client}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Card>
 
-              <button onClick={() => router.push('/transactions/review')} className="btn-glow w-full py-3 text-sm mt-4" data-testid="review-transactions-button">
-                Review Transactions
+            {/* Active Trades */}
+            <Card className="p-4">
+              <SectionHeader>Active Trades</SectionHeader>
+              <div className="space-y-1.5" data-testid="active-trades-list">
+                {activeTrades.map((trade) => (
+                  <div
+                    key={trade.id}
+                    data-testid={`trade-${trade.id}`}
+                    className="flex items-center justify-between px-3 py-2 rounded-md bg-[var(--bg-elevated)]"
+                  >
+                    <div className="flex items-center gap-2">
+                      <StatusDot
+                        color={
+                          trade.status === 'on-site'
+                            ? 'var(--success)'
+                            : trade.status === 'scheduled'
+                              ? 'var(--warning)'
+                              : 'var(--text-muted)'
+                        }
+                      />
+                      <span className="text-xs font-medium text-[var(--text-primary)]">
+                        {trade.name}
+                      </span>
+                    </div>
+                    <span
+                      className="text-[10px] font-medium capitalize"
+                      style={{
+                        color:
+                          trade.status === 'on-site'
+                            ? 'var(--success)'
+                            : trade.status === 'scheduled'
+                              ? 'var(--warning)'
+                              : 'var(--text-muted)',
+                      }}
+                    >
+                      {trade.status.replace('-', ' ')}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+
+          {/* ── CENTER COLUMN (6 cols) ────────────────── */}
+          <div className="col-span-12 lg:col-span-6 space-y-5">
+            {/* AI Core Placeholder */}
+            <Card className="p-6" data-testid="ai-core-placeholder">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-strong)] flex items-center justify-center">
+                  <Cpu className="w-5 h-5 text-[var(--accent)]" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold text-[var(--text-primary)]">AI Core</h2>
+                  <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                    Intelligent assistant — ready to help
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 px-4 py-3 rounded-md bg-[var(--bg-elevated)] border border-[var(--border)]">
+                <p className="text-xs text-[var(--text-muted)] italic">
+                  Ask me anything about your projects, finances, or schedule...
+                </p>
+              </div>
+            </Card>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-3 gap-3" data-testid="action-buttons">
+              <button
+                data-testid="action-new-quote"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-[var(--bg-surface)] border border-[var(--border)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                New Quote
+              </button>
+              <button
+                data-testid="action-new-invoice"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-[var(--bg-surface)] border border-[var(--border)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-colors"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                New Invoice
+              </button>
+              <button
+                data-testid="action-view-reports"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-[var(--bg-surface)] border border-[var(--border)] text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)] transition-colors"
+              >
+                <BarChart3 className="w-3.5 h-3.5" />
+                Reports
               </button>
             </div>
-          )}
-        </div>
 
-        {/* RIGHT PANEL */}
-        <div className="lg:col-span-3 space-y-4">
-          <GlassCard>
-            <SectionTitle>Schedule</SectionTitle>
-            <div className="space-y-2">
-              {[{ t: '09:00', l: 'Site visit — Unit 4' }, { t: '14:00', l: 'Client call — Smith' }].map(s => (
-                <div key={s.t} className="flex items-center gap-3 px-3 py-2 rounded-lg" style={{ background: 'rgba(var(--surface-elevated-rgb), 0.5)' }}>
-                  <span className="text-[10px] font-mono font-medium" style={{ color: 'var(--glow-primary)' }}>{s.t}</span>
-                  <span className="text-xs" style={{ color: 'var(--text-primary)' }}>{s.l}</span>
-                </div>
+            {/* Overview Grid */}
+            <div className="grid grid-cols-2 gap-3" data-testid="overview-grid">
+              {overviewStats.map((stat) => (
+                <Card key={stat.label} className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--text-muted)]">
+                      {stat.label}
+                    </span>
+                    {stat.positive ? (
+                      <ArrowUpRight className="w-3.5 h-3.5 text-[var(--success)]" />
+                    ) : (
+                      <ArrowDownRight className="w-3.5 h-3.5 text-[var(--danger)]" />
+                    )}
+                  </div>
+                  <div className="text-xl font-semibold text-[var(--text-primary)] tracking-tight">
+                    {stat.value}
+                  </div>
+                  <div
+                    className="text-[11px] font-medium mt-1"
+                    style={{
+                      color: stat.positive ? 'var(--success)' : 'var(--danger)',
+                    }}
+                  >
+                    {stat.change} from last month
+                  </div>
+                </Card>
               ))}
             </div>
-          </GlassCard>
+          </div>
 
-          <GlassCard>
-            <SectionTitle>Urgent Tasks</SectionTitle>
-            <div className="space-y-2">
-              {['Submit VAT return', 'Chase invoice #042'].map(t => (
-                <div key={t} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: 'rgba(var(--surface-elevated-rgb), 0.5)' }}>
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--danger)' }} />
-                  <span className="text-xs" style={{ color: 'var(--text-primary)' }}>{t}</span>
+          {/* ── RIGHT COLUMN (3 cols) ─────────────────── */}
+          <div className="col-span-12 lg:col-span-3 space-y-5">
+            {/* Schedule */}
+            <Card className="p-4">
+              <SectionHeader>Schedule</SectionHeader>
+              <div className="space-y-1.5" data-testid="schedule-list">
+                {scheduleItems.map((item) => (
+                  <div
+                    key={item.id}
+                    data-testid={`schedule-item-${item.id}`}
+                    className="flex items-center gap-3 px-3 py-2 rounded-md bg-[var(--bg-elevated)]"
+                  >
+                    <span className="text-[10px] font-mono font-medium text-[var(--accent)] w-10 shrink-0">
+                      {item.time}
+                    </span>
+                    <span className="text-xs text-[var(--text-primary)] flex-1 truncate">
+                      {item.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Urgent Tasks */}
+            <Card className="p-4">
+              <SectionHeader>Urgent Tasks</SectionHeader>
+              <div className="space-y-1.5" data-testid="urgent-tasks-list">
+                {urgentTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    data-testid={`urgent-task-${task.id}`}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-md bg-[var(--bg-elevated)]"
+                  >
+                    <StatusDot color="var(--danger)" />
+                    <span className="text-xs text-[var(--text-primary)]">{task.label}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Financial Overview */}
+            <Card className="p-4">
+              <SectionHeader>Financial Overview</SectionHeader>
+              <div className="space-y-4" data-testid="financial-overview">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-[var(--text-secondary)]">Total Revenue</span>
+                    <span className="text-sm font-semibold text-[var(--text-primary)]">
+                      £24,500
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full bg-[var(--bg-elevated)]">
+                    <div className="h-full rounded-full bg-[var(--success)] w-[75%]" />
+                  </div>
                 </div>
-              ))}
-            </div>
-          </GlassCard>
-
-          <GlassCard>
-            <SectionTitle>Financial Overview</SectionTitle>
-            <div className="space-y-3">
-              <div className="flex justify-between items-baseline">
-                <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Total</span>
-                <span className="text-lg font-bold font-mono" style={{ color: 'var(--text-primary)' }}>{'\u00A3'}{totalAmount.toLocaleString()}</span>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-[var(--text-secondary)]">Expenses</span>
+                    <span className="text-sm font-semibold text-[var(--text-primary)]">
+                      £8,200
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full bg-[var(--bg-elevated)]">
+                    <div className="h-full rounded-full bg-[var(--danger)] w-[33%]" />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-[var(--text-secondary)]">Net Profit</span>
+                    <span className="text-sm font-semibold text-[var(--success)]">£16,300</span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full bg-[var(--bg-elevated)]">
+                    <div className="h-full rounded-full bg-[var(--accent)] w-[66%]" />
+                  </div>
+                </div>
+                <div className="pt-2 border-t border-[var(--border)]">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-[var(--text-muted)]">Profit Margin</span>
+                    <span className="text-xs font-semibold text-[var(--success)]">66.5%</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between items-baseline">
-                <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>Business</span>
-                <span className="text-sm font-mono font-semibold" style={{ color: 'var(--success)' }}>{'\u00A3'}{businessAmount.toLocaleString()}</span>
-              </div>
-              <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border-color)' }}>
-                <div className="h-full rounded-full" style={{ background: 'var(--success)', width: totalAmount > 0 ? `${(businessAmount / totalAmount) * 100}%` : '0%' }} />
-              </div>
-            </div>
-          </GlassCard>
+            </Card>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   )
 }
