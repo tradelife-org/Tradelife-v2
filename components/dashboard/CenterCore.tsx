@@ -16,7 +16,7 @@ export function CenterCore() {
   const setAiCoreOpen = useUIStore((s) => s.setAiCoreOpen)
 
   return (
-    <div className="lg:col-span-6 space-y-4 sm:space-y-5">
+    <div className="hidden lg:block lg:col-span-6 space-y-4 sm:space-y-5">
       {/* AI Core Hero */}
       <Panel data-testid="ai-core-placeholder" className="!p-0">
         <div className="flex flex-col items-center justify-center py-12 px-6">

@@ -92,7 +92,7 @@ export function LeftStack() {
   const setLeftOrder = useUIStore((s) => s.setLeftOrder)
 
   return (
-    <div className="lg:col-span-3" data-testid="left-column">
+    <div className="hidden lg:block lg:col-span-3" data-testid="left-column">
       <SortableStack
         items={leftOrder}
         onReorder={setLeftOrder}
