@@ -2,30 +2,26 @@
 
 ## Architecture
 - **Frontend**: Next.js 14.2.3 App Router + TypeScript + TailwindCSS
-- **Visual Engine**: React Three Fiber 8.18.0 + Three.js 0.170.0
+- **Visual Engine**: React Three Fiber 8.18.0 + Three.js 0.170.0 + postprocessing 6.36.4
 - **State**: Zustand
-- **Styling**: CSS tokens + material system
 
 ## What's Been Implemented
 
-### Phase 6 — Platform Shell
-- Login, Onboarding (6 steps), Dashboard (3-column grid) — **17/17 (100%)**
+### Phase 6-7 — Shell + Material System
+- Login/Onboarding/Dashboard, Panel/Button/Input primitives, material system — **100%**
 
-### Phase 7 — Premium Material System
-- panel-material, inset-material, topbar-material, btn-material — **14/14 (100%)**
+### Phase 8 — WebGL Visual Engine
+- CoreLight, EmberSystem, SceneCanvas — full-screen fixed behind UI — **100%**
 
-### Phase 8 — WebGL Visual Engine (Jan 2026)
-- **SceneCanvas**: Full-screen fixed canvas, z-index 0, pointer-events none, alpha transparent
-- **CoreLight**: Central warm point light (intensity 4, distance 15), ambient fill, core orb (additive blend), halo ring, atmospheric halo
-- **EmberSystem**: 50 instanced mesh particles, slow upward drift, depth variation, additive blending
-- **VisualEngine**: Client-side lazy-loaded wrapper (next/dynamic, ssr:false)
-- **Mounting**: Root layout.tsx — engine renders behind UI div (z-10)
-- **Fog**: Subtle haze at 4-14 distance
-- **Persistence**: Same engine on all routes (login, onboarding, dashboard)
-- **Dependencies**: @react-three/fiber@8.18.0 + @react-three/drei@9 + three@0.170.0 (React 18 compatible)
-- **Testing: 17/17 (100%)** — DOM presence, z-index layering, full flow, interactivity, no JS errors
+### Phase 9 — Cinematic Postprocessing (Jan 2026)
+- **Bloom**: intensity 0.4, luminanceThreshold 0.15, luminanceSmoothing 0.9, mipmapBlur — soft light bleed from core orb and embers
+- **Vignette**: offset 0.3, darkness 0.65, NORMAL blend — cinematic edge darkening
+- **Noise**: opacity 0.12, SOFT_LIGHT blend, premultiply — very subtle film grain
+- **Dependencies**: @react-three/postprocessing@2.16.3 + postprocessing@6.36.4 (React 18 compatible)
+- **Performance**: multisampling 0, dpr [1, 1.5], low-power GPU preference
+- **Testing: 12/12 (100%)**
 
 ## Next Tasks
 - P0: Widget drag-and-drop (constrained zones)
-- P1: AI Core interaction overlay (Jarvis-style)
-- P2: Route-aware intensity (login calm, dashboard full)
+- P1: AI Core interaction overlay
+- P2: Route-aware intensity scaling
