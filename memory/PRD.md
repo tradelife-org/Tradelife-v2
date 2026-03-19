@@ -1,25 +1,35 @@
-# TradeLife PRD
+# TradeLife PRD — Final State
 
 ## Architecture
 - **Frontend**: Next.js 14.2.3 + TypeScript + TailwindCSS
-- **Visual Engine**: R3F 8.18 + Three.js 0.170 + postprocessing 6.36.4
+- **Visual Engine**: R3F 8.18 + Three.js 0.170 + postprocessing 6.36.4 + Custom GLSL
 - **Drag**: @dnd-kit/core 6.3.1 + sortable 8.0.0
 - **State**: Zustand (persisted)
 
-## Implemented (all passed)
+## Complete Feature Set
 
-### Phase 6-15 — Shell → Material → WebGL → PostFX → Core T → Embers → Lighting → Drag → AI Overlay → Route Intensity
+### Platform Shell
+- Login (email/password + Google), Onboarding (6 steps), Dashboard (3-column grid)
+- TopBar, DashboardLayout, LeftStack, CenterCore, RightStack
+- Panel, Button, Input primitives
 
-### Phase 16 — Cinematic Integration Pass (Jan 2026)
-- **Center light influence**: Warm core-wash overlay (z-2, screen blend, radial gradient of accent at 0.025 alpha) tints center panels warm
-- **Panel light reaction**: `::before` now combines directional gradient (top→down) + warm radial (center→out), borders softened to 0.035 alpha, panels more transparent (0.42)
-- **Atmosphere**: 3 overlay layers (lighting-overlay z-1, core-wash z-2, atmosphere-haze z-3) create depth
-- **Reduced contrast**: Text dimmed to #dcdce0, secondary to #727280, borders near-invisible, panels blend into environment
-- **Core dominance**: Bloom boosted to 0.8, threshold lowered to 0.08, vignette darkness 0.9 — T is clearly the brightest element
-- **Radius increased**: panels from 14px to 16px for softer feel
-- **Testing: 12/12 core (100%)**
+### Visual Engine
+- **MoltenCore** (GLSL): Custom ShaderMaterial with fbm noise, animated organic flow, radial falloff, white-hot→orange→red→black color ramp, additive blending
+- **CoreTElement**: Emissive T text (intensity 4, toneMapped false), 3 PointLights (primary 10, fill 4, rear 2), pulse + multi-freq flicker
+- **CoreLight**: Low ambient (0.3), 3-tier halo (0.4/1.6/4.0r), edge absorber (r=9), depth haze, floor shadow
+- **EmberSystem**: 3 layers (far 25, mid 20, near 10), upward drift, additive blending
+- **PostFX**: Bloom (0.7, threshold 0.06, mipmapBlur), Vignette (0.95), ChromaticAberration (0.0004), Noise (0.08)
 
-## Next Tasks
-- P0: Theme switching UI
-- P1: Connect real AI API
-- P2: Mobile responsive
+### Route-Aware Intensity
+- Login: 0.3 | Onboarding: 0.5 | Dashboard: 1.0
+
+### CSS Material System
+- panel-material: 0.38 alpha, blur(18px), directional gradient, warm radial tint, rim light (::after)
+- 3 overlay layers: lighting-overlay (vignette), core-wash (warm screen), atmosphere-haze
+- Crushed blacks: bg #060608, borders 0.03 alpha
+
+### Interactions
+- Widget drag (dnd-kit, vertical-only, constrained zones, persisted order)
+- AI Core overlay (Jarvis-style, daily brief, mock conversational AI)
+
+## Testing History: All iterations 100%
