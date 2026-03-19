@@ -134,12 +134,19 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   MOBILE ORB PULSE
+   AI ORB
    ═══════════════════════════════════════════════════════════ */
 
-@keyframes mobile-orb-pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.03); opacity: 0.85; }
+@keyframes orb-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+.ai-orb {
+  animation: orb-pulse 5s ease-in-out infinite;
+  box-shadow:
+    0 0 30px rgba(59,130,246,0.1),
+    0 0 60px rgba(59,130,246,0.05);
 }
 
 /* ═══════════════════════════════════════════════════════════

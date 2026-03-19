@@ -1,9 +1,9 @@
 'use client'
 
-import { Cpu, Plus, FileText, BarChart3, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { Plus, FileText, BarChart3, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { Panel } from '@/components/ui/Panel'
 import { Button } from '@/components/ui/Button'
-import { useUIStore } from '@/store/useUIStore'
+import { AIOrb } from '@/components/ui/AIOrb'
 
 const overviewStats = [
   { label: 'Revenue', value: '£24,500', change: '+12%', positive: true },
@@ -13,27 +13,14 @@ const overviewStats = [
 ]
 
 export function CenterCore() {
-  const setAiCoreOpen = useUIStore((s) => s.setAiCoreOpen)
-
   return (
-    <div className="hidden lg:block lg:col-span-6 space-y-4 sm:space-y-5">
-      {/* AI Core Hero */}
-      <Panel data-testid="ai-core-placeholder" className="!p-0">
-        <div className="flex flex-col items-center justify-center py-12 px-6">
-          <button
-            data-testid="ai-core-button"
-            onClick={() => setAiCoreOpen(true)}
-            className="w-24 h-24 rounded-2xl flex items-center justify-center mb-5 cursor-pointer inset-material border border-[var(--panel-border)] hover:border-[var(--border-strong)]"
-          >
-            <span className="text-3xl font-bold text-[var(--accent)] opacity-30 select-none">T</span>
-          </button>
-          <h2 className="text-base font-semibold text-[var(--text-primary)]">AI Core</h2>
-          <p className="text-xs text-[var(--text-secondary)] mt-1">Intelligent assistant — ready to help</p>
-          <div className="mt-4 w-full max-w-md px-4 py-3 rounded-[var(--radius-md)] inset-material border border-[var(--panel-border)]">
-            <p className="text-xs text-[var(--text-muted)] text-center italic">Ask me anything about your projects, finances, or schedule...</p>
-          </div>
-        </div>
-      </Panel>
+    <div className="hidden lg:block lg:col-span-6 space-y-5">
+      {/* AI Orb Hero — standalone, NOT inside a panel */}
+      <div className="flex flex-col items-center py-8" data-testid="ai-core-placeholder">
+        <AIOrb size="lg" data-testid="ai-core-button" />
+        <h2 className="text-base font-semibold text-[var(--text-primary)] mt-5">How can I help today?</h2>
+        <p className="text-xs text-[var(--text-secondary)] mt-1">Your intelligent command centre</p>
+      </div>
 
       {/* Action Buttons */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3" data-testid="action-buttons">

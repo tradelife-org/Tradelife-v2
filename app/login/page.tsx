@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { AIOrb } from '@/components/ui/AIOrb'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -22,22 +23,15 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[var(--bg-base)] flex items-center justify-center px-4 py-8 sm:p-6">
       <div className="w-full max-w-[420px]">
-        {/* Branding */}
-        <div className="flex items-center justify-center gap-3 mb-10">
-          <div className="w-10 h-10 rounded-lg bg-[var(--accent)] flex items-center justify-center">
-            <span className="text-white font-bold text-lg">T</span>
-          </div>
-          <span className="font-semibold text-xl text-[var(--text-primary)] tracking-tight">TradeLife</span>
+        {/* AI Orb — primary visual, NOT inside a panel */}
+        <div className="flex flex-col items-center mb-8">
+          <AIOrb size="md" clickable={false} data-testid="login-orb" />
+          <h1 className="text-lg font-semibold text-[var(--text-primary)] mt-5">Welcome back</h1>
+          <p className="text-xs text-[var(--text-secondary)] mt-1">Your command centre is ready</p>
         </div>
 
-        {/* Login Panel */}
-        <div
-          data-testid="login-panel"
-          className="panel-material p-6 sm:p-8"
-        >
-          <h1 className="text-lg font-semibold text-[var(--text-primary)] mb-1">Sign in</h1>
-          <p className="text-xs text-[var(--text-secondary)] mb-6">Welcome back to your command center</p>
-
+        {/* Login Panel — secondary */}
+        <div data-testid="login-panel" className="panel-material p-6 sm:p-8">
           <form onSubmit={handleLogin} className="space-y-4">
             <Input
               data-testid="login-email"

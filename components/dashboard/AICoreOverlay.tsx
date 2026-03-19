@@ -91,8 +91,9 @@ export function AICoreOverlay() {
           {/* Header */}
           <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[var(--border)]">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[var(--accent)] flex items-center justify-center">
-                <span className="text-white font-bold text-sm">T</span>
+              <div className="w-8 h-8 rounded-full relative">
+                <div className="absolute inset-[15%] rounded-full bg-[radial-gradient(circle,rgba(59,130,246,0.5),rgba(59,130,246,0.15)_60%,transparent)]" />
+                <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(59,130,246,0.12),transparent_70%)]" />
               </div>
               <div>
                 <h2 className="text-sm font-semibold text-[var(--text-primary)]">System Intelligence</h2>
@@ -137,8 +138,8 @@ export function AICoreOverlay() {
                     </div>
                   ) : (
                     <div className="flex gap-3">
-                      <div className="w-5 h-5 rounded shrink-0 bg-[var(--bg-elevated)] flex items-center justify-center mt-0.5">
-                        <span className="text-[8px] font-bold text-[var(--accent)]">T</span>
+                      <div className="w-5 h-5 rounded-full shrink-0 mt-0.5 relative">
+                        <div className="absolute inset-[15%] rounded-full bg-[radial-gradient(circle,rgba(59,130,246,0.5),transparent_70%)]" />
                       </div>
                       <div className="text-xs text-[var(--text-secondary)] leading-relaxed font-mono">
                         {msg.text}
