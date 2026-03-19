@@ -47,10 +47,10 @@ export function SceneCanvas() {
         dpr={[1, 1.5]}
         style={{ background: 'transparent' }}
       >
-        <fog attach="fog" args={['#0a0a0e', 4, 14]} />
+        <fog attach="fog" args={['#08080c', 3, 12]} />
         <CoreLight />
         <CoreTElement />
-        <EmberSystem count={50} />
+        <EmberSystem />
         <PostFX />
       </Canvas>
     </div>
