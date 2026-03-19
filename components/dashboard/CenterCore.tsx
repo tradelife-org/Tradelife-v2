@@ -19,9 +19,9 @@ export function CenterCore() {
         <div className="flex flex-col items-center justify-center py-12 px-6">
           <button
             data-testid="ai-core-button"
-            className="w-24 h-24 rounded-2xl inset-material border border-[var(--panel-border)] flex items-center justify-center mb-5"
+            className="w-24 h-24 rounded-2xl flex items-center justify-center mb-5"
           >
-            <span className="text-3xl font-bold text-[var(--accent)]">T</span>
+            <span className="text-3xl font-bold text-transparent select-none">T</span>
           </button>
           <h2 className="text-base font-semibold text-[var(--text-primary)]">AI Core</h2>
           <p className="text-xs text-[var(--text-secondary)] mt-1">Intelligent assistant — ready to help</p>

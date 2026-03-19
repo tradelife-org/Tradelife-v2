@@ -5,13 +5,14 @@ import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocess
 import { BlendFunction } from 'postprocessing'
 import { EmberSystem } from './EmberSystem'
 import { CoreLight } from './CoreLight'
+import { CoreTElement } from './CoreTElement'
 
 function PostFX() {
   return (
     <EffectComposer multisampling={0}>
       <Bloom
-        intensity={0.4}
-        luminanceThreshold={0.15}
+        intensity={0.6}
+        luminanceThreshold={0.1}
         luminanceSmoothing={0.9}
         mipmapBlur
       />
@@ -48,6 +49,7 @@ export function SceneCanvas() {
       >
         <fog attach="fog" args={['#0a0a0e', 4, 14]} />
         <CoreLight />
+        <CoreTElement />
         <EmberSystem count={50} />
         <PostFX />
       </Canvas>
