@@ -1,27 +1,26 @@
 # TradeLife PRD
 
 ## Architecture
-- **Frontend**: Next.js 14.2.3 App Router + TypeScript + TailwindCSS
+- **Frontend**: Next.js 14.2.3 + TypeScript + TailwindCSS
 - **Visual Engine**: React Three Fiber 8.18.0 + Three.js 0.170.0 + postprocessing 6.36.4
 - **State**: Zustand
 
 ## What's Been Implemented
 
-### Phase 6-7 — Shell + Material System
-- Login/Onboarding/Dashboard, Panel/Button/Input primitives, material system — **100%**
+### Phase 6-7 — Shell + Material — **100%**
+### Phase 8 — WebGL Engine — **100%**
+### Phase 9 — Postprocessing (Bloom/Vignette/Noise) — **100%**
 
-### Phase 8 — WebGL Visual Engine
-- CoreLight, EmberSystem, SceneCanvas — full-screen fixed behind UI — **100%**
-
-### Phase 9 — Cinematic Postprocessing (Jan 2026)
-- **Bloom**: intensity 0.4, luminanceThreshold 0.15, luminanceSmoothing 0.9, mipmapBlur — soft light bleed from core orb and embers
-- **Vignette**: offset 0.3, darkness 0.65, NORMAL blend — cinematic edge darkening
-- **Noise**: opacity 0.12, SOFT_LIGHT blend, premultiply — very subtle film grain
-- **Dependencies**: @react-three/postprocessing@2.16.3 + postprocessing@6.36.4 (React 18 compatible)
-- **Performance**: multisampling 0, dpr [1, 1.5], low-power GPU preference
+### Phase 10 — Rendered AI Core T (Jan 2026)
+- **CoreTElement**: 3D text "T" using @react-three/drei `Text` with Inter-Bold.ttf
+- **Emissive material**: MeshStandardMaterial, emissive orange (1, 0.45, 0.08), emissiveIntensity 2.5, toneMapped false, metalness 0.7, roughness 0.3
+- **Animated glow**: useFrame-driven pulse (0.85-1.0 at 0.8Hz) + multi-frequency flicker (3.7/7.3/13.1 Hz)
+- **Bloom-driven light**: PointLight intensity 6, distance 18 — synced to animation. Bloom catches emissive at threshold 0.1
+- **UI integration**: CSS T button made transparent (text-transparent) — 3D T shows through the semi-transparent panel
+- **CoreLight simplified**: Removed redundant orb (now CoreTElement is the light source), kept ambient fill + halos
 - **Testing: 12/12 (100%)**
 
 ## Next Tasks
 - P0: Widget drag-and-drop (constrained zones)
-- P1: AI Core interaction overlay
+- P1: AI Core interaction overlay (Jarvis-style)
 - P2: Route-aware intensity scaling
