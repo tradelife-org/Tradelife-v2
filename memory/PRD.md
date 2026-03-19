@@ -1,65 +1,51 @@
 # TradeLife PRD
 
 ## Problem Statement
-Premium SaaS platform for UK tradespeople. Built with Next.js App Router + Supabase + OpenAI + Tailwind CSS.
+Build a clean, production-ready SaaS dashboard for "TradeLife" using Next.js App Router, TypeScript, TailwindCSS. Linear/Stripe-style UI with dark theme, clean layout, correct spacing, no visual effects.
 
 ## Architecture
-- **Frontend**: Next.js 14.2.3 App Router, Framer Motion, Zustand
-- **API Routes**: /app/api/* (classify, transactions, user-rules, auth/me, auth/ensure-profile, onboarding/complete)
-- **Backend Proxy**: FastAPI on port 8001 → Next.js port 3000
-- **Database**: Supabase PostgreSQL
-- **Auth**: Supabase Auth (email/password)
-- **AI**: OpenAI gpt-4o via Emergent LLM key
-- **Styling**: Tailwind CSS + CSS custom properties (3-theme system)
+- **Frontend**: Next.js 14.2.3 App Router + TypeScript + TailwindCSS
+- **State**: Zustand (persisted theme store)
+- **Styling**: CSS variables for theming, TailwindCSS utilities
+- **Backend**: FastAPI proxy (forwards /api/* to Next.js)
+- **No database needed** — static mock data
 
-## Implemented Features
+## User Personas
+- Tradespeople managing projects, invoices, schedules
+- Small business owners needing financial overview
 
-### Phase 1 - MVP
-- [x] Transaction classifier (hardcoded → user rules → OpenAI)
-- [x] Onboarding multi-step flow
-- [x] Dashboard with classification results
-- [x] Review page with reclassification
+## Core Requirements (Static)
+- 3-column dashboard grid (3-6-3 ratio)
+- Top bar with branding, notifications, settings, avatar
+- Left: Attention Needed, Active Projects, Active Trades
+- Center: AI Core placeholder, action buttons, overview stats
+- Right: Schedule, Urgent Tasks, Financial Overview
 
-### Phase 2 - Supabase Persistence
-- [x] All data via Supabase (transactions, user_rules, profiles)
-- [x] Companies House mock lookup + auto-generated logos
-- [x] Route protection middleware
+## What's Been Implemented
 
-### Phase 3 - Auth UI
-- [x] Login page (Supabase signInWithPassword)
-- [x] Signup page (Supabase signUp + profile creation)
+### Phase 1 — Dashboard Foundation (Jan 2026)
+- Clean dark-themed SaaS dashboard at /dashboard
+- 3-column grid layout with all sections populated with static mock data
+- Top bar with logo, Command Center label, notifications/settings/avatar
+- All data-testid attributes on interactive elements
+- **Testing: 18/18 passed (100%)**
 
-### Phase 4 - Premium Visual System
-- [x] 3-theme system: Molten (orange), Commercial (blue), Remembrance (crimson)
-- [x] CSS variable tokens at root level, zero hardcoded colors
-- [x] Zustand store with persist middleware for theme state
-- [x] Theme selection step in onboarding
-- [x] Settings panel with instant theme switching on dashboard
-- [x] Dark glassmorphism UI across all screens
-- [x] 3-column command center dashboard layout
-- [x] AI Core centerpiece, glass panels, soft edge glow
-- [x] Framer Motion entrance animations
-- [x] Login/Signup with ambient glow and glass panels
-- [x] All existing functionality preserved (100% test pass)
+### Phase 2 — Theme System (Jan 2026)
+- 3 themes: commercial (blue, default), molten (orange), remembrance (red)
+- CSS variable-based theming in globals.css
+- Zustand store with persist middleware (localStorage)
+- ThemeProvider wrapping root layout
+- Themes change colors only — layout unchanged
+- No glow, blur, particles, or visual effects
+- **Testing: 12/12 passed (100%)**
 
-## Key Files
-- `/app/app/globals.css` - Theme CSS variables + glass panel classes
-- `/app/lib/stores/theme-store.ts` - Zustand theme state
-- `/app/components/theme-provider.tsx` - Dynamic theme class application
-- `/app/app/login/page.tsx`, `/app/app/signup/page.tsx` - Auth UI
-- `/app/app/onboarding/page.tsx` - Multi-step + theme selection
-- `/app/app/dashboard/page.tsx` - 3-column command center
-- `/app/app/transactions/review/page.tsx` - Review with dark theme
+## Prioritized Backlog
+- P0: None
+- P1: Theme switcher UI (settings panel), responsive mobile layout
+- P2: Backend API integration, authentication flow
+- P3: AI Core functional integration, drag-and-drop widgets
 
-## Backlog
-### P0
-- Real bank connection (Plaid)
-- Email confirmation flow
-
-### P1
-- Real Companies House API
-- Receipt upload
-- Password reset
-
-### P2
-- Social login, transaction export, VAT calc
+## Next Tasks
+- Add theme switcher UI to settings button
+- Responsive mobile refinements
+- Backend API routes for real data
