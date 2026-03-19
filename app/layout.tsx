@@ -1,4 +1,5 @@
 import '@/styles/globals.css'
+import { VisualEngine } from '@/visual-engine/VisualEngine'
 
 export const metadata = {
   title: 'TradeLife',
@@ -8,7 +9,10 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <VisualEngine />
+        <div className="relative z-10">{children}</div>
+      </body>
     </html>
   )
 }
