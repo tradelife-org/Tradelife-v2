@@ -63,10 +63,10 @@ const overviewStats = [
 
 /* ─── Small Components ──────────────────────────────────── */
 
-function Card({ children, className = '', hero = false }: { children: React.ReactNode; className?: string; hero?: boolean }) {
+function Card({ children, className = '', hero = false, 'data-testid': testId }: { children: React.ReactNode; className?: string; hero?: boolean; 'data-testid'?: string }) {
   return (
     <div
-      data-testid="card"
+      data-testid={testId || "card"}
       className={`${hero ? 'glass-panel-hero' : 'glass-panel'} ${className}`}
     >
       <div className="relative z-[1]">{children}</div>
@@ -254,6 +254,7 @@ export default function DashboardPage() {
             <div className="relative">
               {/* Ambient light bleed behind hero */}
               <div
+                data-testid="ai-core-light-bleed"
                 className="absolute -inset-3 rounded-[20px] pointer-events-none"
                 style={{
                   background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(var(--glow-color), 0.04), transparent 70%)',
