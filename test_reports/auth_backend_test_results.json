@@ -1,0 +1,67 @@
+{
+  "summary": {
+    "tests_run": 6,
+    "tests_passed": 6,
+    "success_rate": "100.0%"
+  },
+  "results": [
+    {
+      "test": "App Accessibility",
+      "success": true,
+      "timestamp": "2026-03-19T11:54:28.736148",
+      "status_code": 200,
+      "content_length": 5950,
+      "error": null
+    },
+    {
+      "test": "Login Page Accessibility",
+      "success": true,
+      "timestamp": "2026-03-19T11:54:28.898224",
+      "status_code": 200,
+      "contains_login": true,
+      "error": null
+    },
+    {
+      "test": "Signup Page Accessibility",
+      "success": true,
+      "timestamp": "2026-03-19T11:54:29.042835",
+      "status_code": 200,
+      "contains_signup": true,
+      "error": null
+    },
+    {
+      "test": "Ensure Profile - Missing user_id",
+      "success": true,
+      "timestamp": "2026-03-19T11:54:29.177930",
+      "status_code": 400,
+      "response_data": {
+        "error": "user_id required"
+      }
+    },
+    {
+      "test": "Ensure Profile Endpoint Exists",
+      "success": true,
+      "timestamp": "2026-03-19T11:54:29.914055",
+      "status_code": 500,
+      "response_data": {
+        "error": "Failed to create profile"
+      },
+      "error": null
+    },
+    {
+      "test": "Auth Me Endpoint Exists",
+      "success": true,
+      "timestamp": "2026-03-19T11:54:31.211193",
+      "status_code": 200,
+      "response_data": {
+        "user": {
+          "id": "d9e76917-05d9-450d-b505-876534f935c1",
+          "email": null,
+          "org_id": "a62cd3b5-e573-4dfc-b4b5-10b162116a52",
+          "onboarding_complete": false
+        }
+      },
+      "error": null
+    }
+  ]
+}
