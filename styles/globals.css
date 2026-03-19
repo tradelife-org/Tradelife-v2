@@ -18,13 +18,15 @@
   }
 }
 
-/* ── Panel material ─────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   PANEL MATERIAL — light-reactive surfaces
+   ═══════════════════════════════════════════════════════════ */
 
 @layer components {
   .panel-material {
     background: var(--panel-bg);
-    backdrop-filter: blur(14px) saturate(1.1);
-    -webkit-backdrop-filter: blur(14px) saturate(1.1);
+    backdrop-filter: blur(16px) saturate(1.15);
+    -webkit-backdrop-filter: blur(16px) saturate(1.15);
     border: 1px solid var(--panel-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--panel-shadow);
@@ -32,13 +34,18 @@
     overflow: hidden;
   }
 
+  /* Directional gradient: top slightly lighter (catching overhead light)
+     + warm tint from center core bleeding in */
   .panel-material::before {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(168deg, var(--panel-highlight) 0%, transparent 40%);
+    background:
+      linear-gradient(175deg, var(--panel-highlight) 0%, transparent 30%),
+      radial-gradient(ellipse 120% 80% at 50% 0%, var(--panel-warm) 0%, transparent 60%);
     pointer-events: none;
+    z-index: 0;
   }
 
   .inset-material {
@@ -48,29 +55,32 @@
 
   .topbar-material {
     background: var(--panel-bg);
-    backdrop-filter: blur(16px) saturate(1.1);
-    -webkit-backdrop-filter: blur(16px) saturate(1.1);
+    backdrop-filter: blur(20px) saturate(1.15);
+    -webkit-backdrop-filter: blur(20px) saturate(1.15);
     border-bottom: 1px solid var(--panel-border);
   }
 
   .btn-material {
     background: var(--panel-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--panel-border);
     border-radius: var(--radius-md);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
     transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out;
   }
 
   .btn-material:hover {
     border-color: var(--border-strong);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15), 0 4px 12px -4px rgba(0,0,0,0.12);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 4px 12px -4px rgba(0,0,0,0.1);
   }
 }
 
-/* ── Center-based lighting overlay ──────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   LIGHTING + ATMOSPHERE OVERLAYS
+   ═══════════════════════════════════════════════════════════ */
 
+/* Radial vignette — center bright, edges dark */
 .lighting-overlay {
   position: fixed;
   inset: 0;
@@ -78,12 +88,45 @@
   pointer-events: none;
   background:
     radial-gradient(
-      ellipse 55% 50% at 50% 35%,
+      ellipse 50% 45% at 50% 32%,
       transparent 0%,
-      rgba(0, 0, 0, 0.25) 60%,
-      rgba(0, 0, 0, 0.55) 100%
+      rgba(0, 0, 0, 0.3) 55%,
+      rgba(0, 0, 0, 0.65) 100%
     );
 }
+
+/* Warm center tint — simulates the T core's light washing over UI */
+.core-wash {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 40% 35% at 50% 30%,
+      rgba(249, 115, 22, 0.025) 0%,
+      transparent 70%
+    );
+  mix-blend-mode: screen;
+}
+
+/* Atmospheric haze — very subtle fog over everything */
+.atmosphere-haze {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 100% 80% at 50% 50%,
+      rgba(14, 10, 8, 0.06) 0%,
+      rgba(8, 8, 11, 0.12) 100%
+    );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLLBAR
+   ═══════════════════════════════════════════════════════════ */
 
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }

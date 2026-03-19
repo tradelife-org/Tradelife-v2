@@ -11,20 +11,20 @@ function PostFX({ intensity }: { intensity: number }) {
   return (
     <EffectComposer multisampling={0}>
       <Bloom
-        intensity={0.6 * intensity}
-        luminanceThreshold={0.1}
+        intensity={0.8 * intensity}
+        luminanceThreshold={0.08}
         luminanceSmoothing={0.9}
         mipmapBlur
       />
       <Vignette
-        offset={0.2}
-        darkness={0.65 + 0.15 * intensity}
+        offset={0.15}
+        darkness={0.7 + 0.2 * intensity}
         blendFunction={BlendFunction.NORMAL}
       />
       <Noise
         premultiply
         blendFunction={BlendFunction.SOFT_LIGHT}
-        opacity={0.12}
+        opacity={0.1}
       />
     </EffectComposer>
   )
