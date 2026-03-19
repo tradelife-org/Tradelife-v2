@@ -61,6 +61,12 @@ const overviewStats = [
   { label: 'Outstanding', value: '£4,100', change: '-8%', positive: true },
 ]
 
+/* ─── Stagger delay helper ──────────────────────────────── */
+
+function delay(ms: number): React.CSSProperties {
+  return { '--delay': `${ms}ms` } as React.CSSProperties
+}
+
 /* ─── Small Components ──────────────────────────────────── */
 
 function Card({ children, className = '', hero = false, 'data-testid': testId }: { children: React.ReactNode; className?: string; hero?: boolean; 'data-testid'?: string }) {
@@ -123,13 +129,13 @@ export default function DashboardPage() {
         <div className="flex items-center gap-1">
           <button
             data-testid="notifications-button"
-            className="w-8 h-8 rounded-md flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors"
+            className="w-8 h-8 rounded-md flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all duration-200 ease-out"
           >
             <Bell className="w-4 h-4" />
           </button>
           <button
             data-testid="settings-button"
-            className="w-8 h-8 rounded-md flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-colors"
+            className="w-8 h-8 rounded-md flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)] transition-all duration-200 ease-out"
           >
             <Settings className="w-4 h-4" />
           </button>
@@ -150,112 +156,118 @@ export default function DashboardPage() {
         >
           {/* ── LEFT COLUMN (3 cols) ──────────────────── */}
           <div className="col-span-12 lg:col-span-3 space-y-5">
-            {/* Attention Needed */}
-            <Card className="p-5">
-              <SectionHeader>Attention Needed</SectionHeader>
-              <div className="space-y-2" data-testid="attention-needed-list">
-                {attentionItems.map((item) => (
-                  <div
-                    key={item.id}
-                    data-testid={`attention-item-${item.id}`}
-                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg"
-                    style={{
-                      backgroundColor:
-                        item.type === 'danger' ? 'var(--danger-muted)' : 'var(--warning-muted)',
-                    }}
-                  >
-                    <StatusDot
-                      color={item.type === 'danger' ? 'var(--danger)' : 'var(--warning)'}
-                    />
-                    <span className="text-xs text-[var(--text-primary)]">{item.label}</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            {/* Active Projects */}
-            <Card className="p-5">
-              <SectionHeader>Active Projects</SectionHeader>
-              <div className="space-y-2.5" data-testid="active-projects-list">
-                {activeProjects.map((project) => (
-                  <div
-                    key={project.id}
-                    data-testid={`project-${project.id}`}
-                    className="px-3 py-3 rounded-lg glass-inset"
-                  >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs font-medium text-[var(--text-primary)]">
-                        {project.name}
-                      </span>
-                      <span className="text-[10px] font-medium text-[var(--accent)]">
-                        {project.progress}%
-                      </span>
-                    </div>
-                    <div className="w-full h-1 rounded-full bg-[var(--border-strong)]">
-                      <div
-                        className="h-full rounded-full bg-[var(--accent)]"
-                        style={{ width: `${project.progress}%` }}
-                      />
-                    </div>
-                    <span className="text-[10px] text-[var(--text-muted)] mt-1.5 block">
-                      {project.client}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            {/* Active Trades */}
-            <Card className="p-5">
-              <SectionHeader>Active Trades</SectionHeader>
-              <div className="space-y-2" data-testid="active-trades-list">
-                {activeTrades.map((trade) => (
-                  <div
-                    key={trade.id}
-                    data-testid={`trade-${trade.id}`}
-                    className="flex items-center justify-between px-3 py-2.5 rounded-lg glass-inset"
-                  >
-                    <div className="flex items-center gap-2">
-                      <StatusDot
-                        color={
-                          trade.status === 'on-site'
-                            ? 'var(--success)'
-                            : trade.status === 'scheduled'
-                              ? 'var(--warning)'
-                              : 'var(--text-muted)'
-                        }
-                      />
-                      <span className="text-xs font-medium text-[var(--text-primary)]">
-                        {trade.name}
-                      </span>
-                    </div>
-                    <span
-                      className="text-[10px] font-medium capitalize"
+            {/* Attention Needed — stagger 0 */}
+            <div className="anim-reveal" style={delay(0)}>
+              <Card className="p-5">
+                <SectionHeader>Attention Needed</SectionHeader>
+                <div className="space-y-2" data-testid="attention-needed-list">
+                  {attentionItems.map((item) => (
+                    <div
+                      key={item.id}
+                      data-testid={`attention-item-${item.id}`}
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg"
                       style={{
-                        color:
-                          trade.status === 'on-site'
-                            ? 'var(--success)'
-                            : trade.status === 'scheduled'
-                              ? 'var(--warning)'
-                              : 'var(--text-muted)',
+                        backgroundColor:
+                          item.type === 'danger' ? 'var(--danger-muted)' : 'var(--warning-muted)',
                       }}
                     >
-                      {trade.status.replace('-', ' ')}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Card>
+                      <StatusDot
+                        color={item.type === 'danger' ? 'var(--danger)' : 'var(--warning)'}
+                      />
+                      <span className="text-xs text-[var(--text-primary)]">{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+
+            {/* Active Projects — stagger 1 */}
+            <div className="anim-reveal" style={delay(80)}>
+              <Card className="p-5">
+                <SectionHeader>Active Projects</SectionHeader>
+                <div className="space-y-2.5" data-testid="active-projects-list">
+                  {activeProjects.map((project) => (
+                    <div
+                      key={project.id}
+                      data-testid={`project-${project.id}`}
+                      className="px-3 py-3 rounded-lg glass-inset"
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-xs font-medium text-[var(--text-primary)]">
+                          {project.name}
+                        </span>
+                        <span className="text-[10px] font-medium text-[var(--accent)]">
+                          {project.progress}%
+                        </span>
+                      </div>
+                      <div className="w-full h-1 rounded-full bg-[var(--border-strong)]">
+                        <div
+                          className="h-full rounded-full bg-[var(--accent)]"
+                          style={{ width: `${project.progress}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-[var(--text-muted)] mt-1.5 block">
+                        {project.client}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+
+            {/* Active Trades — stagger 2 */}
+            <div className="anim-reveal" style={delay(160)}>
+              <Card className="p-5">
+                <SectionHeader>Active Trades</SectionHeader>
+                <div className="space-y-2" data-testid="active-trades-list">
+                  {activeTrades.map((trade) => (
+                    <div
+                      key={trade.id}
+                      data-testid={`trade-${trade.id}`}
+                      className="flex items-center justify-between px-3 py-2.5 rounded-lg glass-inset"
+                    >
+                      <div className="flex items-center gap-2">
+                        <StatusDot
+                          color={
+                            trade.status === 'on-site'
+                              ? 'var(--success)'
+                              : trade.status === 'scheduled'
+                                ? 'var(--warning)'
+                                : 'var(--text-muted)'
+                          }
+                        />
+                        <span className="text-xs font-medium text-[var(--text-primary)]">
+                          {trade.name}
+                        </span>
+                      </div>
+                      <span
+                        className="text-[10px] font-medium capitalize"
+                        style={{
+                          color:
+                            trade.status === 'on-site'
+                              ? 'var(--success)'
+                              : trade.status === 'scheduled'
+                                ? 'var(--warning)'
+                                : 'var(--text-muted)',
+                        }}
+                      >
+                        {trade.status.replace('-', ' ')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
           </div>
 
           {/* ── CENTER COLUMN (6 cols) ────────────────── */}
           <div className="col-span-12 lg:col-span-6 space-y-5">
-            {/* AI Core — hero panel with ambient light bleed */}
-            <div className="relative">
-              {/* Ambient light bleed behind hero */}
+            {/* AI Core — hero reveal + breathing presence */}
+            <div className="anim-hero-reveal relative" style={delay(200)}>
+              {/* Ambient light bleed — breathing */}
               <div
                 data-testid="ai-core-light-bleed"
-                className="absolute -inset-3 rounded-[20px] pointer-events-none"
+                className="absolute -inset-3 rounded-[20px] pointer-events-none ai-glow-breathe"
                 style={{
                   background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(var(--glow-color), 0.04), transparent 70%)',
                 }}
@@ -263,7 +275,7 @@ export default function DashboardPage() {
               <Card className="p-6 relative" hero data-testid="ai-core-placeholder">
                 <div className="flex items-center gap-4">
                   <div
-                    className="w-12 h-12 rounded-xl glass-inset border border-[var(--border-strong)] flex items-center justify-center"
+                    className="w-12 h-12 rounded-xl glass-inset border border-[var(--border-strong)] flex items-center justify-center ai-presence"
                     style={{ boxShadow: 'var(--glow-icon)' }}
                   >
                     <Cpu className="w-5 h-5 text-[var(--accent)]" />
@@ -283,144 +295,154 @@ export default function DashboardPage() {
               </Card>
             </div>
 
-            {/* Action Buttons */}
-            <div className="grid grid-cols-3 gap-3" data-testid="action-buttons">
-              <button
-                data-testid="action-new-quote"
-                className="glass-action flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                New Quote
-              </button>
-              <button
-                data-testid="action-new-invoice"
-                className="glass-action flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              >
-                <FileText className="w-3.5 h-3.5" />
-                New Invoice
-              </button>
-              <button
-                data-testid="action-view-reports"
-                className="glass-action flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              >
-                <BarChart3 className="w-3.5 h-3.5" />
-                Reports
-              </button>
+            {/* Action Buttons — stagger 3 */}
+            <div className="anim-reveal" style={delay(300)}>
+              <div className="grid grid-cols-3 gap-3" data-testid="action-buttons">
+                <button
+                  data-testid="action-new-quote"
+                  className="glass-action flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  New Quote
+                </button>
+                <button
+                  data-testid="action-new-invoice"
+                  className="glass-action flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  New Invoice
+                </button>
+                <button
+                  data-testid="action-view-reports"
+                  className="glass-action flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                >
+                  <BarChart3 className="w-3.5 h-3.5" />
+                  Reports
+                </button>
+              </div>
             </div>
 
-            {/* Overview Grid */}
-            <div className="grid grid-cols-2 gap-3" data-testid="overview-grid">
-              {overviewStats.map((stat) => (
-                <Card key={stat.label} className="p-5">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--text-muted)]">
-                      {stat.label}
-                    </span>
-                    {stat.positive ? (
-                      <ArrowUpRight className="w-3.5 h-3.5 text-[var(--success)]" />
-                    ) : (
-                      <ArrowDownRight className="w-3.5 h-3.5 text-[var(--danger)]" />
-                    )}
-                  </div>
-                  <div className="text-xl font-semibold text-[var(--text-primary)] tracking-tight">
-                    {stat.value}
-                  </div>
-                  <div
-                    className="text-[11px] font-medium mt-1"
-                    style={{
-                      color: stat.positive ? 'var(--success)' : 'var(--danger)',
-                    }}
-                  >
-                    {stat.change} from last month
-                  </div>
-                </Card>
-              ))}
+            {/* Overview Grid — stagger 4 */}
+            <div className="anim-reveal" style={delay(380)}>
+              <div className="grid grid-cols-2 gap-3" data-testid="overview-grid">
+                {overviewStats.map((stat) => (
+                  <Card key={stat.label} className="p-5">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-medium uppercase tracking-wide text-[var(--text-muted)]">
+                        {stat.label}
+                      </span>
+                      {stat.positive ? (
+                        <ArrowUpRight className="w-3.5 h-3.5 text-[var(--success)]" />
+                      ) : (
+                        <ArrowDownRight className="w-3.5 h-3.5 text-[var(--danger)]" />
+                      )}
+                    </div>
+                    <div className="text-xl font-semibold text-[var(--text-primary)] tracking-tight">
+                      {stat.value}
+                    </div>
+                    <div
+                      className="text-[11px] font-medium mt-1"
+                      style={{
+                        color: stat.positive ? 'var(--success)' : 'var(--danger)',
+                      }}
+                    >
+                      {stat.change} from last month
+                    </div>
+                  </Card>
+                ))}
+              </div>
             </div>
           </div>
 
           {/* ── RIGHT COLUMN (3 cols) ─────────────────── */}
           <div className="col-span-12 lg:col-span-3 space-y-5">
-            {/* Schedule */}
-            <Card className="p-5">
-              <SectionHeader>Schedule</SectionHeader>
-              <div className="space-y-2" data-testid="schedule-list">
-                {scheduleItems.map((item) => (
-                  <div
-                    key={item.id}
-                    data-testid={`schedule-item-${item.id}`}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg glass-inset"
-                  >
-                    <span className="text-[10px] font-mono font-medium text-[var(--accent)] w-10 shrink-0">
-                      {item.time}
-                    </span>
-                    <span className="text-xs text-[var(--text-primary)] flex-1 truncate">
-                      {item.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Card>
+            {/* Schedule — stagger 5 */}
+            <div className="anim-reveal" style={delay(120)}>
+              <Card className="p-5">
+                <SectionHeader>Schedule</SectionHeader>
+                <div className="space-y-2" data-testid="schedule-list">
+                  {scheduleItems.map((item) => (
+                    <div
+                      key={item.id}
+                      data-testid={`schedule-item-${item.id}`}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg glass-inset"
+                    >
+                      <span className="text-[10px] font-mono font-medium text-[var(--accent)] w-10 shrink-0">
+                        {item.time}
+                      </span>
+                      <span className="text-xs text-[var(--text-primary)] flex-1 truncate">
+                        {item.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
 
-            {/* Urgent Tasks */}
-            <Card className="p-5">
-              <SectionHeader>Urgent Tasks</SectionHeader>
-              <div className="space-y-2" data-testid="urgent-tasks-list">
-                {urgentTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    data-testid={`urgent-task-${task.id}`}
-                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg glass-inset"
-                  >
-                    <StatusDot color="var(--danger)" />
-                    <span className="text-xs text-[var(--text-primary)]">{task.label}</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
+            {/* Urgent Tasks — stagger 6 */}
+            <div className="anim-reveal" style={delay(200)}>
+              <Card className="p-5">
+                <SectionHeader>Urgent Tasks</SectionHeader>
+                <div className="space-y-2" data-testid="urgent-tasks-list">
+                  {urgentTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      data-testid={`urgent-task-${task.id}`}
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg glass-inset"
+                    >
+                      <StatusDot color="var(--danger)" />
+                      <span className="text-xs text-[var(--text-primary)]">{task.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
 
-            {/* Financial Overview */}
-            <Card className="p-5">
-              <SectionHeader>Financial Overview</SectionHeader>
-              <div className="space-y-4" data-testid="financial-overview">
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-[var(--text-secondary)]">Total Revenue</span>
-                    <span className="text-sm font-semibold text-[var(--text-primary)]">
-                      £24,500
-                    </span>
+            {/* Financial Overview — stagger 7 */}
+            <div className="anim-reveal" style={delay(280)}>
+              <Card className="p-5">
+                <SectionHeader>Financial Overview</SectionHeader>
+                <div className="space-y-4" data-testid="financial-overview">
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs text-[var(--text-secondary)]">Total Revenue</span>
+                      <span className="text-sm font-semibold text-[var(--text-primary)]">
+                        £24,500
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full glass-inset">
+                      <div className="h-full rounded-full bg-[var(--success)] w-[75%]" />
+                    </div>
                   </div>
-                  <div className="w-full h-1.5 rounded-full glass-inset">
-                    <div className="h-full rounded-full bg-[var(--success)] w-[75%]" />
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs text-[var(--text-secondary)]">Expenses</span>
+                      <span className="text-sm font-semibold text-[var(--text-primary)]">
+                        £8,200
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full glass-inset">
+                      <div className="h-full rounded-full bg-[var(--danger)] w-[33%]" />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs text-[var(--text-secondary)]">Net Profit</span>
+                      <span className="text-sm font-semibold text-[var(--success)]">£16,300</span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full glass-inset">
+                      <div className="h-full rounded-full bg-[var(--accent)] w-[66%]" />
+                    </div>
+                  </div>
+                  <div className="pt-3 border-t border-[var(--border)]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-[var(--text-muted)]">Profit Margin</span>
+                      <span className="text-xs font-semibold text-[var(--success)]">66.5%</span>
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-[var(--text-secondary)]">Expenses</span>
-                    <span className="text-sm font-semibold text-[var(--text-primary)]">
-                      £8,200
-                    </span>
-                  </div>
-                  <div className="w-full h-1.5 rounded-full glass-inset">
-                    <div className="h-full rounded-full bg-[var(--danger)] w-[33%]" />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-[var(--text-secondary)]">Net Profit</span>
-                    <span className="text-sm font-semibold text-[var(--success)]">£16,300</span>
-                  </div>
-                  <div className="w-full h-1.5 rounded-full glass-inset">
-                    <div className="h-full rounded-full bg-[var(--accent)] w-[66%]" />
-                  </div>
-                </div>
-                <div className="pt-3 border-t border-[var(--border)]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-[var(--text-muted)]">Profit Margin</span>
-                    <span className="text-xs font-semibold text-[var(--success)]">66.5%</span>
-                  </div>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
           </div>
         </div>
       </main>

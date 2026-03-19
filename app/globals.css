@@ -27,17 +27,19 @@
   --danger: #ef4444;
   --danger-muted: rgba(239, 68, 68, 0.10);
 
-  /* Glass — more transparent, true translucency */
   --glass-bg: rgba(17, 17, 22, 0.45);
   --glass-border: rgba(255, 255, 255, 0.06);
   --glass-highlight: rgba(255, 255, 255, 0.035);
   --glass-elevated-bg: rgba(28, 28, 34, 0.4);
 
-  /* Glow — extremely subtle, simulates diffused cool light */
   --glow-color: 59, 130, 246;
   --glow-panel:
     0 0 0 0.5px rgba(59, 130, 246, 0.04),
     0 4px 24px -4px rgba(0, 0, 0, 0.35);
+  --glow-panel-hover:
+    0 0 0 0.5px rgba(59, 130, 246, 0.06),
+    0 6px 32px -4px rgba(0, 0, 0, 0.4),
+    0 0 20px -8px rgba(59, 130, 246, 0.04);
   --glow-hero:
     0 0 0 0.5px rgba(59, 130, 246, 0.06),
     0 8px 40px -8px rgba(59, 130, 246, 0.06),
@@ -45,17 +47,19 @@
   --glow-logo: 0 0 16px rgba(59, 130, 246, 0.15);
   --glow-icon: 0 0 24px rgba(59, 130, 246, 0.08);
 
-  /* Depth — multi-layer soft shadows */
   --shadow-panel:
     0 1px 1px rgba(0, 0, 0, 0.25),
     0 2px 6px rgba(0, 0, 0, 0.15),
     0 8px 24px -4px rgba(0, 0, 0, 0.2);
+  --shadow-panel-hover:
+    0 1px 1px rgba(0, 0, 0, 0.25),
+    0 4px 10px rgba(0, 0, 0, 0.18),
+    0 12px 32px -4px rgba(0, 0, 0, 0.24);
   --shadow-elevated:
     0 1px 2px rgba(0, 0, 0, 0.3),
     0 4px 12px rgba(0, 0, 0, 0.2),
     0 16px 48px -8px rgba(0, 0, 0, 0.3);
 
-  /* Background — multi-layer gradient system */
   --bg-primary-glow: rgba(59, 130, 246, 0.03);
   --bg-secondary-glow: rgba(59, 130, 246, 0.012);
   --bg-floor: rgba(20, 20, 30, 0.4);
@@ -81,17 +85,19 @@
   --danger: #ef4444;
   --danger-muted: rgba(239, 68, 68, 0.10);
 
-  /* Glass */
   --glass-bg: rgba(14, 14, 17, 0.45);
   --glass-border: rgba(255, 255, 255, 0.06);
   --glass-highlight: rgba(249, 115, 22, 0.025);
   --glass-elevated-bg: rgba(26, 26, 30, 0.4);
 
-  /* Glow — slightly stronger warm diffusion */
   --glow-color: 249, 115, 22;
   --glow-panel:
     0 0 0 0.5px rgba(249, 115, 22, 0.06),
     0 4px 24px -4px rgba(0, 0, 0, 0.4);
+  --glow-panel-hover:
+    0 0 0 0.5px rgba(249, 115, 22, 0.08),
+    0 6px 32px -4px rgba(0, 0, 0, 0.45),
+    0 0 20px -8px rgba(249, 115, 22, 0.06);
   --glow-hero:
     0 0 0 0.5px rgba(249, 115, 22, 0.08),
     0 8px 40px -8px rgba(249, 115, 22, 0.08),
@@ -99,17 +105,19 @@
   --glow-logo: 0 0 16px rgba(249, 115, 22, 0.2);
   --glow-icon: 0 0 24px rgba(249, 115, 22, 0.1);
 
-  /* Depth */
   --shadow-panel:
     0 1px 1px rgba(0, 0, 0, 0.3),
     0 2px 6px rgba(0, 0, 0, 0.2),
     0 8px 24px -4px rgba(0, 0, 0, 0.25);
+  --shadow-panel-hover:
+    0 1px 1px rgba(0, 0, 0, 0.3),
+    0 4px 10px rgba(0, 0, 0, 0.24),
+    0 12px 32px -4px rgba(0, 0, 0, 0.3);
   --shadow-elevated:
     0 1px 2px rgba(0, 0, 0, 0.35),
     0 4px 12px rgba(0, 0, 0, 0.25),
     0 16px 48px -8px rgba(0, 0, 0, 0.35);
 
-  /* Background */
   --bg-primary-glow: rgba(249, 115, 22, 0.035);
   --bg-secondary-glow: rgba(249, 115, 22, 0.015);
   --bg-floor: rgba(20, 14, 10, 0.3);
@@ -135,17 +143,19 @@
   --danger: #ef4444;
   --danger-muted: rgba(239, 68, 68, 0.10);
 
-  /* Glass */
   --glass-bg: rgba(16, 13, 14, 0.45);
   --glass-border: rgba(255, 255, 255, 0.05);
   --glass-highlight: rgba(220, 38, 38, 0.015);
   --glass-elevated-bg: rgba(28, 24, 25, 0.4);
 
-  /* Glow — very soft, barely there */
   --glow-color: 220, 38, 38;
   --glow-panel:
     0 0 0 0.5px rgba(220, 38, 38, 0.03),
     0 4px 24px -4px rgba(0, 0, 0, 0.35);
+  --glow-panel-hover:
+    0 0 0 0.5px rgba(220, 38, 38, 0.05),
+    0 6px 32px -4px rgba(0, 0, 0, 0.4),
+    0 0 20px -8px rgba(220, 38, 38, 0.03);
   --glow-hero:
     0 0 0 0.5px rgba(220, 38, 38, 0.05),
     0 8px 40px -8px rgba(220, 38, 38, 0.04),
@@ -153,17 +163,19 @@
   --glow-logo: 0 0 16px rgba(220, 38, 38, 0.12);
   --glow-icon: 0 0 24px rgba(220, 38, 38, 0.06);
 
-  /* Depth */
   --shadow-panel:
     0 1px 1px rgba(0, 0, 0, 0.25),
     0 2px 6px rgba(0, 0, 0, 0.15),
     0 8px 24px -4px rgba(0, 0, 0, 0.2);
+  --shadow-panel-hover:
+    0 1px 1px rgba(0, 0, 0, 0.25),
+    0 4px 10px rgba(0, 0, 0, 0.18),
+    0 12px 32px -4px rgba(0, 0, 0, 0.24);
   --shadow-elevated:
     0 1px 2px rgba(0, 0, 0, 0.3),
     0 4px 12px rgba(0, 0, 0, 0.2),
     0 16px 48px -8px rgba(0, 0, 0, 0.3);
 
-  /* Background */
   --bg-primary-glow: rgba(220, 38, 38, 0.025);
   --bg-secondary-glow: rgba(220, 38, 38, 0.01);
   --bg-floor: rgba(18, 12, 12, 0.3);
@@ -189,6 +201,69 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
+   ENTRANCE ANIMATIONS
+   ═══════════════════════════════════════════════════════════ */
+
+@keyframes panel-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* AI Core presence — very subtle breathing */
+@keyframes ai-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.01); }
+}
+
+@keyframes glow-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 1.4; }
+}
+
+/* Staggered entrance class — applied per panel */
+.anim-reveal {
+  opacity: 0;
+  animation: panel-reveal 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.anim-hero-reveal {
+  opacity: 0;
+  animation: hero-reveal 500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--delay, 0ms);
+  will-change: opacity, transform;
+}
+
+/* AI Core continuous subtle pulse */
+.ai-presence {
+  animation: ai-breathe 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: transform;
+}
+
+.ai-glow-breathe {
+  animation: glow-breathe 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  will-change: opacity;
+}
+
+/* ═══════════════════════════════════════════════════════════
    GLASS SYSTEM
    ═══════════════════════════════════════════════════════════ */
 
@@ -204,9 +279,15 @@
     box-shadow: var(--shadow-panel), var(--glow-panel);
     position: relative;
     overflow: hidden;
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 200ms ease-out;
   }
 
-  /* Top-edge highlight — simulates overhead light catching glass rim */
+  .glass-panel:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-panel-hover), var(--glow-panel-hover);
+  }
+
   .glass-panel::before {
     content: '';
     position: absolute;
@@ -249,7 +330,7 @@
     z-index: 0;
   }
 
-  /* ── Inset surface — nested content inside panels ─────── */
+  /* ── Inset surface ────────────────────────────────────── */
   .glass-inset {
     background: var(--glass-elevated-bg);
     border-radius: 10px;
@@ -271,20 +352,24 @@
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     box-shadow: var(--shadow-panel);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 200ms ease-out,
+                box-shadow 200ms ease-out,
+                background 200ms ease-out;
   }
 
   .glass-action:hover {
+    transform: translateY(-1px);
     border-color: var(--border-strong);
-    box-shadow: var(--shadow-panel), var(--glow-panel);
+    box-shadow: var(--shadow-panel-hover), var(--glow-panel-hover);
+    background: var(--glass-elevated-bg);
   }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   BACKGROUND SYSTEM — multi-layer environment
+   BACKGROUND SYSTEM
    ═══════════════════════════════════════════════════════════ */
 
-/* Layer 1: Primary accent glow — upper-center warm spot */
 .bg-layer-primary {
   position: fixed;
   inset: 0;
@@ -298,7 +383,6 @@
     );
 }
 
-/* Layer 2: Secondary diffused fill — lower ambient light */
 .bg-layer-secondary {
   position: fixed;
   inset: 0;
@@ -312,7 +396,6 @@
     );
 }
 
-/* Layer 3: Floor gradient — grounds the environment */
 .bg-layer-floor {
   position: fixed;
   inset: 0;
@@ -326,7 +409,6 @@
     );
 }
 
-/* Layer 4: Vignette — darker edges create cinematic framing */
 .bg-vignette {
   position: fixed;
   inset: 0;
