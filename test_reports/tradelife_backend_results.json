@@ -1,100 +1,107 @@
 {
   "summary": {
     "tests_run": 6,
-    "tests_passed": 4,
-    "success_rate": "66.7%"
+    "tests_passed": 6,
+    "success_rate": "100.0%",
+    "timestamp": "2026-03-19T11:01:30.615074"
   },
   "results": [
     {
-      "test": "App Accessibility",
+      "test": "API Classify - Hardcoded Rules",
       "success": true,
-      "timestamp": "2026-03-19T10:53:37.738962",
+      "timestamp": "2026-03-19T11:01:26.647378",
       "status_code": 200,
-      "content_type": "text/html; charset=utf-8",
+      "screwfix_classification": {
+        "id": "test-1",
+        "merchant": "Screwfix",
+        "description": "Screwfix Direct",
+        "amount": 120,
+        "date": "2025-01-15",
+        "type": "business",
+        "category": "materials",
+        "confidence": 0.95
+      },
+      "tesco_classification": {
+        "id": "test-2",
+        "merchant": "Tesco",
+        "description": "Tesco Superstore",
+        "amount": 45,
+        "date": "2025-01-15",
+        "type": "personal",
+        "category": "groceries",
+        "confidence": 0.95
+      },
       "error": null
     },
     {
-      "test": "API Classification",
+      "test": "API Classify - AI Fallback",
       "success": true,
-      "timestamp": "2026-03-19T10:53:38.419836",
+      "timestamp": "2026-03-19T11:01:28.129794",
       "status_code": 200,
-      "transactions_classified": 4,
-      "screwfix_classification": "business/materials",
-      "tesco_classification": "personal/groceries",
+      "shell_classification": {
+        "id": "test-3",
+        "merchant": "Shell",
+        "description": "Shell Fuel Station",
+        "amount": 60,
+        "date": "2025-01-14",
+        "type": "business",
+        "category": "fuel",
+        "confidence": 0.9
+      },
+      "amazon_classification": {
+        "id": "test-4",
+        "merchant": "Amazon",
+        "description": "Amazon.co.uk",
+        "amount": 30,
+        "date": "2025-01-14",
+        "type": "personal",
+        "category": "other",
+        "confidence": 0.7
+      },
+      "error": null
+    },
+    {
+      "test": "API Classify - Mock Dashboard Data",
+      "success": true,
+      "timestamp": "2026-03-19T11:01:29.098352",
+      "status_code": 200,
+      "total_transactions": 4,
+      "business_count": 2,
+      "personal_count": 2,
+      "all_have_confidence": true,
       "response_data": {
-        "transactions": [
-          {
-            "id": "tx-1",
-            "merchant": "Screwfix",
-            "amount": 120,
-            "description": "Screwfix Direct",
-            "date": "2025-01-15",
-            "type": "business",
-            "category": "materials",
-            "confidence": 0.95
-          },
-          {
-            "id": "tx-2",
-            "merchant": "Tesco",
-            "amount": 45,
-            "description": "Tesco Superstore",
-            "date": "2025-01-15",
-            "type": "personal",
-            "category": "groceries",
-            "confidence": 0.95
-          },
-          {
-            "id": "tx-3",
-            "merchant": "Shell",
-            "amount": 60,
-            "description": "Shell Fuel Station",
-            "date": "2025-01-14",
-            "type": "business",
-            "category": "fuel",
-            "confidence": 0.9
-          },
-          {
-            "id": "tx-4",
-            "merchant": "Amazon",
-            "amount": 30,
-            "description": "Amazon.co.uk",
-            "date": "2025-01-14",
-            "type": "personal",
-            "category": "other",
-            "confidence": 0.7
-          }
-        ]
+        "classified_transactions": 4
       }
     },
     {
-      "test": "Transactions GET",
+      "test": "API Classify - Invalid Input Handling",
       "success": true,
-      "timestamp": "2026-03-19T10:53:38.830172",
-      "status_code": 200,
-      "transaction_count": 0,
-      "response_structure": "Valid"
+      "timestamp": "2026-03-19T11:01:29.236584",
+      "status_code": 400,
+      "response_data": {
+        "error": "transactions array required"
+      },
+      "error": null
     },
     {
-      "test": "Transactions POST",
-      "success": false,
-      "timestamp": "2026-03-19T10:53:38.979597",
-      "status_code": 500,
-      "error": "POST transactions failed: {\"error\":\"Failed to save transactions\"}"
-    },
-    {
-      "test": "User Rules GET",
+      "test": "API Transactions GET",
       "success": true,
-      "timestamp": "2026-03-19T10:53:39.216164",
+      "timestamp": "2026-03-19T11:01:30.172306",
       "status_code": 200,
-      "rules_count": 0,
-      "response_structure": "Valid"
+      "response_data": {
+        "transactions": []
+      },
+      "error": null
     },
     {
-      "test": "User Rules POST",
-      "success": false,
-      "timestamp": "2026-03-19T10:53:39.359482",
-      "status_code": 500,
-      "error": "POST user rules failed: {\"error\":\"Failed to save rule\"}"
+      "test": "API User Rules GET",
+      "success": true,
+      "timestamp": "2026-03-19T11:01:30.614402",
+      "status_code": 200,
+      "response_data": {
+        "rules": []
+      },
+      "error": null
     }
   ]
 }

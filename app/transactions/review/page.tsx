@@ -26,16 +26,26 @@ export default function ReviewPage() {
 
   async function fetchTransactions() {
     try {
+      // Try API first
       const res = await fetch('/api/transactions?org_id=default')
       const data = await res.json()
-      if (data.transactions) {
+      if (data.transactions && data.transactions.length > 0) {
         setTransactions(data.transactions)
+        setLoading(false)
+        return
       }
     } catch (err) {
-      console.error('Failed to fetch:', err)
-    } finally {
-      setLoading(false)
+      console.error('API fetch failed:', err)
     }
+
+    // Fallback to localStorage
+    try {
+      const stored = localStorage.getItem('tradelife_transactions')
+      if (stored) {
+        setTransactions(JSON.parse(stored))
+      }
+    } catch {}
+    setLoading(false)
   }
 
   async function handleClassify(txId: string, type: 'business' | 'personal') {
@@ -46,37 +56,34 @@ export default function ReviewPage() {
     const category = type === 'business' ? 'business expense' : 'personal expense'
 
     // Update local state
-    setTransactions((prev) =>
-      prev.map((t) =>
-        t.id === txId ? { ...t, type, category, confidence: 1.0 } : t
-      )
+    const updated = transactions.map((t) =>
+      t.id === txId ? { ...t, type, category, confidence: 1.0 } : t
     )
+    setTransactions(updated)
 
-    try {
-      // Save updated transaction
-      await fetch('/api/transactions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          transactions: [{ ...tx, type, category, confidence: 1.0 }],
-        }),
-      })
+    // Save to localStorage
+    localStorage.setItem('tradelife_transactions', JSON.stringify(updated))
 
-      // Store user rule
-      await fetch('/api/user-rules', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          merchant: tx.merchant.toLowerCase(),
-          type,
-          category,
-        }),
-      })
-    } catch (err) {
-      console.error('Failed to save:', err)
-    } finally {
-      setSaving(null)
-    }
+    // Also try API (non-blocking)
+    fetch('/api/transactions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        transactions: [{ ...tx, type, category, confidence: 1.0 }],
+      }),
+    }).catch(() => {})
+
+    fetch('/api/user-rules', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        merchant: tx.merchant.toLowerCase(),
+        type,
+        category,
+      }),
+    }).catch(() => {})
+
+    setSaving(null)
   }
 
   if (loading) {

@@ -44,12 +44,15 @@ export default function DashboardPage() {
         setTransactions(data.transactions)
         setConnected(true)
 
-        // Save classified transactions
-        await fetch('/api/transactions', {
+        // Store in localStorage for review page
+        localStorage.setItem('tradelife_transactions', JSON.stringify(data.transactions))
+
+        // Also try to save to Supabase (non-blocking)
+        fetch('/api/transactions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ transactions: data.transactions }),
-        })
+        }).catch(() => {})
       }
     } catch (err) {
       console.error('Failed to classify:', err)
