@@ -1,7 +1,7 @@
 # TradeLife — PRD
 
 ## Original Problem Statement
-Create a premium login page for TradeLife SaaS using a cinematic background image and clean UI overlay. Fix build stability issues (Three.js JSX errors, turbopack config). Ensure Vercel compatibility.
+Create a premium login page for TradeLife SaaS using a cinematic background image and clean UI overlay. Apply a global background system across all main routes (/login, /onboarding, /dashboard). Add 3D perspective panel with edge lighting. Fix build stability issues. Ensure Vercel compatibility.
 
 ## Architecture
 - **Framework:** Next.js 14 (App Router)
@@ -11,15 +11,18 @@ Create a premium login page for TradeLife SaaS using a cinematic background imag
 - **Deployment:** Vercel
 
 ## Core Requirements
-- Full-screen cinematic background image on login
-- Dark radial gradient overlay for readability
-- Glassmorphism login panel (420px max-width, centered)
-- Email + Password fields, Forgot password, Sign In (blue gradient), Google sign-in, Sign Up link
+- Global cinematic background image across all routes
+- Dark radial gradient overlay (standard for login/onboarding, darker for dashboard)
+- Glassmorphism login panel with 3D perspective tilt
+- Edge lighting: blue left, warm orange right (matching environment)
+- Grounding shadow under panel
+- Email + Password fields, Forgot password, Sign In (blue gradient with glow), Google sign-in, Sign Up link
 - No orange UI elements — blue accent (#3b82f6) only
 - Three.js visual engine disabled but not deleted
 - Clean TypeScript build with no errors
 
 ## What's Been Implemented (Jan 2026)
+### Phase 1 — Login Page
 - [x] Premium login page at `/login` with uploaded background image
 - [x] Dark radial overlay (lighter center, darker edges)
 - [x] Glass panel with all form elements
@@ -27,7 +30,18 @@ Create a premium login page for TradeLife SaaS using a cinematic background imag
 - [x] Excluded `visual-engine/` from TypeScript compilation
 - [x] Removed VisualEngine import from `layout.tsx`
 - [x] Root `/` redirects to `/login`
-- [x] 100% test pass rate (13/13 tests)
+
+### Phase 2 — Visual Refinement & System Unification
+- [x] Global `CinematicBackground` component with pathname-based overlay
+- [x] 3D perspective tilt on login glass panel (rotateX with perspective)
+- [x] Edge lighting: cool blue left, warm orange right
+- [x] Grounding shadow beneath panel
+- [x] Branding text glow effect
+- [x] Sign-in button glow effect
+- [x] Onboarding page uses global background (layout preserved)
+- [x] Dashboard uses global background with darker overlay (layout preserved)
+- [x] Consistent visual environment across all pages
+- [x] 100% test pass (18/18 tests)
 - [x] Zero TypeScript errors
 
 ## User Personas
@@ -43,16 +57,19 @@ Create a premium login page for TradeLife SaaS using a cinematic background imag
 ### P1 (Important)
 - Reintroduce Three.js visual engine (fix `@types/three` JSX issues)
 - Onboarding flow after first login
-- Dashboard page
+- Dashboard page refinements
 
 ### P2 (Nice to have)
 - Entrance animations on login panel
 - Mobile-optimized background image (smaller file)
 - Remember me / session persistence
+- Panel hover micro-interactions
 
-## Files Modified
-- `/app/app/login/page.tsx` — rewritten with premium login UI
-- `/app/app/layout.tsx` — removed VisualEngine import
-- `/app/next.config.js` — removed turbopack config
-- `/app/tsconfig.json` — excluded visual-engine from compilation
-- `/app/public/login-bg.png` — uploaded background image
+## Key Files
+- `/app/components/CinematicBackground.tsx` — global background system
+- `/app/app/login/page.tsx` — premium login with perspective panel
+- `/app/app/layout.tsx` — root layout with CinematicBackground
+- `/app/styles/globals.css` — perspective panel CSS, edge lighting, grounding
+- `/app/next.config.js` — clean Next.js 14 config (no turbopack)
+- `/app/tsconfig.json` — visual-engine excluded
+- `/app/public/login-bg.png` — uploaded cinematic background image
