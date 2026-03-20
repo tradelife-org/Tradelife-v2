@@ -8,9 +8,6 @@ const nextConfig = {
     return config
   },
   reactStrictMode: true,
-  turbopack: {
-    root: '/app',
-  },
 }
 
 module.exports = nextConfig
