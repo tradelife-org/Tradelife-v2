@@ -1,19 +1,58 @@
-# TradeLife PRD — Visual Correction Complete
+# TradeLife — PRD
 
-## AI Orb System (Global)
-- **AIOrb component** (`/app/components/ui/AIOrb.tsx`): 3 sizes (sm/md/lg), 3-layer radial gradient (core bright → mid → outer halo), no text, CSS pulse animation (5s), clickable opens AI overlay
-- **Used on**: Login (md, centered above form), Onboarding (sm, above each step), Dashboard mobile (md, standalone hero), Dashboard desktop (lg, standalone hero), AI Overlay (sm, header badge)
-- **Rule**: Orb is NEVER inside a panel — always standalone
+## Original Problem Statement
+Create a premium login page for TradeLife SaaS using a cinematic background image and clean UI overlay. Fix build stability issues (Three.js JSX errors, turbopack config). Ensure Vercel compatibility.
 
-## Visual Hierarchy (Fixed)
-- **Login**: Orb → "Welcome back" → Form panel (orb is primary, form secondary)
-- **Onboarding**: Step indicator → Orb → Question → Input (AI-guided, one question per screen)
-- **Dashboard mobile**: Orb → "How can I help today?" → Quick actions → Content panels
-- **Dashboard desktop**: Orb (large) → Action buttons → Stats grid (flanked by side panels)
+## Architecture
+- **Framework:** Next.js 14 (App Router)
+- **Styling:** Tailwind CSS + custom CSS tokens
+- **3D Engine:** Three.js / React Three Fiber (disabled, preserved for future)
+- **Auth:** Supabase (middleware exists, not connected on login page yet)
+- **Deployment:** Vercel
 
-## Removed
-- All "T" text as AI core visual
-- All orb-inside-panel patterns
-- Form-first layouts on login/onboarding
+## Core Requirements
+- Full-screen cinematic background image on login
+- Dark radial gradient overlay for readability
+- Glassmorphism login panel (420px max-width, centered)
+- Email + Password fields, Forgot password, Sign In (blue gradient), Google sign-in, Sign Up link
+- No orange UI elements — blue accent (#3b82f6) only
+- Three.js visual engine disabled but not deleted
+- Clean TypeScript build with no errors
 
-## Testing: 12/12 (95%)
+## What's Been Implemented (Jan 2026)
+- [x] Premium login page at `/login` with uploaded background image
+- [x] Dark radial overlay (lighter center, darker edges)
+- [x] Glass panel with all form elements
+- [x] Removed turbopack config from `next.config.js`
+- [x] Excluded `visual-engine/` from TypeScript compilation
+- [x] Removed VisualEngine import from `layout.tsx`
+- [x] Root `/` redirects to `/login`
+- [x] 100% test pass rate (13/13 tests)
+- [x] Zero TypeScript errors
+
+## User Personas
+- Tradespeople (electricians, plumbers, builders)
+- Small business owners in trade industries
+
+## Prioritized Backlog
+### P0 (Critical)
+- Connect Supabase authentication on login/signup
+- Implement signup flow
+- Implement forgot/reset password flow
+
+### P1 (Important)
+- Reintroduce Three.js visual engine (fix `@types/three` JSX issues)
+- Onboarding flow after first login
+- Dashboard page
+
+### P2 (Nice to have)
+- Entrance animations on login panel
+- Mobile-optimized background image (smaller file)
+- Remember me / session persistence
+
+## Files Modified
+- `/app/app/login/page.tsx` — rewritten with premium login UI
+- `/app/app/layout.tsx` — removed VisualEngine import
+- `/app/next.config.js` — removed turbopack config
+- `/app/tsconfig.json` — excluded visual-engine from compilation
+- `/app/public/login-bg.png` — uploaded background image
