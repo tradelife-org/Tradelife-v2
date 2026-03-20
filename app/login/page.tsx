@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Image from 'next/image'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -14,57 +13,39 @@ export default function LoginPage() {
   function handleGoogle() {}
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden" data-testid="login-page">
-      {/* Background Image */}
-      <Image
-        src="/login-bg.png"
-        alt="TradeLife background"
-        fill
-        priority
-        className="object-cover object-center"
-        data-testid="login-background-image"
-      />
+    <div className="relative min-h-screen w-full flex items-center justify-center px-4 py-8" data-testid="login-page">
+      <div className="w-full max-w-[420px]">
 
-      {/* Dark radial overlay */}
-      <div
-        className="absolute inset-0 z-[1]"
-        style={{
-          background: 'radial-gradient(ellipse 60% 55% at 50% 50%, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.65) 55%, rgba(0,0,0,0.82) 100%)',
-        }}
-        data-testid="login-overlay"
-      />
-
-      {/* Content */}
-      <div className="relative z-[2] flex min-h-screen items-center justify-center px-4 py-8">
-        <div className="w-full max-w-[420px]">
-
-          {/* Branding */}
-          <div className="mb-8 text-center" data-testid="login-branding">
-            <h1
-              className="text-3xl font-semibold tracking-tight text-white"
-              data-testid="login-brand-title"
-            >
-              TradeLife
-            </h1>
-            <p
-              className="mt-1.5 text-sm text-white/60"
-              data-testid="login-brand-subtitle"
-            >
-              Built for trades
-            </p>
-          </div>
-
-          {/* Glass Panel */}
-          <div
-            className="rounded-2xl border border-white/[0.08] p-6 sm:p-8"
+        {/* Branding with subtle glow */}
+        <div className="mb-10 text-center" data-testid="login-branding">
+          <h1
+            className="text-4xl font-semibold tracking-tight text-white"
             style={{
-              background: 'rgba(15, 18, 25, 0.55)',
-              backdropFilter: 'blur(24px) saturate(1.2)',
-              WebkitBackdropFilter: 'blur(24px) saturate(1.2)',
+              textShadow: '0 0 40px rgba(59,130,246,0.2), 0 0 80px rgba(59,130,246,0.08)',
             }}
+            data-testid="login-brand-title"
+          >
+            TradeLife
+          </h1>
+          <p
+            className="mt-2 text-sm text-white/55 tracking-wide"
+            data-testid="login-brand-subtitle"
+          >
+            Built for trades
+          </p>
+        </div>
+
+        {/* Perspective Glass Panel */}
+        <div className="perspective-container" data-testid="login-panel-wrapper">
+          <div
+            className="login-glass-panel rounded-2xl p-6 sm:p-8"
             data-testid="login-panel"
           >
-            <form onSubmit={handleLogin} className="space-y-4" data-testid="login-form">
+            {/* Edge lighting effects */}
+            <div className="panel-edge-light-left" />
+            <div className="panel-edge-light-right" />
+
+            <form onSubmit={handleLogin} className="relative z-10 space-y-4" data-testid="login-form">
               {/* Email */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-medium text-white/70" data-testid="login-email-label">
@@ -76,7 +57,7 @@ export default function LoginPage() {
                   placeholder="you@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-lg border border-white/[0.08] bg-white/[0.05] px-3.5 py-2.5 text-sm text-white placeholder:text-white/30 outline-none transition-colors focus:border-[#3b82f6]/50 focus:bg-white/[0.07]"
+                  className="w-full rounded-lg border border-white/[0.08] bg-white/[0.05] px-3.5 py-2.5 text-sm text-white placeholder:text-white/25 outline-none transition-all duration-200 focus:border-[#3b82f6]/50 focus:bg-white/[0.07] focus:shadow-[0_0_0_2px_rgba(59,130,246,0.1)]"
                 />
               </div>
 
@@ -91,7 +72,7 @@ export default function LoginPage() {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-lg border border-white/[0.08] bg-white/[0.05] px-3.5 py-2.5 text-sm text-white placeholder:text-white/30 outline-none transition-colors focus:border-[#3b82f6]/50 focus:bg-white/[0.07]"
+                  className="w-full rounded-lg border border-white/[0.08] bg-white/[0.05] px-3.5 py-2.5 text-sm text-white placeholder:text-white/25 outline-none transition-all duration-200 focus:border-[#3b82f6]/50 focus:bg-white/[0.07] focus:shadow-[0_0_0_2px_rgba(59,130,246,0.1)]"
                 />
               </div>
 
@@ -106,13 +87,10 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              {/* Sign in button */}
+              {/* Sign in button with glow */}
               <button
                 type="submit"
-                className="w-full rounded-lg py-2.5 text-sm font-medium text-white transition-all"
-                style={{
-                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-                }}
+                className="login-btn-primary w-full rounded-lg py-2.5 text-sm font-medium text-white transition-all"
                 data-testid="login-submit"
               >
                 Sign in
@@ -120,7 +98,7 @@ export default function LoginPage() {
             </form>
 
             {/* Divider */}
-            <div className="my-5 flex items-center gap-3" data-testid="login-divider">
+            <div className="relative z-10 my-5 flex items-center gap-3" data-testid="login-divider">
               <div className="h-px flex-1 bg-white/[0.08]" />
               <span className="text-[10px] uppercase tracking-wider text-white/30">or</span>
               <div className="h-px flex-1 bg-white/[0.08]" />
@@ -129,7 +107,7 @@ export default function LoginPage() {
             {/* Google button */}
             <button
               onClick={handleGoogle}
-              className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-white/[0.08] bg-white/[0.05] py-2.5 text-sm text-white/80 transition-colors hover:bg-white/[0.08] hover:text-white"
+              className="relative z-10 flex w-full items-center justify-center gap-2.5 rounded-lg border border-white/[0.08] bg-white/[0.04] py-2.5 text-sm text-white/80 transition-all duration-200 hover:bg-white/[0.08] hover:text-white hover:border-white/[0.12]"
               data-testid="login-google"
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24">
@@ -142,13 +120,16 @@ export default function LoginPage() {
             </button>
 
             {/* Footer */}
-            <p className="mt-5 text-center text-xs text-white/40" data-testid="login-footer">
+            <p className="relative z-10 mt-5 text-center text-xs text-white/40" data-testid="login-footer">
               Don&apos;t have an account?{' '}
               <span className="cursor-pointer text-[#3b82f6]/80 hover:text-[#3b82f6] transition-colors" data-testid="login-signup-link">
                 Sign up
               </span>
             </p>
           </div>
+
+          {/* Grounding shadow under panel */}
+          <div className="panel-ground-shadow" data-testid="login-ground-shadow" />
         </div>
       </div>
     </div>

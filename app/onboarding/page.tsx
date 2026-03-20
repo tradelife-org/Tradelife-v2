@@ -33,9 +33,9 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] flex flex-col">
+    <div className="min-h-screen flex flex-col">
       {/* Minimal top bar */}
-      <div className="h-14 border-b border-[var(--panel-border)] topbar-material px-4 sm:px-6 flex items-center">
+      <div className="h-14 border-b border-white/[0.06] px-4 sm:px-6 flex items-center" style={{ background: 'rgba(12,15,22,0.5)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
         <div className="w-7 h-7 rounded-md bg-[var(--accent)] flex items-center justify-center">
           <span className="text-white font-bold text-xs">T</span>
         </div>

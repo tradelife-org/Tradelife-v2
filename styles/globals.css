@@ -150,6 +150,136 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
+   PERSPECTIVE GLASS PANEL — Login panel with 3D depth
+   ═══════════════════════════════════════════════════════════ */
+
+.perspective-container {
+  perspective: 1200px;
+  perspective-origin: 50% 40%;
+}
+
+.login-glass-panel {
+  position: relative;
+  background: rgba(12, 15, 22, 0.6);
+  backdrop-filter: blur(28px) saturate(1.2);
+  -webkit-backdrop-filter: blur(28px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+  transform: rotateX(2deg);
+  transform-origin: 50% 100%;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.login-glass-panel:hover {
+  transform: rotateX(0.5deg);
+}
+
+/* Left edge — cool blue tint from environment */
+.panel-edge-light-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent 5%,
+    rgba(59, 130, 246, 0.25) 30%,
+    rgba(59, 130, 246, 0.15) 70%,
+    transparent 95%
+  );
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Right edge — warm orange tint from environment */
+.panel-edge-light-right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent 5%,
+    rgba(245, 158, 50, 0.2) 30%,
+    rgba(245, 158, 50, 0.12) 70%,
+    transparent 95%
+  );
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Soft ambient glow cast onto panel from environment */
+.login-glass-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg,
+      rgba(59, 130, 246, 0.04) 0%,
+      transparent 30%,
+      transparent 70%,
+      rgba(245, 158, 50, 0.03) 100%
+    ),
+    linear-gradient(178deg, rgba(255, 255, 255, 0.025) 0%, transparent 25%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Top highlight line */
+.login-glass-panel::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(59, 130, 246, 0.12),
+    rgba(255, 255, 255, 0.06),
+    rgba(245, 158, 50, 0.08),
+    transparent
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Grounding shadow beneath the panel */
+.panel-ground-shadow {
+  width: 85%;
+  height: 20px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 50%,
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0.15) 40%,
+    transparent 70%
+  );
+  filter: blur(8px);
+  transform: translateY(-6px);
+  pointer-events: none;
+}
+
+/* Sign-in button — blue gradient with subtle glow */
+.login-btn-primary {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  box-shadow:
+    0 0 20px rgba(59, 130, 246, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.login-btn-primary:hover {
+  box-shadow:
+    0 0 28px rgba(59, 130, 246, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════════════════════
    SCROLLBAR
    ═══════════════════════════════════════════════════════════ */
 

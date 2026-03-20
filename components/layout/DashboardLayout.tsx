@@ -6,7 +6,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
-    <div className="min-h-screen bg-[var(--bg-base)]">
+    <div className="min-h-screen">
       <TopBar />
       <main className="px-4 py-5 sm:px-6 sm:py-6">
         <div
