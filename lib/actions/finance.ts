@@ -131,13 +131,12 @@ export async function getFinanceDashboardData() {
   // Calculate Pot Values
   const potAllocations = pots?.map(pot => ({
     ...pot,
-    value: Math.round(currentBalance * (pot.allocation_percentage / 10000))
+    value: Math.round(0 * (pot.allocation_percentage / 10000))
   })) || []
 
   return {
     totalRevenue,
     totalExpenses,
-    currentBalance,
     burnRate,
     runway,
     pots: potAllocations
