@@ -12,7 +12,7 @@ export default function LoginPage() {
       {/* Background */}
       <div
         className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/login-bg.png')" }}
+        style={{ backgroundImage: "url('/images/tradelife-bg.png')" }}
       />
 
       {/* Subtle depth only */}
