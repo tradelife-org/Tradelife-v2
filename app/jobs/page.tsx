@@ -28,7 +28,7 @@ export default async function JobsDashboard() {
   }
 
   return (
-    <SceneLayerV3 scene="remembrance">
+    
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-heading font-bold text-slate-900">Job Board</h1>
@@ -50,7 +50,7 @@ export default async function JobsDashboard() {
           <KanbanColumn title="Complete" jobs={columns.COMPLETE} color="bg-green-50" />
         </div>
       </div>
-    </SceneLayerV3>
+    
   )
 }
 

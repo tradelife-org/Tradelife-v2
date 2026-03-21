@@ -37,7 +37,7 @@ export default async function CreateJobPage() {
   }
 
   return (
-    <SceneLayerV3 scene="remembrance">
+    
       <div className="container mx-auto px-4 py-12 max-w-2xl">
         <GlassPanel className="p-8 bg-white border-slate-200">
           <h1 className="text-2xl font-heading font-bold text-slate-900 mb-6">Create New Job</h1>
@@ -75,6 +75,6 @@ export default async function CreateJobPage() {
           </form>
         </GlassPanel>
       </div>
-    </SceneLayerV3>
+    
   )
 }

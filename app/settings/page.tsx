@@ -4,7 +4,7 @@ import { Settings } from 'lucide-react'
 
 export default function SettingsPage() {
   return (
-    <SceneLayerV3 scene="remembrance">
+    
       <AppShell>
         <div className="max-w-4xl mx-auto py-8 space-y-8 px-4">
           <div className="flex items-center gap-3 mb-8">
@@ -15,6 +15,6 @@ export default function SettingsPage() {
           <PaymentSettings />
         </div>
       </AppShell>
-    </SceneLayerV3>
+    
   )
 }
