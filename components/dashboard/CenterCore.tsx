@@ -3,7 +3,6 @@
 import { Plus, FileText, BarChart3, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 import { Panel } from '@/components/ui/Panel'
 import { Button } from '@/components/ui/Button'
-import { AIOrb } from '@/components/ui/AIOrb'
 
 const overviewStats = [
   { label: 'Revenue', value: '£24,500', change: '+12%', positive: true },
@@ -17,7 +16,7 @@ export function CenterCore() {
     <div className="hidden lg:block lg:col-span-6 space-y-5">
       {/* AI Orb Hero — standalone, NOT inside a panel */}
       <div className="flex flex-col items-center py-8" data-testid="ai-core-placeholder">
-        <AIOrb size="lg" data-testid="ai-core-button" />
+        
         <h2 className="text-base font-semibold text-[var(--text-primary)] mt-5">How can I help today?</h2>
         <p className="text-xs text-[var(--text-secondary)] mt-1">Your intelligent command centre</p>
       </div>

@@ -1,7 +1,6 @@
 'use client'
 
 import { DollarSign, Calendar, AlertTriangle, TrendingUp } from 'lucide-react'
-import { AIOrb } from '@/components/ui/AIOrb'
 import { useUIStore } from '@/store/useUIStore'
 
 const quickActions = [
@@ -18,7 +17,7 @@ export function MobileAIHero() {
     <div className="lg:hidden" data-testid="mobile-ai-hero">
       {/* Orb — standalone, NOT inside a panel */}
       <div className="flex flex-col items-center pt-4 pb-6">
-        <AIOrb size="md" data-testid="mobile-ai-orb" />
+        
         <h2 className="text-base font-semibold text-[var(--text-primary)] text-center mt-5">
           How can I help today?
         </h2>

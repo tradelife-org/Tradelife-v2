@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
-import { AIOrb } from '@/components/ui/AIOrb'
 
 const TRADE_TYPES = ['Plumbing', 'Electrical', 'Carpentry', 'Painting', 'Roofing', 'General Builder', 'Other']
 const TEAM_SIZES = ['Just me', '2-5', '6-15', '16-50', '50+']
@@ -58,7 +57,7 @@ export default function OnboardingPage() {
 
           {/* Orb — always visible, AI-guided feel */}
           <div className="flex justify-center mb-6">
-            <AIOrb size="sm" clickable={false} data-testid="onboarding-orb" />
+            
           </div>
 
           {/* Step 0: Welcome */}
