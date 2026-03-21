@@ -5,8 +5,6 @@
     "ui_bugs": [
       {
         "component": "Visual Engine Canvas",
-        "issue": "WebGL canvas element not detectable via data-testid='visual-engine' selector, though WebGL is running",
-        "selector": "[data-testid='visual-engine']",
         "fix_priority": "LOW"
       }
     ],

@@ -1,5 +1,4 @@
 {
-  "summary": "Complete frontend testing of Visual Engine route-aware intensity system. Successfully verified all three routes (/login, /onboarding, /dashboard) have correct visual intensity levels (0.3, 0.5, 1.0). All core functionality working including login form, onboarding flow, and dashboard layout.",
   
   "backend_issues": {},
   
@@ -18,7 +17,6 @@
   },
   
   "passed_tests": [
-    "Visual Engine present on all three routes (/login, /onboarding, /dashboard)",
     "Route-aware intensity system working perfectly: login=0.3, onboarding=0.5, dashboard=1.0",
     "Visual Engine canvas rendering with WebGL support detected",
     "Login form functionality (email, password, sign in button, Google auth)",

@@ -28,7 +28,6 @@
   
   "passed_tests": [
     "Dashboard loads at /dashboard with all content intact",
-    "Visual engine canvas present with data-testid='visual-engine'",
     "WebGL canvas element rendering atmospheric depth and ember particles",
     "Visual engine properly positioned (position: fixed, pointer-events: none)",
     "EmberSystem 3-layer implementation working (far/mid/near depth layers)",

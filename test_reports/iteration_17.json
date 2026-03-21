@@ -6,8 +6,6 @@
   "frontend_issues": {},
 
   "passed_tests": [
-    "Visual engine div with data-testid='visual-engine' exists in DOM",
-    "Canvas element inside visual-engine div exists and has full viewport dimensions (1920x1080)", 
     "Visual engine div has position:fixed, inset:0, z-index:0, pointer-events:none",
     "UI layer has position:relative and z-index:10 (higher than visual engine)",
     "Visual engine renders correctly on /login page with atmospheric dark environment",

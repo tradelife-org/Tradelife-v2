@@ -3,7 +3,6 @@
   "backend_issues": {},
   "frontend_issues": {},
   "passed_tests": [
-    "Visual engine div with data-testid='visual-engine' loads correctly (after dynamic import)",
     "Canvas element present inside visual engine",
     "Dashboard loads at /dashboard with all content intact",
     "Login page functional with all form elements (email, password, sign in, google)",

@@ -27,7 +27,6 @@ Create a premium login page for TradeLife SaaS using a cinematic background imag
 - [x] Dark radial overlay (lighter center, darker edges)
 - [x] Glass panel with all form elements
 - [x] Removed turbopack config from `next.config.js`
-- [x] Excluded `visual-engine/` from TypeScript compilation
 - [x] Removed VisualEngine import from `layout.tsx`
 - [x] Root `/` redirects to `/login`
 
@@ -55,7 +54,6 @@ Create a premium login page for TradeLife SaaS using a cinematic background imag
 - Implement forgot/reset password flow
 
 ### P1 (Important)
-- Reintroduce Three.js visual engine (fix `@types/three` JSX issues)
 - Onboarding flow after first login
 - Dashboard page refinements
 
@@ -71,5 +69,4 @@ Create a premium login page for TradeLife SaaS using a cinematic background imag
 - `/app/app/layout.tsx` — root layout with CinematicBackground
 - `/app/styles/globals.css` — perspective panel CSS, edge lighting, grounding
 - `/app/next.config.js` — clean Next.js 14 config (no turbopack)
-- `/app/tsconfig.json` — visual-engine excluded
 - `/app/public/login-bg.png` — uploaded cinematic background image

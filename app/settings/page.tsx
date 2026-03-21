@@ -1,7 +1,6 @@
 import AppShell from '@/components/app-shell'
 import PaymentSettings from '@/components/settings/payment-settings'
 import { Settings } from 'lucide-react'
-import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"
 
 export default function SettingsPage() {
   return (

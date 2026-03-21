@@ -127,30 +127,6 @@ export async function getFinanceDashboardData() {
   let totalExpenses = 0
   
   const now = new Date()
-  const threeMonthsAgo = new Date()
-  threeMonthsAgo.setMonth(now.getMonth() - 3)
-  
-  let expensesLast3Months = 0
-
-  ledger?.forEach(entry => {
-    if (entry.transaction_type === 'CREDIT') {
-      totalRevenue += entry.amount
-    } else {
-      totalExpenses += entry.amount
-      if (new Date(entry.created_at) > threeMonthsAgo) {
-        expensesLast3Months += entry.amount
-      }
-    }
-  })
-
-  // Burn Rate (Monthly Average over last 3 months, or 1 if less)
-  const burnRate = Math.round(expensesLast3Months / 3) 
-  
-  // Current Balance
-  const currentBalance = totalRevenue - totalExpenses
-
-  // Runway (Months)
-  const runway = burnRate > 0 ? (currentBalance / burnRate) : 999
 
   // Calculate Pot Values
   const potAllocations = pots?.map(pot => ({
@@ -167,3 +143,4 @@ export async function getFinanceDashboardData() {
     pots: potAllocations
   }
 }
+

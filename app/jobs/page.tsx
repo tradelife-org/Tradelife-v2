@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { Calendar, CheckCircle, Clock, AlertCircle } from 'lucide-react'
 import XeroSyncButton from '@/components/jobs/xero-sync-button' // New
 
-import SceneLayerV3 from "@/visual-engine/scene/SceneLayerV3"
 
 export default async function JobsDashboard() {
   const supabase = await createServerSupabaseClient()

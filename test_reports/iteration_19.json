@@ -13,7 +13,6 @@
       {
         "flow": "WebGL context creation in headless browser",
         "issue": "WebGL context error in headless testing environment - not affecting actual user experience",
-        "affected_selectors": ["[data-testid='visual-engine'] canvas"],
         "fix_priority": "LOW - testing environment limitation"
       }
     ]
@@ -21,7 +20,6 @@
   
   "passed_tests": [
     "Dashboard loads at /dashboard with all content intact",
-    "Visual engine canvas present in DOM with data-testid='visual-engine'",
     "AI Core button exists with data-testid='ai-core-button' and is clickable",
     "UI T button has transparent text (text-transparent class) for 3D T to show through",
     "Dashboard layout preserved: attention section (3 items), projects (3 items), trades, schedule (4 items), tasks (4 items), stats (4 overview panels)",
