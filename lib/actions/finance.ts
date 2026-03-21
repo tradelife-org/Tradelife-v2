@@ -137,7 +137,7 @@ export async function getFinanceDashboardData() {
   return {
     totalRevenue,
     totalExpenses,
-    burnRate,
+    burnRate: 0,
     runway,
     pots: potAllocations
   }
