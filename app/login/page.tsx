@@ -27,7 +27,7 @@ export default function LoginPage() {
         {/* ═══ LOGO TREATMENT ═══ */}
         <div className="mb-8 text-center relative" data-testid="logo-block">
 
-          <div className="relative inline-block px-10">
+          <div className="relative inline-block px-12">
             {/* Environmental color influence */}
             <div className="wordmark-env-cool" />
             <div className="wordmark-env-warm" />
@@ -35,13 +35,14 @@ export default function LoginPage() {
             {/* Core glow behind wordmark */}
             <div className="logo-core-glow" />
 
-            {/* Horizontal anamorphic flare — crisp line */}
-            <div className="logo-flare" />
-            {/* Bloom layer — soft diffused glow behind flare */}
-            <div className="logo-flare-bloom" />
+            {/* Blue arc — outer halo → bloom → crisp line (layered back to front) */}
+            <div className="logo-arc-halo" />
+            <div className="logo-arc-bloom" />
+            <div className="logo-arc" />
 
             <h1
-              className="tradelife-wordmark relative text-5xl md:text-[3.8rem] leading-tight"
+              className="tradelife-wordmark relative text-5xl md:text-[3.75rem] leading-tight"
+              style={{ zIndex: 2 }}
               data-testid="tradelife-wordmark"
             >
               TradeLife
@@ -50,11 +51,12 @@ export default function LoginPage() {
 
           {/* Tagline with decorative lines */}
           <p
-            className="mt-2 text-xs tracking-[0.18em] text-white/40 flex items-center justify-center gap-3"
+            className="mt-2.5 text-[11px] tracking-[0.2em] flex items-center justify-center gap-3"
+            style={{ color: 'rgba(230, 232, 238, 0.45)' }}
             data-testid="tradelife-tagline"
           >
             <span className="tagline-line" />
-            <span className="font-light" style={{ color: 'rgba(235, 230, 225, 0.5)' }}>Built for trades</span>
+            <span className="font-light">Built for trades</span>
             <span className="tagline-line" />
           </p>
         </div>
