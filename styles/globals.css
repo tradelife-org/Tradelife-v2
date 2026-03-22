@@ -154,155 +154,185 @@
    TRADELIFE WORDMARK
    ═══════════════════════════════════════════════════════════ */
 
-/* — Wordmark text — upright serif, brushed-light metallic — */
+/* — Wordmark — upright serif, light-based depth gradient — */
 .tradelife-wordmark {
   font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
   font-style: normal;
   font-weight: 500;
   letter-spacing: 0.02em;
-  /* Brushed-light metallic: soft white → cool blue tint → neutral white */
+  position: relative;
+  z-index: 3;
+  /* Light-based depth: bright top → cool-blue mid → neutral bottom */
   background: linear-gradient(
     180deg,
-    rgba(245, 248, 255, 0.96) 0%,
-    rgba(230, 238, 252, 0.92) 35%,
-    rgba(195, 215, 245, 0.88) 55%,
-    rgba(235, 240, 250, 0.93) 75%,
-    rgba(248, 250, 255, 0.95) 100%
+    #ffffff 0%,
+    #f0f4ff 25%,
+    #c8d8f0 50%,
+    #dce4f2 72%,
+    #f2f4f8 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  /* Soft cinematic glow — NOT neon */
-  filter:
-    drop-shadow(0 0 18px rgba(170, 200, 255, 0.2))
-    drop-shadow(0 0 48px rgba(140, 180, 255, 0.08));
 }
 
-/* — Blue arc / energy line — VISIBLE, soft-edged, behind text — */
+/* Glow layer — sits behind the gradient text, provides the cinematic glow */
+.wordmark-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 0 12px rgba(160, 200, 255, 0.5),
+    0 0 30px rgba(140, 185, 255, 0.25),
+    0 0 60px rgba(120, 170, 255, 0.12),
+    0 0 100px rgba(100, 155, 255, 0.06);
+}
+
+/* ─── BLUE ENERGY ARC — must be clearly visible ─── */
+
+/* Layer 1: Crisp arc line — the bright core */
 .logo-arc {
   position: absolute;
-  left: -55%;
-  right: -55%;
+  left: 0;
+  right: 0;
   top: 50%;
-  height: 2px;
+  height: 3px;
   transform: translateY(-50%);
   background: linear-gradient(
     90deg,
     transparent 0%,
-    transparent 8%,
-    rgba(100, 160, 255, 0.06) 18%,
-    rgba(120, 175, 255, 0.2) 30%,
-    rgba(140, 190, 255, 0.4) 42%,
-    rgba(160, 200, 255, 0.55) 48%,
-    rgba(170, 210, 255, 0.6) 50%,
-    rgba(160, 200, 255, 0.55) 52%,
-    rgba(140, 190, 255, 0.4) 58%,
-    rgba(120, 175, 255, 0.2) 70%,
-    rgba(100, 160, 255, 0.06) 82%,
-    transparent 92%,
+    rgba(90, 160, 255, 0.0) 8%,
+    rgba(110, 180, 255, 0.2) 18%,
+    rgba(135, 200, 255, 0.5) 28%,
+    rgba(155, 215, 255, 0.75) 38%,
+    rgba(175, 225, 255, 0.9) 45%,
+    rgba(195, 235, 255, 1.0) 50%,
+    rgba(175, 225, 255, 0.9) 55%,
+    rgba(155, 215, 255, 0.75) 62%,
+    rgba(135, 200, 255, 0.5) 72%,
+    rgba(110, 180, 255, 0.2) 82%,
+    rgba(90, 160, 255, 0.0) 92%,
     transparent 100%
   );
+  z-index: 10;
   pointer-events: none;
-  z-index: 0;
+  mix-blend-mode: screen;
 }
 
-/* Arc bloom — soft diffused glow around the arc */
+/* Layer 2: Bloom — soft glow around the arc */
 .logo-arc-bloom {
   position: absolute;
-  left: -45%;
-  right: -45%;
+  left: 5%;
+  right: 5%;
   top: 50%;
-  height: 14px;
+  height: 16px;
   transform: translateY(-50%);
   background: linear-gradient(
     90deg,
     transparent 0%,
-    transparent 12%,
-    rgba(110, 170, 255, 0.04) 22%,
-    rgba(130, 185, 255, 0.1) 35%,
-    rgba(150, 200, 255, 0.18) 45%,
-    rgba(160, 205, 255, 0.22) 50%,
-    rgba(150, 200, 255, 0.18) 55%,
-    rgba(130, 185, 255, 0.1) 65%,
-    rgba(110, 170, 255, 0.04) 78%,
-    transparent 88%,
+    rgba(90, 160, 255, 0.0) 8%,
+    rgba(110, 180, 255, 0.1) 18%,
+    rgba(135, 200, 255, 0.28) 30%,
+    rgba(155, 215, 255, 0.42) 40%,
+    rgba(170, 225, 255, 0.5) 50%,
+    rgba(155, 215, 255, 0.42) 60%,
+    rgba(135, 200, 255, 0.28) 70%,
+    rgba(110, 180, 255, 0.1) 82%,
+    rgba(90, 160, 255, 0.0) 92%,
     transparent 100%
   );
   filter: blur(6px);
+  z-index: 10;
   pointer-events: none;
-  z-index: 0;
+  mix-blend-mode: screen;
 }
 
-/* Arc outer halo — widest, softest reach */
+/* Layer 3: Halo — wide atmospheric spread */
 .logo-arc-halo {
   position: absolute;
-  left: -35%;
-  right: -35%;
+  left: 10%;
+  right: 10%;
   top: 50%;
-  height: 28px;
+  height: 40px;
   transform: translateY(-50%);
   background: radial-gradient(
     ellipse 50% 100% at 50% 50%,
-    rgba(140, 185, 255, 0.08) 0%,
-    rgba(130, 175, 255, 0.03) 50%,
+    rgba(120, 185, 255, 0.18) 0%,
+    rgba(110, 175, 255, 0.08) 45%,
     transparent 100%
   );
   filter: blur(10px);
+  z-index: 9;
   pointer-events: none;
-  z-index: 0;
+  mix-blend-mode: screen;
 }
 
-/* — Core glow — soft oval behind wordmark — */
+/* ─── CORE GLOW — soft oval wash behind the whole wordmark ─── */
 .logo-core-glow {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 280px;
-  height: 50px;
+  width: 320px;
+  height: 70px;
   transform: translate(-50%, -50%);
   background: radial-gradient(
     ellipse at 50% 50%,
-    rgba(150, 190, 255, 0.1) 0%,
-    rgba(140, 180, 255, 0.04) 50%,
-    transparent 80%
+    rgba(130, 180, 255, 0.12) 0%,
+    rgba(120, 170, 255, 0.05) 50%,
+    transparent 85%
   );
-  filter: blur(22px);
-  pointer-events: none;
+  filter: blur(20px);
   z-index: 0;
+  pointer-events: none;
 }
 
-/* Environmental influence — cool left side */
+/* ─── ENVIRONMENT BLEND ─── */
+
+/* Cool blue influence — left side */
 .wordmark-env-cool {
   position: absolute;
-  top: -20%;
-  left: -15%;
-  bottom: -20%;
-  width: 50%;
-  background: radial-gradient(ellipse at 15% 50%, rgba(130, 175, 255, 0.04) 0%, transparent 65%);
+  top: -30%;
+  left: -20%;
+  bottom: -30%;
+  width: 55%;
+  background: radial-gradient(
+    ellipse at 10% 50%,
+    rgba(120, 170, 255, 0.06) 0%,
+    transparent 60%
+  );
   pointer-events: none;
-  mix-blend-mode: screen;
   z-index: 0;
 }
 
-/* Environmental influence — warm right side */
+/* Warm sunset influence — right side */
 .wordmark-env-warm {
   position: absolute;
-  top: -20%;
-  right: -15%;
-  bottom: -20%;
-  width: 50%;
-  background: radial-gradient(ellipse at 85% 50%, rgba(255, 195, 130, 0.03) 0%, transparent 65%);
+  top: -30%;
+  right: -20%;
+  bottom: -30%;
+  width: 55%;
+  background: radial-gradient(
+    ellipse at 90% 50%,
+    rgba(255, 190, 120, 0.04) 0%,
+    transparent 60%
+  );
   pointer-events: none;
-  mix-blend-mode: screen;
   z-index: 0;
 }
 
-/* — Tagline decorative line — */
+/* ─── TAGLINE ─── */
 .tagline-line {
   display: inline-block;
   width: 38px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
   vertical-align: middle;
 }
 

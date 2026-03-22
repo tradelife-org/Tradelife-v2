@@ -27,32 +27,45 @@ export default function LoginPage() {
         {/* ═══ LOGO TREATMENT ═══ */}
         <div className="mb-8 text-center relative" data-testid="logo-block">
 
-          <div className="relative inline-block px-12">
-            {/* Environmental color influence */}
-            <div className="wordmark-env-cool" />
-            <div className="wordmark-env-warm" />
+          {/* Arc container — spans wider than text */}
+          <div className="relative mx-auto" style={{ width: '700px', maxWidth: '90vw' }}>
 
-            {/* Core glow behind wordmark */}
+            {/* Core ambient glow */}
             <div className="logo-core-glow" />
 
-            {/* Blue arc — outer halo → bloom → crisp line (layered back to front) */}
+            {/* Wordmark — centered inside the arc container */}
+            <div className="relative inline-block w-full text-center">
+              {/* Environment blend */}
+              <div className="wordmark-env-cool" />
+              <div className="wordmark-env-warm" />
+
+              {/* Glow text layer — cinematic light emission */}
+              <span
+                className="wordmark-glow text-5xl md:text-[3.75rem] leading-tight select-none"
+                aria-hidden="true"
+              >
+                TradeLife
+              </span>
+
+              {/* Gradient text — the visible wordmark */}
+              <h1
+                className="tradelife-wordmark text-5xl md:text-[3.75rem] leading-tight"
+                data-testid="tradelife-wordmark"
+              >
+                TradeLife
+              </h1>
+            </div>
+
+            {/* Blue energy arc — rendered ON TOP with screen blend for additive glow */}
             <div className="logo-arc-halo" />
             <div className="logo-arc-bloom" />
             <div className="logo-arc" />
-
-            <h1
-              className="tradelife-wordmark relative text-5xl md:text-[3.75rem] leading-tight"
-              style={{ zIndex: 2 }}
-              data-testid="tradelife-wordmark"
-            >
-              TradeLife
-            </h1>
           </div>
 
-          {/* Tagline with decorative lines */}
+          {/* Tagline */}
           <p
             className="mt-2.5 text-[11px] tracking-[0.2em] flex items-center justify-center gap-3"
-            style={{ color: 'rgba(230, 232, 238, 0.45)' }}
+            style={{ color: 'rgba(220, 225, 235, 0.42)' }}
             data-testid="tradelife-tagline"
           >
             <span className="tagline-line" />
