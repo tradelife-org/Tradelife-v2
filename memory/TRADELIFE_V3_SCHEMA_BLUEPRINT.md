@@ -4,6 +4,8 @@
 - This blueprint is derived from the locked contracts in `/app/memory/TRADELIFE_V3_SYSTEM_CONTRACTS.md`.
 - It is the **authoritative schema design target** for the v3 rebuild.
 - It is intentionally **schema-only**: no implementation code, no SQL, no app logic snippets.
+- Where this blueprint refines earlier contract detail, this blueprint is authoritative for schema rebuild decisions.
+- The revised canonical ledger categories are: `COMMITTED_REVENUE`, `RECOGNISED_REVENUE`, `EXPENSE`, `VAT_OUTPUT`, and `VAT_INPUT`.
 
 ---
 
@@ -142,13 +144,33 @@
 - `COMMITTED_REVENUE`
 - `RECOGNISED_REVENUE`
 - `EXPENSE`
-- `VAT`
+- `VAT_OUTPUT`
+- `VAT_INPUT`
 
 ### `ledger_event_type`
 - `QUOTE_ACCEPTED`
 - `PAYMENT_SUCCEEDED`
 - `EXPENSE_CONFIRMED`
 - `PAYMENT_REFUNDED`
+
+### Ledger category validation rules
+- `COMMITTED_REVENUE`
+  - allowed only for `QUOTE_ACCEPTED`
+  - amount must be positive
+- `RECOGNISED_REVENUE`
+  - allowed only for `PAYMENT_SUCCEEDED` and `PAYMENT_REFUNDED`
+  - amount must be positive for `PAYMENT_SUCCEEDED`
+  - amount must be negative for `PAYMENT_REFUNDED`
+- `EXPENSE`
+  - allowed only for `EXPENSE_CONFIRMED`
+  - amount must be negative
+- `VAT_OUTPUT`
+  - allowed only for `PAYMENT_SUCCEEDED` and `PAYMENT_REFUNDED`
+  - amount must be positive for `PAYMENT_SUCCEEDED`
+  - amount must be negative for `PAYMENT_REFUNDED`
+- `VAT_INPUT`
+  - allowed only for `EXPENSE_CONFIRMED`
+  - amount must be negative
 
 ## 2.6 Scheduling enums
 
@@ -1871,7 +1893,7 @@ Atomic writes:
 5. update invoice paid totals and derived invoice state
 6. insert two `ledger_entries` rows:
    - `RECOGNISED_REVENUE`
-   - `VAT`
+   - `VAT_OUTPUT`
 7. insert `payment_events`
 8. insert `audit_events`
 
@@ -1881,7 +1903,7 @@ Atomic writes:
 2. create or confirm `expenses`
 3. insert one or two `ledger_entries` rows:
    - `EXPENSE`
-   - optional `VAT`
+   - optional `VAT_INPUT`
 4. insert `audit_events`
 
 ## 8.7 Refund webhook transaction
@@ -1893,7 +1915,7 @@ Atomic writes:
 5. update invoice refund totals and derived state
 6. insert two `ledger_entries` rows:
    - negative `RECOGNISED_REVENUE`
-   - negative `VAT`
+   - negative `VAT_OUTPUT`
 7. insert `payment_events`
 8. insert `audit_events`
 
