@@ -20,7 +20,7 @@ Visual refinement of the TradeLife login page to match a reference image. Only t
 - **Logo treatment**: Playfair Display italic wordmark (weight 500) with subtle white→cool-blue text gradient, cinematic light-bleed glow (triple drop-shadow), horizontal anamorphic flare + bloom layer, environmental warm/cool influence overlays, decorative tagline lines
 - **Glass panel**: Dark translucent glass (rgba 8,10,18,0.72), 32px backdrop blur, 1.5deg rotateX tilt, blue left edge + orange right edge lighting, top highlight, ground shadow
 - **Form elements**: Email/password fields with Mail/Lock icons, dark glass inputs, password visibility toggle, blue gradient Sign In button with glow, Google button with colored G icon, labeled fields, Forgot password link, OR divider, Sign up footer
-- **Wordmark refinement (iteration 2)**: Reduced font-weight to 500, replaced flat white with subtle vertical gradient (white→cool blue), replaced text-shadow with multi-layered drop-shadow for cinematic light-bleed, added dual-layer horizontal light streak (crisp line + soft bloom), added environmental warm/cool influence layers, tightened tagline spacing, made tagline more muted with slightly warm tint
+- **Wordmark refinement (iteration 3)**: Removed italic (font-style: normal), applied brushed-light metallic gradient (white→cool blue→white), replaced flare with 3-layer blue arc (crisp line + bloom + outer halo), refined environmental influence (cool left, warm right), upright premium serif presentation
 
 ## Files Changed
 - `/app/app/login/page.tsx` — Rewrote JSX structure with new styling classes, icons, labels, subtext
