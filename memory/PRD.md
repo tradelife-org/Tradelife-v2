@@ -1,4 +1,4 @@
-# TradeLife v3 Audit PRD
+# TradeLife v3 Audit & Remediation PRD
 
 ## Original Problem Statement
 ACTIVATE: TradeLife v3 — Full System Audit Mode
@@ -20,6 +20,7 @@ Audit targets included database layer, backend logic, state machines, financial 
 - Completed a repo-wide system audit and saved the detailed report to `/app/memory/TRADELIFE_V3_AUDIT.md`.
 - Identified major failure zones: migration drift, public RLS leakage, incorrect revenue recognition, broken public quote acceptance, incomplete Stripe lifecycle, placeholder core modules, and missing DB objects used by live routes.
 - Produced an ordered high-impact remediation backlog to move the system toward a production-safe v3 baseline.
+- Produced a step-by-step remediation plan and saved it to `/app/memory/TRADELIFE_REMEDIATION_PLAN.md`.
 
 ## Prioritized Backlog
 
@@ -29,6 +30,7 @@ Audit targets included database layer, backend logic, state machines, financial 
 - Reimplement the financial engine so revenue is recognised only on payment receipt and refunds/disputes are represented properly.
 - Build verified Stripe webhook processing with idempotency and persisted payment events.
 - Collapse duplicate quote send/accept/job conversion flows into one deterministic state machine.
+- Replace critical placeholder core modules (quote create, finance, assistant, calendar, jobs detail, placeholder APIs) once the schema/security/money layers are stable.
 
 ### P1
 - Replace placeholder quote creation, calendar, assistant, finance, jobs detail, and integration routes with working modules.
@@ -42,4 +44,4 @@ Audit targets included database layer, backend logic, state machines, financial 
 - Expand automated testing around money, state transitions, and webhooks.
 
 ## Next Tasks
-- If you want, the next execution step should be a **P0 remediation pass** starting with: schema rebuild plan, security lockdown, and ledger/payment redesign.
+- If you want, the next execution step should be actual **P0 implementation**, starting with the schema baseline rebuild and security isolation lockdown.
