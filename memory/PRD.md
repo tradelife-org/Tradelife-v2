@@ -1,4 +1,4 @@
-# TradeLife v3 Audit, Remediation, Contracts & Schema PRD
+# TradeLife v3 Audit, Remediation, Contracts, Schema & Migration PRD
 
 ## Original Problem Statement
 ACTIVATE: TradeLife v3 — Full System Audit Mode
@@ -24,6 +24,7 @@ Audit targets included database layer, backend logic, state machines, financial 
 - Produced locked system contracts and saved them to `/app/memory/TRADELIFE_V3_SYSTEM_CONTRACTS.md`.
 - Produced the full v3 schema blueprint and saved it to `/app/memory/TRADELIFE_V3_SCHEMA_BLUEPRINT.md`.
 - Revised the schema blueprint so the canonical ledger categories are `COMMITTED_REVENUE`, `RECOGNISED_REVENUE`, `EXPENSE`, `VAT_OUTPUT`, and `VAT_INPUT`, and treated that revised blueprint as the locked schema blueprint.
+- Produced the migration specification pack and saved it to `/app/memory/TRADELIFE_V3_MIGRATION_SPEC_PACK.md`.
 
 ## Prioritized Backlog
 
@@ -36,6 +37,7 @@ Audit targets included database layer, backend logic, state machines, financial 
 - Replace critical placeholder core modules (quote create, finance, assistant, calendar, jobs detail, placeholder APIs) once the schema/security/money layers are stable.
 - Use the locked contracts file as the authoritative input before any schema rebuild begins.
 - Use the revised schema blueprint file as the authoritative table/enums/index/RLS/migration-order specification.
+- Use the migration specification pack as the authoritative structural dependency plan before writing SQL migrations.
 
 ### P1
 - Replace placeholder quote creation, calendar, assistant, finance, jobs detail, and integration routes with working modules.
@@ -49,4 +51,4 @@ Audit targets included database layer, backend logic, state machines, financial 
 - Expand automated testing around money, state transitions, and webhooks.
 
 ## Next Tasks
-- If you want, the next execution step should be turning `/app/memory/TRADELIFE_V3_SCHEMA_BLUEPRINT.md` into the actual migration plan file-by-file.
+- If you want, the next execution step should be authoring the actual SQL migration set from `/app/memory/TRADELIFE_V3_MIGRATION_SPEC_PACK.md`.
