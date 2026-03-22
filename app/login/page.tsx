@@ -25,17 +25,23 @@ export default function LoginPage() {
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4">
 
         {/* ═══ LOGO TREATMENT ═══ */}
-        <div className="mb-10 text-center relative" data-testid="logo-block">
+        <div className="mb-8 text-center relative" data-testid="logo-block">
 
-          <div className="relative inline-block px-8">
+          <div className="relative inline-block px-10">
+            {/* Environmental color influence */}
+            <div className="wordmark-env-cool" />
+            <div className="wordmark-env-warm" />
+
             {/* Core glow behind wordmark */}
             <div className="logo-core-glow" />
 
-            {/* Horizontal anamorphic flare */}
+            {/* Horizontal anamorphic flare — crisp line */}
             <div className="logo-flare" />
+            {/* Bloom layer — soft diffused glow behind flare */}
+            <div className="logo-flare-bloom" />
 
             <h1
-              className="tradelife-wordmark relative text-5xl md:text-[4rem] leading-tight"
+              className="tradelife-wordmark relative text-5xl md:text-[3.8rem] leading-tight"
               data-testid="tradelife-wordmark"
             >
               TradeLife
@@ -44,11 +50,11 @@ export default function LoginPage() {
 
           {/* Tagline with decorative lines */}
           <p
-            className="mt-3 text-sm tracking-[0.15em] text-white/55 flex items-center justify-center gap-3"
+            className="mt-2 text-xs tracking-[0.18em] text-white/40 flex items-center justify-center gap-3"
             data-testid="tradelife-tagline"
           >
             <span className="tagline-line" />
-            <span className="font-light">Built for trades</span>
+            <span className="font-light" style={{ color: 'rgba(235, 230, 225, 0.5)' }}>Built for trades</span>
             <span className="tagline-line" />
           </p>
         </div>
