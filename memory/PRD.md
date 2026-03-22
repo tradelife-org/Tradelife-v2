@@ -1,4 +1,4 @@
-# TradeLife v3 Audit, Remediation & Contracts PRD
+# TradeLife v3 Audit, Remediation, Contracts & Schema PRD
 
 ## Original Problem Statement
 ACTIVATE: TradeLife v3 — Full System Audit Mode
@@ -22,6 +22,7 @@ Audit targets included database layer, backend logic, state machines, financial 
 - Produced an ordered high-impact remediation backlog to move the system toward a production-safe v3 baseline.
 - Produced a step-by-step remediation plan and saved it to `/app/memory/TRADELIFE_REMEDIATION_PLAN.md`.
 - Produced locked system contracts and saved them to `/app/memory/TRADELIFE_V3_SYSTEM_CONTRACTS.md`.
+- Produced the full v3 schema blueprint and saved it to `/app/memory/TRADELIFE_V3_SCHEMA_BLUEPRINT.md`.
 
 ## Prioritized Backlog
 
@@ -33,6 +34,7 @@ Audit targets included database layer, backend logic, state machines, financial 
 - Collapse duplicate quote send/accept/job conversion flows into one deterministic state machine.
 - Replace critical placeholder core modules (quote create, finance, assistant, calendar, jobs detail, placeholder APIs) once the schema/security/money layers are stable.
 - Use the locked contracts file as the authoritative input before any schema rebuild begins.
+- Use the schema blueprint file as the authoritative table/enums/index/RLS/migration-order specification.
 
 ### P1
 - Replace placeholder quote creation, calendar, assistant, finance, jobs detail, and integration routes with working modules.
@@ -46,4 +48,4 @@ Audit targets included database layer, backend logic, state machines, financial 
 - Expand automated testing around money, state transitions, and webhooks.
 
 ## Next Tasks
-- If you want, the next execution step should be schema design directly from `/app/memory/TRADELIFE_V3_SYSTEM_CONTRACTS.md`.
+- If you want, the next execution step should be turning `/app/memory/TRADELIFE_V3_SCHEMA_BLUEPRINT.md` into the actual migration plan file-by-file.
