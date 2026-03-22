@@ -31,7 +31,7 @@ export default function LoginPage() {
             <div className="absolute left-1/2 top-1/2 w-[140px] h-[30px] -translate-x-1/2 -translate-y-1/2 bg-blue-400 blur-2xl opacity-40 rounded-full" />
 
             {/* ARC FLARE */}
-            <div className="absolute left-[-40%] right-[-40%] top-1/2 h-[4px] -translate-y-1/2 bg-gradient-to-r from-transparent via-blue-300 to-transparent blur-md opacity-100" />
+            <div className="absolute left-[-40%] right-[-40%] top-1/2 h-[6px] -translate-y-1/2 bg-gradient-to-r from-transparent via-blue-200 to-transparent blur-md opacity-100" />
 
             <h1 className="relative text-5xl md:text-6xl font-bold tracking-tight">
               TradeLife
@@ -45,16 +45,16 @@ export default function LoginPage() {
         {/* CARD */}
         <div className="relative w-full max-w-[340px] md:max-w-md">
 
-          <div className="relative rounded-2xl border border-white/10 bg-black/40 backdrop-blur-3xl p-6 shadow-[0_20px_80px_rgba(0,0,0,0.8)] overflow-hidden">
+          <div className="relative rounded-2xl border border-white/10 bg-black/20 backdrop-blur-2xl p-6 shadow-[0_20px_80px_rgba(0,0,0,0.8)] overflow-hidden">
 
             {/* 🔵 LEFT LIGHT */}
-            <div className="absolute -left-16 top-0 w-[200px] h-full bg-blue-500/25 blur-3xl" />
+            <div className="absolute -left-16 top-0 w-[200px] h-full bg-blue-500/40 blur-2xl" />
 
             {/* 🟠 RIGHT LIGHT */}
-            <div className="absolute -right-16 top-0 w-[200px] h-full bg-orange-400/25 blur-3xl" />
+            <div className="absolute -right-16 top-0 w-[200px] h-full bg-orange-400/40 blur-2xl" />
 
             {/* TOP EDGE LIGHT */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-[2px] bg-gradient-to-r from-transparent via-blue-300 to-transparent blur-md opacity-90" />
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-[2px] bg-gradient-to-r from-transparent via-blue-200 to-transparent blur-md opacity-90" />
 
             {/* BOTTOM GLOW */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-[3px] bg-orange-400 blur-xl opacity-50" />
