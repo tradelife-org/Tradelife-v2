@@ -1,132 +1,207 @@
 'use client'
 
 import { useState } from 'react'
-import { Eye, ArrowRight, ShieldCheck } from 'lucide-react'
+import { Eye, EyeOff, ArrowRight, ShieldCheck, Mail, Lock } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden text-white">
+    <div className="relative min-h-screen w-full overflow-hidden text-white" data-testid="login-page">
 
       {/* BACKGROUND */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: "url('/images/tradelife-bg.png')" }}
+        data-testid="login-background"
       />
 
-      {/* DEPTH */}
+      {/* DEPTH OVERLAY */}
       <div className="absolute inset-0 bg-black/25" />
 
       {/* CONTENT */}
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4">
 
-        {/* LOGO + ARC */}
-        <div className="mb-12 text-center relative">
+        {/* ═══ LOGO TREATMENT ═══ */}
+        <div className="mb-10 text-center relative" data-testid="logo-block">
 
-          <div className="relative inline-block px-6">
+          <div className="relative inline-block px-8">
+            {/* Core glow behind wordmark */}
+            <div className="logo-core-glow" />
 
-            {/* CORE LIGHT */}
-            <div className="absolute left-1/2 top-1/2 w-[140px] h-[30px] -translate-x-1/2 -translate-y-1/2 bg-blue-400 blur-2xl opacity-40 rounded-full" />
+            {/* Horizontal anamorphic flare */}
+            <div className="logo-flare" />
 
-            {/* ARC FLARE */}
-            <div className="absolute left-[-40%] right-[-40%] top-1/2 h-[6px] -translate-y-1/2 bg-gradient-to-r from-transparent via-blue-200 to-transparent blur-md opacity-100" />
-
-            <h1 className="relative text-5xl md:text-6xl font-bold tracking-tight">
+            <h1
+              className="tradelife-wordmark relative text-5xl md:text-[4rem] leading-tight"
+              data-testid="tradelife-wordmark"
+            >
               TradeLife
             </h1>
-
           </div>
 
-          <p className="text-white/70 mt-2">Built for trades</p>
+          {/* Tagline with decorative lines */}
+          <p
+            className="mt-3 text-sm tracking-[0.15em] text-white/55 flex items-center justify-center gap-3"
+            data-testid="tradelife-tagline"
+          >
+            <span className="tagline-line" />
+            <span className="font-light">Built for trades</span>
+            <span className="tagline-line" />
+          </p>
         </div>
 
-        {/* CARD */}
-        <div className="relative w-full max-w-[340px] md:max-w-md">
+        {/* ═══ GLASS SIGN-IN PANEL ═══ */}
+        <div className="perspective-container w-full max-w-[380px]" data-testid="login-panel-container">
 
-          <div className="relative rounded-2xl border border-white/10 bg-black/20 backdrop-blur-2xl p-6 shadow-[0_20px_80px_rgba(0,0,0,0.8)] overflow-hidden">
+          <div className="login-glass-panel rounded-2xl p-7" data-testid="login-glass-panel">
 
-            {/* 🔵 LEFT LIGHT */}
-            <div className="absolute -left-16 top-0 w-[200px] h-full bg-blue-500/40 blur-2xl" />
+            {/* Edge lighting */}
+            <div className="panel-edge-light-left" />
+            <div className="panel-edge-light-right" />
+            <div className="panel-ambient-left" />
+            <div className="panel-ambient-right" />
 
-            {/* 🟠 RIGHT LIGHT */}
-            <div className="absolute -right-16 top-0 w-[200px] h-full bg-orange-400/40 blur-2xl" />
+            {/* Bottom accent glows */}
+            <div className="panel-bottom-glow-left" />
+            <div className="panel-bottom-glow-right" />
 
-            {/* TOP EDGE LIGHT */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-[2px] bg-gradient-to-r from-transparent via-blue-200 to-transparent blur-md opacity-90" />
-
-            {/* BOTTOM GLOW */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-[3px] bg-orange-400 blur-xl opacity-50" />
-
+            {/* Panel content */}
             <div className="relative z-10">
 
-              <h2 className="text-xl font-semibold mb-4 text-center">
+              {/* Heading */}
+              <h2
+                className="text-xl font-semibold text-white mb-1"
+                data-testid="welcome-heading"
+              >
                 Welcome back
               </h2>
+              <p
+                className="text-sm text-white/45 mb-7"
+                data-testid="welcome-subtext"
+              >
+                Your command centre is ready
+              </p>
 
-              <form className="space-y-4">
+              <form className="space-y-5" data-testid="login-form">
 
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e)=>setEmail(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                />
-
-                <div className="relative">
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e)=>setPassword(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 pr-10 text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                  />
-                  <Eye className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                {/* Email field */}
+                <div>
+                  <label className="block text-xs font-medium text-white/60 mb-1.5 tracking-wide" data-testid="email-label">
+                    Email
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                    <input
+                      type="email"
+                      placeholder="you@company.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="login-input w-full py-3 pl-10 pr-4 text-sm"
+                      data-testid="email-input"
+                    />
+                  </div>
                 </div>
 
-                <div className="text-right text-sm">
-                  <a href="/forgot-password" className="text-blue-400 hover:underline">
-                    Forgot password?
-                  </a>
+                {/* Password field */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-medium text-white/60 tracking-wide" data-testid="password-label">
+                      Password
+                    </label>
+                    <a
+                      href="/forgot-password"
+                      className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                      data-testid="forgot-password-link"
+                    >
+                      Forgot password?
+                    </a>
+                  </div>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="login-input w-full py-3 pl-10 pr-10 text-sm"
+                      data-testid="password-input"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/50 transition-colors"
+                      data-testid="toggle-password-visibility"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
-                {/* BUTTON = LIGHT SOURCE */}
-                <button className="relative w-full bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition shadow-[0_0_40px_rgba(59,130,246,0.6)] group">
+                {/* Sign in button */}
+                <button
+                  type="submit"
+                  className="login-btn-primary w-full text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 group"
+                  data-testid="sign-in-button"
+                >
                   Sign in
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
-
-                  {/* LIGHT SPILL */}
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-40 blur-md" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
 
-                {/* DIVIDER */}
-                <div className="flex items-center gap-4 my-4">
-                  <div className="h-[1px] w-full bg-white/10"></div>
-                  <span className="text-[10px] text-gray-500 uppercase tracking-widest">OR</span>
-                  <div className="h-[1px] w-full bg-white/10"></div>
+                {/* OR divider */}
+                <div className="flex items-center gap-4" data-testid="or-divider">
+                  <div className="h-px flex-1 bg-white/8" />
+                  <span className="text-[10px] text-white/30 uppercase tracking-[0.2em]">OR</span>
+                  <div className="h-px flex-1 bg-white/8" />
                 </div>
 
-                <button className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white py-3 rounded-lg transition">
+                {/* Google button */}
+                <button
+                  type="button"
+                  className="login-btn-google w-full text-white font-medium py-3 flex items-center justify-center gap-2.5"
+                  data-testid="google-sign-in-button"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                  </svg>
                   Continue with Google
                 </button>
 
               </form>
 
-              <p className="text-center text-sm text-gray-400 mt-6">
-                Don’t have an account?{" "}
-                <a href="/signup" className="text-blue-400 hover:underline">
+              {/* Footer text */}
+              <p className="text-center text-sm text-white/35 mt-6" data-testid="signup-text">
+                Don&apos;t have an account?{' '}
+                <a
+                  href="/signup"
+                  className="text-blue-400 hover:text-blue-300 transition-colors"
+                  data-testid="signup-link"
+                >
                   Sign up
                 </a>
               </p>
-
             </div>
           </div>
+
+          {/* Ground shadow */}
+          <div className="panel-ground-shadow" data-testid="panel-ground-shadow" />
         </div>
 
-        <div className="mt-10 flex items-center gap-2 text-gray-500 text-xs uppercase tracking-widest">
-          <ShieldCheck className="w-3 h-3" />
+        {/* Secure enterprise access */}
+        <div
+          className="mt-10 flex items-center gap-2 text-white/30 text-xs uppercase tracking-[0.15em]"
+          data-testid="secure-enterprise-text"
+        >
+          <ShieldCheck className="w-3.5 h-3.5" />
           Secure enterprise access
         </div>
 

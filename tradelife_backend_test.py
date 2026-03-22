@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Dict, Any, List
 
 class TradeLifeBackendTester:
-    def __init__(self, base_url="https://auth-premium.preview.emergentagent.com"):
+    def __init__(self, base_url="https://tradelife-redesign.preview.emergentagent.com"):
         self.base_url = base_url
         self.tests_run = 0
         self.tests_passed = 0

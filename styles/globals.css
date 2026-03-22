@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import './tokens.css';
 
 @tailwind base;
@@ -150,6 +151,68 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
+   TRADELIFE WORDMARK
+   ═══════════════════════════════════════════════════════════ */
+
+.tradelife-wordmark {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #fff;
+  text-shadow:
+    0 0 30px rgba(180, 210, 255, 0.35),
+    0 0 60px rgba(120, 170, 255, 0.15),
+    0 0 100px rgba(80, 140, 255, 0.08);
+}
+
+/* Horizontal anamorphic light flare behind logo */
+.logo-flare {
+  position: absolute;
+  left: -50%;
+  right: -50%;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(180, 210, 255, 0.03) 15%,
+    rgba(180, 210, 255, 0.2) 35%,
+    rgba(220, 235, 255, 0.45) 48%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(220, 235, 255, 0.45) 52%,
+    rgba(180, 210, 255, 0.2) 65%,
+    rgba(180, 210, 255, 0.03) 85%,
+    transparent 100%
+  );
+  filter: blur(3px);
+  pointer-events: none;
+}
+
+/* Core glow behind the wordmark */
+.logo-core-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 200px;
+  height: 40px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse, rgba(140, 180, 255, 0.3) 0%, transparent 70%);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+/* Tagline decorative line */
+.tagline-line {
+  display: inline-block;
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  vertical-align: middle;
+}
+
+/* ═══════════════════════════════════════════════════════════
    PERSPECTIVE GLASS PANEL — Login panel with 3D depth
    ═══════════════════════════════════════════════════════════ */
 
@@ -160,21 +223,57 @@
 
 .login-glass-panel {
   position: relative;
-  background: rgba(12, 15, 22, 0.6);
-  backdrop-filter: blur(28px) saturate(1.2);
-  -webkit-backdrop-filter: blur(28px) saturate(1.2);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(8, 10, 18, 0.72);
+  backdrop-filter: blur(32px) saturate(1.15);
+  -webkit-backdrop-filter: blur(32px) saturate(1.15);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
   overflow: hidden;
-  transform: rotateX(2deg);
+  transform: rotateX(1.5deg);
   transform-origin: 50% 100%;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow:
+    0 25px 80px -12px rgba(0, 0, 0, 0.7),
+    0 0 0 0.5px rgba(255, 255, 255, 0.04);
 }
 
 .login-glass-panel:hover {
-  transform: rotateX(0.5deg);
+  transform: rotateX(0.8deg);
 }
 
-/* Left edge — cool blue tint from environment */
+/* Left ambient — cool blue from environment */
+.panel-ambient-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 80px;
+  background: linear-gradient(
+    to right,
+    rgba(59, 130, 246, 0.06) 0%,
+    transparent 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Right ambient — warm orange from environment */
+.panel-ambient-right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 80px;
+  background: linear-gradient(
+    to left,
+    rgba(245, 158, 50, 0.05) 0%,
+    transparent 100%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Left edge light line */
 .panel-edge-light-left {
   position: absolute;
   top: 0;
@@ -184,15 +283,15 @@
   background: linear-gradient(
     to bottom,
     transparent 5%,
-    rgba(59, 130, 246, 0.25) 30%,
-    rgba(59, 130, 246, 0.15) 70%,
+    rgba(59, 130, 246, 0.2) 30%,
+    rgba(59, 130, 246, 0.1) 70%,
     transparent 95%
   );
   z-index: 5;
   pointer-events: none;
 }
 
-/* Right edge — warm orange tint from environment */
+/* Right edge light line */
 .panel-edge-light-right {
   position: absolute;
   top: 0;
@@ -202,15 +301,15 @@
   background: linear-gradient(
     to bottom,
     transparent 5%,
-    rgba(245, 158, 50, 0.2) 30%,
-    rgba(245, 158, 50, 0.12) 70%,
+    rgba(245, 158, 50, 0.15) 30%,
+    rgba(245, 158, 50, 0.08) 70%,
     transparent 95%
   );
   z-index: 5;
   pointer-events: none;
 }
 
-/* Soft ambient glow cast onto panel from environment */
+/* Internal ambient wash on panel */
 .login-glass-panel::before {
   content: '';
   position: absolute;
@@ -218,12 +317,12 @@
   border-radius: inherit;
   background:
     linear-gradient(90deg,
-      rgba(59, 130, 246, 0.04) 0%,
-      transparent 30%,
-      transparent 70%,
-      rgba(245, 158, 50, 0.03) 100%
+      rgba(59, 130, 246, 0.03) 0%,
+      transparent 25%,
+      transparent 75%,
+      rgba(245, 158, 50, 0.02) 100%
     ),
-    linear-gradient(178deg, rgba(255, 255, 255, 0.025) 0%, transparent 25%);
+    linear-gradient(178deg, rgba(255, 255, 255, 0.02) 0%, transparent 20%);
   pointer-events: none;
   z-index: 1;
 }
@@ -233,14 +332,14 @@
   content: '';
   position: absolute;
   top: 0;
-  left: 10%;
-  right: 10%;
+  left: 8%;
+  right: 8%;
   height: 1px;
   background: linear-gradient(90deg,
     transparent,
-    rgba(59, 130, 246, 0.12),
+    rgba(59, 130, 246, 0.1),
     rgba(255, 255, 255, 0.06),
-    rgba(245, 158, 50, 0.08),
+    rgba(245, 158, 50, 0.06),
     transparent
   );
   pointer-events: none;
@@ -249,34 +348,108 @@
 
 /* Grounding shadow beneath the panel */
 .panel-ground-shadow {
-  width: 85%;
-  height: 20px;
+  width: 80%;
+  height: 24px;
   margin: 0 auto;
   border-radius: 50%;
   background: radial-gradient(ellipse at 50% 50%,
-    rgba(0, 0, 0, 0.35) 0%,
-    rgba(0, 0, 0, 0.15) 40%,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.18) 40%,
     transparent 70%
   );
-  filter: blur(8px);
-  transform: translateY(-6px);
+  filter: blur(10px);
+  transform: translateY(-8px);
   pointer-events: none;
 }
 
-/* Sign-in button — blue gradient with subtle glow */
+/* ═══════════════════════════════════════════════════════════
+   LOGIN FORM ELEMENTS
+   ═══════════════════════════════════════════════════════════ */
+
+.login-input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-input::placeholder {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+}
+
+/* Sign-in button — blue gradient with glow */
 .login-btn-primary {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
   box-shadow:
-    0 0 20px rgba(59, 130, 246, 0.15),
-    0 2px 8px rgba(0, 0, 0, 0.2);
+    0 0 24px rgba(59, 130, 246, 0.2),
+    0 0 48px rgba(59, 130, 246, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.25);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
+  pointer-events: none;
 }
 
 .login-btn-primary:hover {
   box-shadow:
-    0 0 28px rgba(59, 130, 246, 0.25),
-    0 4px 12px rgba(0, 0, 0, 0.25);
+    0 0 32px rgba(59, 130, 246, 0.3),
+    0 0 64px rgba(59, 130, 246, 0.12),
+    0 6px 16px rgba(0, 0, 0, 0.3);
   transform: translateY(-1px);
+}
+
+/* Google button */
+.login-btn-google {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.login-btn-google:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Bottom blue accent dots on panel */
+.panel-bottom-glow-left {
+  position: absolute;
+  bottom: 0;
+  left: 15%;
+  width: 6px;
+  height: 6px;
+  background: rgba(59, 130, 246, 0.7);
+  border-radius: 50%;
+  filter: blur(3px);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.panel-bottom-glow-right {
+  position: absolute;
+  bottom: 0;
+  right: 15%;
+  width: 6px;
+  height: 6px;
+  background: rgba(59, 130, 246, 0.7);
+  border-radius: 50%;
+  filter: blur(3px);
+  z-index: 5;
+  pointer-events: none;
 }
 
 /* ═══════════════════════════════════════════════════════════
