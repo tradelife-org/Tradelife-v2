@@ -1,40 +1,45 @@
-# TradeLife PRD
+# TradeLife v3 Audit PRD
 
 ## Original Problem Statement
-Visual refinement of the TradeLife login page to match a reference image. Only the logo treatment (TradeLife wordmark) and glass sign-in panel styling needed updating. No structural, route, or auth changes.
+ACTIVATE: TradeLife v3 — Full System Audit Mode
 
-## Architecture
-- **Framework**: Next.js 14 App Router
-- **Styling**: Tailwind CSS + custom CSS in `/app/styles/globals.css`
-- **Auth**: Pre-existing (Supabase-based), untouched
-- **Backend**: FastAPI on port 8001
-- **Frontend**: Next.js dev server on port 3000
+Perform a full, deep structural + functional + architectural audit of the current TradeLife codebase against:
+1. Current implementation (source of truth = codebase)
+2. TradeLife OLD blueprint
+3. TradeLife v3 MASTER blueprint
 
-## Core Requirements (Static)
-1. Recreate TradeLife logo with premium serif italic font + glow effects
-2. Recreate dark glass sign-in panel with perspective tilt and environmental lighting
-3. Match reference image for both elements
-4. Keep existing auth, routing, and functionality intact
+Audit targets included database layer, backend logic, state machines, financial engine correctness, Stripe, quote engine, scheduling, recurring logic, OCR, and AI system integrity.
 
-## What's Been Implemented (2026-03-22)
-- **Logo treatment**: Playfair Display italic wordmark (weight 500) with subtle white→cool-blue text gradient, cinematic light-bleed glow (triple drop-shadow), horizontal anamorphic flare + bloom layer, environmental warm/cool influence overlays, decorative tagline lines
-- **Glass panel**: Dark translucent glass (rgba 8,10,18,0.72), 32px backdrop blur, 1.5deg rotateX tilt, blue left edge + orange right edge lighting, top highlight, ground shadow
-- **Form elements**: Email/password fields with Mail/Lock icons, dark glass inputs, password visibility toggle, blue gradient Sign In button with glow, Google button with colored G icon, labeled fields, Forgot password link, OR divider, Sign up footer
-- **Wordmark redesign (iteration 4 — current)**: Upright serif (font-style: normal), Playfair Display weight 500, light-based depth gradient (#ffffff → #c8d8f0 → #f2f4f8), separate glow text-shadow layer for cinematic emission, 3-layer blue energy arc (3px crisp line + 16px bloom + 40px halo) rendered ON TOP with mix-blend-mode:screen, 700px wide arc container, environmental cool-left/warm-right blend, muted tagline with thin divider lines
+## Architecture Decisions
+- Treated the codebase itself as the only source of truth.
+- Audited the app as a **Next.js + Supabase system**, with `/app/backend/server.py` recognised as a thin proxy, not the domain backend.
+- Focused on migration definitions, server actions, route handlers, workers, and route/page wiring.
+- Kept the task read-only from a product/runtime perspective; only audit artifacts were written into `/app/memory`.
 
-## Files Changed
-- `/app/app/login/page.tsx` — Rewrote JSX structure with new styling classes, icons, labels, subtext
-- `/app/styles/globals.css` — Added Playfair Display font import + comprehensive login-specific CSS (wordmark, flare, glass panel, inputs, buttons)
+## What’s Been Implemented
+- Completed a repo-wide system audit and saved the detailed report to `/app/memory/TRADELIFE_V3_AUDIT.md`.
+- Identified major failure zones: migration drift, public RLS leakage, incorrect revenue recognition, broken public quote acceptance, incomplete Stripe lifecycle, placeholder core modules, and missing DB objects used by live routes.
+- Produced an ordered high-impact remediation backlog to move the system toward a production-safe v3 baseline.
 
-## Testing
-- 100% pass rate (20/20 tests) via testing agent iteration 32
-- All interactive elements verified: input fields, password toggle, links, buttons
-- No console errors
+## Prioritized Backlog
 
-## Backlog
-- P2: Add entrance animations (staggered reveal) for panel and form elements
-- P2: Add loading state for sign-in button
-- P3: Dark mode/theme consistency with rest of app
+### P0
+- Rebuild the database baseline to remove conflicting migrations (`job_wallet_ledger`, `quote_snapshots`) and establish one canonical schema.
+- Lock down public RLS/service-role exposure (`quotes`, `portal_invites`, auth/me fallback, org_id-trusting routes).
+- Reimplement the financial engine so revenue is recognised only on payment receipt and refunds/disputes are represented properly.
+- Build verified Stripe webhook processing with idempotency and persisted payment events.
+- Collapse duplicate quote send/accept/job conversion flows into one deterministic state machine.
+
+### P1
+- Replace placeholder quote creation, calendar, assistant, finance, jobs detail, and integration routes with working modules.
+- Enforce quote → job → invoice lineage everywhere; remove orphan/manual side paths.
+- Implement true scheduling states and conflict/resource logic.
+- Unify OCR/expense ingestion into one receipt-confirmation-to-ledger pipeline.
+
+### P2
+- Build goal engine, owner pay engine, recurring reminders, Start My Day, notifications engine, and full audit trail.
+- Replace mocked dashboard/AI surfaces with real live data.
+- Expand automated testing around money, state transitions, and webhooks.
 
 ## Next Tasks
-- None required for this visual refinement task — complete
+- If you want, the next execution step should be a **P0 remediation pass** starting with: schema rebuild plan, security lockdown, and ledger/payment redesign.
