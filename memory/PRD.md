@@ -1,72 +1,40 @@
-# TradeLife — PRD
+# TradeLife PRD
 
 ## Original Problem Statement
-Create a premium login page for TradeLife SaaS using a cinematic background image and clean UI overlay. Apply a global background system across all main routes (/login, /onboarding, /dashboard). Add 3D perspective panel with edge lighting. Fix build stability issues. Ensure Vercel compatibility.
+Visual refinement of the TradeLife login page to match a reference image. Only the logo treatment (TradeLife wordmark) and glass sign-in panel styling needed updating. No structural, route, or auth changes.
 
 ## Architecture
-- **Framework:** Next.js 14 (App Router)
-- **Styling:** Tailwind CSS + custom CSS tokens
-- **3D Engine:** Three.js / React Three Fiber (disabled, preserved for future)
-- **Auth:** Supabase (middleware exists, not connected on login page yet)
-- **Deployment:** Vercel
+- **Framework**: Next.js 14 App Router
+- **Styling**: Tailwind CSS + custom CSS in `/app/styles/globals.css`
+- **Auth**: Pre-existing (Supabase-based), untouched
+- **Backend**: FastAPI on port 8001
+- **Frontend**: Next.js dev server on port 3000
 
-## Core Requirements
-- Global cinematic background image across all routes
-- Dark radial gradient overlay (standard for login/onboarding, darker for dashboard)
-- Glassmorphism login panel with 3D perspective tilt
-- Edge lighting: blue left, warm orange right (matching environment)
-- Grounding shadow under panel
-- Email + Password fields, Forgot password, Sign In (blue gradient with glow), Google sign-in, Sign Up link
-- No orange UI elements — blue accent (#3b82f6) only
-- Three.js visual engine disabled but not deleted
-- Clean TypeScript build with no errors
+## Core Requirements (Static)
+1. Recreate TradeLife logo with premium serif italic font + glow effects
+2. Recreate dark glass sign-in panel with perspective tilt and environmental lighting
+3. Match reference image for both elements
+4. Keep existing auth, routing, and functionality intact
 
-## What's Been Implemented (Jan 2026)
-### Phase 1 — Login Page
-- [x] Premium login page at `/login` with uploaded background image
-- [x] Dark radial overlay (lighter center, darker edges)
-- [x] Glass panel with all form elements
-- [x] Removed turbopack config from `next.config.js`
-- [x] Removed VisualEngine import from `layout.tsx`
-- [x] Root `/` redirects to `/login`
+## What's Been Implemented (2026-03-22)
+- **Logo treatment**: Playfair Display italic wordmark with blue-white text glow, horizontal anamorphic flare, core glow behind text, decorative tagline lines
+- **Glass panel**: Dark translucent glass (rgba 8,10,18,0.72), 32px backdrop blur, 1.5deg rotateX tilt, blue left edge + orange right edge lighting, top highlight, ground shadow
+- **Form elements**: Email/password fields with Mail/Lock icons, dark glass inputs, password visibility toggle, blue gradient Sign In button with glow, Google button with colored G icon, labeled fields, Forgot password link, OR divider, Sign up footer
+- **Custom CSS added**: ~200 lines in styles/globals.css for wordmark, flare, panel, inputs, buttons
 
-### Phase 2 — Visual Refinement & System Unification
-- [x] Global `CinematicBackground` component with pathname-based overlay
-- [x] 3D perspective tilt on login glass panel (rotateX with perspective)
-- [x] Edge lighting: cool blue left, warm orange right
-- [x] Grounding shadow beneath panel
-- [x] Branding text glow effect
-- [x] Sign-in button glow effect
-- [x] Onboarding page uses global background (layout preserved)
-- [x] Dashboard uses global background with darker overlay (layout preserved)
-- [x] Consistent visual environment across all pages
-- [x] 100% test pass (18/18 tests)
-- [x] Zero TypeScript errors
+## Files Changed
+- `/app/app/login/page.tsx` — Rewrote JSX structure with new styling classes, icons, labels, subtext
+- `/app/styles/globals.css` — Added Playfair Display font import + comprehensive login-specific CSS (wordmark, flare, glass panel, inputs, buttons)
 
-## User Personas
-- Tradespeople (electricians, plumbers, builders)
-- Small business owners in trade industries
+## Testing
+- 100% pass rate (20/20 tests) via testing agent iteration 32
+- All interactive elements verified: input fields, password toggle, links, buttons
+- No console errors
 
-## Prioritized Backlog
-### P0 (Critical)
-- Connect Supabase authentication on login/signup
-- Implement signup flow
-- Implement forgot/reset password flow
+## Backlog
+- P2: Add entrance animations (staggered reveal) for panel and form elements
+- P2: Add loading state for sign-in button
+- P3: Dark mode/theme consistency with rest of app
 
-### P1 (Important)
-- Onboarding flow after first login
-- Dashboard page refinements
-
-### P2 (Nice to have)
-- Entrance animations on login panel
-- Mobile-optimized background image (smaller file)
-- Remember me / session persistence
-- Panel hover micro-interactions
-
-## Key Files
-- `/app/components/CinematicBackground.tsx` — global background system
-- `/app/app/login/page.tsx` — premium login with perspective panel
-- `/app/app/layout.tsx` — root layout with CinematicBackground
-- `/app/styles/globals.css` — perspective panel CSS, edge lighting, grounding
-- `/app/next.config.js` — clean Next.js 14 config (no turbopack)
-- `/app/public/login-bg.png` — uploaded cinematic background image
+## Next Tasks
+- None required for this visual refinement task — complete
