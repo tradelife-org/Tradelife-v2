@@ -468,3 +468,8 @@
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+/* GLOBAL GLASS SYSTEM */
+.glass {
+  @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl;
+}
