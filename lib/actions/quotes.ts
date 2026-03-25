@@ -12,6 +12,7 @@
 // ============================================================================
 
 import type { QuoteSection, Quote } from '../types/database';
+import { getFinanceDashboardData } from './finance';
 
 // ============================================================================
 // SECTION-LEVEL CALCULATIONS
@@ -279,17 +280,15 @@ export interface QuoteOutcomeLayer {
 export interface FullQuoteRecalcInput {
   vat_rate: number;  // x100
   sections: SectionInput[];
-  // Optional financial context — when provided, the outcome layer is computed.
-  financialContext?: RequiredMarginInput;
 }
 
 export interface FullQuoteRecalcResult {
   sections: SectionCalculation[];
   totals: QuoteTotalCalculation;
-  outcomeLayer?: QuoteOutcomeLayer;
+  outcomeLayer: QuoteOutcomeLayer;
 }
 
-export function recalculateQuote(input: FullQuoteRecalcInput): FullQuoteRecalcResult {
+export async function recalculateQuote(input: FullQuoteRecalcInput): Promise<FullQuoteRecalcResult> {
   const sections = input.sections.map(calculateSection);
 
   const totals = calculateQuoteTotals({
@@ -297,41 +296,45 @@ export function recalculateQuote(input: FullQuoteRecalcInput): FullQuoteRecalcRe
     vat_rate: input.vat_rate,
   });
 
-  // --- STEP 5: Integrate Margin Engine into existing flow ---
-  let outcomeLayer: QuoteOutcomeLayer | undefined;
+  // Fetch real financial data from ledger
+  const finance = await getFinanceDashboardData();
 
-  if (input.financialContext) {
-    const requiredMargin = calculateRequiredMargin(input.financialContext);
+  const financialContext: RequiredMarginInput = {
+    monthlyBurn: finance.burnRate,
+    targetRevenue: finance.burnRate * 1.3,
+    jobsPerMonth: 20,
+  };
 
-    const evaluation = evaluateQuote({
-      price: totals.quote_amount_net,
-      cost: totals.quote_total_cost,
-      requiredMargin,
-    });
+  const requiredMargin = calculateRequiredMargin(financialContext);
 
-    const projection = projectQuoteOutcome({
-      price: totals.quote_amount_net,
-      cost: totals.quote_total_cost,
-    });
+  const evaluation = evaluateQuote({
+    price: totals.quote_amount_net,
+    cost: totals.quote_total_cost,
+    requiredMargin,
+  });
 
-    const recommendedPrice = getRecommendedPrice(
-      totals.quote_total_cost,
-      requiredMargin,
-    );
+  const projection = projectQuoteOutcome({
+    price: totals.quote_amount_net,
+    cost: totals.quote_total_cost,
+  });
 
-    outcomeLayer = {
-      outcome: {
-        status: evaluation.status,
-        requiredMargin: evaluation.requiredMargin,
-        actualMargin: evaluation.margin,
-        profit: evaluation.profit,
-      },
-      projection,
-      recommendation: {
-        price: recommendedPrice,
-      },
-    };
-  }
+  const recommendedPrice = getRecommendedPrice(
+    totals.quote_total_cost,
+    requiredMargin,
+  );
+
+  const outcomeLayer: QuoteOutcomeLayer = {
+    outcome: {
+      status: evaluation.status,
+      requiredMargin: evaluation.requiredMargin,
+      actualMargin: evaluation.margin,
+      profit: evaluation.profit,
+    },
+    projection,
+    recommendation: {
+      price: recommendedPrice,
+    },
+  };
 
   return { sections, totals, outcomeLayer };
 }

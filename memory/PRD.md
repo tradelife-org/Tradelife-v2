@@ -93,3 +93,10 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] runway = cash / monthlyBurn (months, floored) or 0
 - [x] Pot values = totalRevenue * allocation_percentage / 10000
 - [x] All hardcoded zeros removed
+
+## Quote ↔ Finance Wiring (Jan 2026)
+- [x] `recalculateQuote` now `async` — fetches real ledger data via `getFinanceDashboardData()`
+- [x] `financialContext` built from: `burnRate`, `burnRate * 1.3` (target), `jobsPerMonth: 20`
+- [x] outcomeLayer ALWAYS computed (no conditional, non-optional in return type)
+- [x] Return includes: outcome (status/requiredMargin/actualMargin/profit), projection, recommendation
+- [x] All pure calculation functions unchanged
