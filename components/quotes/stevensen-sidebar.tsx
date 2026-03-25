@@ -141,6 +141,22 @@ export default function StevensenProfitSidebar({
               <p className="text-xs text-slate-400" data-testid="recommended-price">
                 Recommended price: <span className="font-mono text-white font-medium">{formatPence(outcomeLayer.recommendation.price)}</span>
               </p>
+              <div className="mt-3 pt-3 border-t border-slate-700/50 space-y-1.5" data-testid="projection-block">
+                <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">If repeated (10 jobs):</p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                  <span className="text-slate-400">Revenue</span>
+                  <span className="text-right font-mono text-slate-300" data-testid="projection-revenue">{formatPence(outcomeLayer.projection.totalRevenue)}</span>
+                  <span className="text-slate-400">Profit</span>
+                  <span className="text-right font-mono text-slate-300" data-testid="projection-profit">{formatPence(outcomeLayer.projection.totalProfit)}</span>
+                  <span className="text-slate-400">Avg profit/job</span>
+                  <span className="text-right font-mono text-slate-300" data-testid="projection-avg-profit">{formatPence(outcomeLayer.projection.avgProfitPerJob)}</span>
+                </div>
+                {outcomeLayer.projection.avgProfitPerJob < outcomeLayer.outcome.profit && (
+                  <p className="text-xs text-red-400/90 pt-1" data-testid="low-profit-warning">
+                    You are working below your target level
+                  </p>
+                )}
+              </div>
             </div>
           )}
         </div>
