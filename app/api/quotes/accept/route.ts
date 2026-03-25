@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
   const { error } = await supabase
     .from('quotes')
-    .update({ status: 'accepted' })
+    .update({ status: 'ACCEPTED' })
     .eq('id', quoteId)
 
   if (error) {

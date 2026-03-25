@@ -113,3 +113,7 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] outcomeLayer sourced from `result.outcomeLayer` — single source of truth
 - [x] UI display unchanged — sidebar still receives outcomeLayer prop
 - [x] Backend logic untouched
+
+## Quote Accept Enum Fix (Jan 2026)
+- [x] Fixed `status: 'accepted'` → `status: 'ACCEPTED'` in `/api/quotes/accept/route.ts`
+- [x] Matches DB ENUM (DRAFT/SENT/ACCEPTED/DECLINED)
