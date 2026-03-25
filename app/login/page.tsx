@@ -1,12 +1,48 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createBrowserClient } from '@supabase/ssr'
 import { Eye, EyeOff, ArrowRight, ShieldCheck, Mail, Lock } from 'lucide-react'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function handleLogin(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+    if (!email.trim() || !password.trim()) {
+      setError('Please enter both email and password.')
+      return
+    }
+    setLoading(true)
+    try {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      })
+      if (authError) {
+        console.error('Login failed:', authError.message)
+        setError(authError.message)
+        setLoading(false)
+        return
+      }
+      router.push('/quotes/create')
+    } catch (err) {
+      console.error('Login error:', err)
+      setError('Something went wrong. Please try again.')
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden text-white" data-testid="login-page">
@@ -106,7 +142,18 @@ export default function LoginPage() {
                 Your command centre is ready
               </p>
 
-              <form className="space-y-5" data-testid="login-form">
+              <form onSubmit={handleLogin} className="space-y-5" data-testid="login-form">
+
+                {/* Error message */}
+                {error && (
+                  <div
+                    className="text-sm px-4 py-3 rounded-lg"
+                    style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#fca5a5' }}
+                    data-testid="login-error"
+                  >
+                    {error}
+                  </div>
+                )}
 
                 {/* Email field */}
                 <div>
@@ -168,11 +215,12 @@ export default function LoginPage() {
                 {/* Sign in button */}
                 <button
                   type="submit"
+                  disabled={loading}
                   className="login-btn-primary w-full text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 group"
                   data-testid="sign-in-button"
                 >
-                  Sign in
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  {loading ? 'Signing in...' : 'Sign in'}
+                  {!loading && <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
                 </button>
 
                 {/* OR divider */}
@@ -185,6 +233,17 @@ export default function LoginPage() {
                 {/* Google button */}
                 <button
                   type="button"
+                  onClick={async () => {
+                    const supabase = createBrowserClient(
+                      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                    )
+                    const { error: oauthErr } = await supabase.auth.signInWithOAuth({
+                      provider: 'google',
+                      options: { redirectTo: `${window.location.origin}/auth/callback?next=/quotes/create` },
+                    })
+                    if (oauthErr) console.error('Google OAuth error:', oauthErr.message)
+                  }}
                   className="login-btn-google w-full text-white font-medium py-3 flex items-center justify-center gap-2.5"
                   data-testid="google-sign-in-button"
                 >

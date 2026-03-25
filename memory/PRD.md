@@ -59,3 +59,13 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - P1: Wire financialContext from getDashboardMetrics() into quote creation
 - P1: Surface outcomeLayer (status badge, recommended price) in quote builder UI
 - P2: Add per-section outcome evaluation
+
+## Login Fix (Jan 2026)
+- [x] Added `handleLogin` with `supabase.auth.signInWithPassword({ email, password })`
+- [x] Wired `onSubmit={handleLogin}` to form, `e.preventDefault()` included
+- [x] On success → `router.push('/quotes/create')`
+- [x] On failure → error displayed in UI via `login-error` div, logged to console, no crash
+- [x] Loading state: button disabled + "Signing in..." text during auth call
+- [x] Google OAuth: wired `signInWithOAuth({ provider: 'google' })` with redirect to `/auth/callback`
+- [x] Signup page NOT modified. Middleware NOT modified. Backend NOT modified.
+- [x] 35/35 existing quote engine tests still pass (no regressions)
