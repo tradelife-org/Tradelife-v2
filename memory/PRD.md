@@ -140,3 +140,8 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] Desktop inline nav added (visible on lg+)
 - [x] /quotes/page.tsx: server component fetching real quotes from Supabase, displaying list with status/amount/profit
 - [x] AppShell: now wraps children with TopBar + main container
+
+## Dashboard + Navigation Flow (Jan 2026)
+- [x] `/` (page.tsx): Server component — auth check, redirects to /login if unauthenticated, shows dashboard with nav cards (Quotes, Jobs, Finance, Invoices)
+- [x] `/quotes` (page.tsx): Already functional — fetches quotes from Supabase, links to /quotes/[id]
+- [x] Full flow: Login → Dashboard → Quotes → Quote Detail (with outcome system)
