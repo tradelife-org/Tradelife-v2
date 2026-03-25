@@ -69,3 +69,11 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] Google OAuth: wired `signInWithOAuth({ provider: 'google' })` with redirect to `/auth/callback`
 - [x] Signup page NOT modified. Middleware NOT modified. Backend NOT modified.
 - [x] 35/35 existing quote engine tests still pass (no regressions)
+
+## Middleware Re-enabled (Jan 2026)
+- [x] Restored auth middleware from backup pattern
+- [x] Fixed `setAll` bug: `res` now properly reassigned so refreshed cookies are returned to browser
+- [x] Public routes: `/login`, `/signup`, `/auth/callback` (exact + prefix match)
+- [x] API routes excluded from matcher (`api/`) — webhooks, crons, public endpoints unaffected
+- [x] All unauthenticated non-public requests → redirect to `/login`
+- [x] Backup file untouched
