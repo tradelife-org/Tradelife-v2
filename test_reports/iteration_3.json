@@ -4,7 +4,7 @@
     "critical_bugs": [
       {
         "endpoint": "All API routes via external URL",
-        "issue": "502 Bad Gateway - APIs not accessible via public URL https://tradelife-controlled.preview.emergentagent.com/api/*",
+        "issue": "502 Bad Gateway - APIs not accessible via public URL https://code-audit-66.preview.emergentagent.com/api/*",
         "impact": "Users cannot classify transactions - core functionality broken",
         "fix_priority": "CRITICAL",
         "details": "APIs work locally (localhost:3000) but fail with 502 through external URL. Frontend shows 'The preview environment is not responding' error."

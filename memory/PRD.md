@@ -1,54 +1,48 @@
-# TradeLife v3 Audit, Remediation, Contracts, Schema & Migration PRD
+# TradeLife - Codebase Forensic Audit PRD
 
 ## Original Problem Statement
-ACTIVATE: TradeLife v3 — Full System Audit Mode
+Full forensic audit of the TradeLife repository — inspect entire codebase and report ONLY what is ACTUALLY implemented in code across Auth, Ledger, Finance Calculations, Jobs & Quotes, Integrations, and API/Backend structure.
 
-Perform a full, deep structural + functional + architectural audit of the current TradeLife codebase against:
-1. Current implementation (source of truth = codebase)
-2. TradeLife OLD blueprint
-3. TradeLife v3 MASTER blueprint
+## Architecture
+- **Framework**: Next.js (App Router) with TypeScript
+- **Auth**: Supabase Auth (email/password + Google OAuth)
+- **Database**: Supabase PostgreSQL with 28 migrations
+- **Integrations**: Xero, Plaid, Stripe, Twilio, Resend, Gemini AI, OpenAI
+- **Currency Convention**: All monetary values BIGINT (pence), percentages x100
 
-Audit targets included database layer, backend logic, state machines, financial engine correctness, Stripe, quote engine, scheduling, recurring logic, OCR, and AI system integrity.
+## What's Been Implemented (Jan 2026)
+- [x] Full forensic audit completed
+- [x] Auth system: Supabase Auth, signup flow, OAuth callback, profile auto-creation
+- [x] Ledger: job_wallet_ledger with 10 event categories, job_wallets, money_pots, cashflow_entries, payment_records, burn_rate_snapshots, bank_transactions
+- [x] Finance: Burn rate, runway, wallet balance, net position, retention tracking calculations
+- [x] Quotes: Full pricing engine (section + quote + line item calculations), templates, upsells, snapshots, immutability
+- [x] Jobs: Full lifecycle schema, variations (Can You Just), materials, timeline
+- [x] Invoices: Create, send, mark paid with ledger entries
+- [x] Integrations: Xero OAuth + sync, Plaid banking, Stripe payments/Connect, Twilio voice/SMS, Gemini/OpenAI AI
 
-## Architecture Decisions
-- Treated the codebase itself as the only source of truth.
-- Audited the app as a **Next.js + Supabase system**, with `/app/backend/server.py` recognised as a thin proxy, not the domain backend.
-- Focused on migration definitions, server actions, route handlers, workers, and route/page wiring.
-- Kept the task read-only from a product/runtime perspective; only audit artifacts were written into `/app/memory`.
-
-## What’s Been Implemented
-- Completed a repo-wide system audit and saved the detailed report to `/app/memory/TRADELIFE_V3_AUDIT.md`.
-- Identified major failure zones: migration drift, public RLS leakage, incorrect revenue recognition, broken public quote acceptance, incomplete Stripe lifecycle, placeholder core modules, and missing DB objects used by live routes.
-- Produced an ordered high-impact remediation backlog to move the system toward a production-safe v3 baseline.
-- Produced a step-by-step remediation plan and saved it to `/app/memory/TRADELIFE_REMEDIATION_PLAN.md`.
-- Produced locked system contracts and saved them to `/app/memory/TRADELIFE_V3_SYSTEM_CONTRACTS.md`.
-- Produced the full v3 schema blueprint and saved it to `/app/memory/TRADELIFE_V3_SCHEMA_BLUEPRINT.md`.
-- Revised the schema blueprint so the canonical ledger categories are `COMMITTED_REVENUE`, `RECOGNISED_REVENUE`, `EXPENSE`, `VAT_OUTPUT`, and `VAT_INPUT`, and treated that revised blueprint as the locked schema blueprint.
-- Produced the migration specification pack and saved it to `/app/memory/TRADELIFE_V3_MIGRATION_SPEC_PACK.md`.
+## Critical Gaps Found
+- P0: Login page has no submit handler (UI only)
+- P0: Middleware disabled (no route protection)
+- P0: /api/quotes/accept uses lowercase 'accepted' vs DB ENUM 'ACCEPTED'
+- P1: getFinanceDashboardData() returns hardcoded zeros
+- P1: Stripe webhook logs but processes nothing
+- P1: /api/quotes and /api/jobs GET routes are placeholders
+- P2: processCallRecording() is empty
+- P2: /api/auth/me returns data without session (dev fallback)
+- P2: No minimum/target revenue calculations
 
 ## Prioritized Backlog
+### P0 - Critical
+1. Fix login page submit handler
+2. Re-enable auth middleware
+3. Fix quote accept API enum casing
 
-### P0
-- Rebuild the database baseline to remove conflicting migrations (`job_wallet_ledger`, `quote_snapshots`) and establish one canonical schema.
-- Lock down public RLS/service-role exposure (`quotes`, `portal_invites`, auth/me fallback, org_id-trusting routes).
-- Reimplement the financial engine so revenue is recognised only on payment receipt and refunds/disputes are represented properly.
-- Build verified Stripe webhook processing with idempotency and persisted payment events.
-- Collapse duplicate quote send/accept/job conversion flows into one deterministic state machine.
-- Replace critical placeholder core modules (quote create, finance, assistant, calendar, jobs detail, placeholder APIs) once the schema/security/money layers are stable.
-- Use the locked contracts file as the authoritative input before any schema rebuild begins.
-- Use the revised schema blueprint file as the authoritative table/enums/index/RLS/migration-order specification.
-- Use the migration specification pack as the authoritative structural dependency plan before writing SQL migrations.
+### P1 - High
+4. Implement getFinanceDashboardData() calculations
+5. Wire Stripe webhook processing (payment_intent.succeeded → markInvoicePaid)
+6. Implement /api/quotes and /api/jobs GET routes
 
-### P1
-- Replace placeholder quote creation, calendar, assistant, finance, jobs detail, and integration routes with working modules.
-- Enforce quote → job → invoice lineage everywhere; remove orphan/manual side paths.
-- Implement true scheduling states and conflict/resource logic.
-- Unify OCR/expense ingestion into one receipt-confirmation-to-ledger pipeline.
-
-### P2
-- Build goal engine, owner pay engine, recurring reminders, Start My Day, notifications engine, and full audit trail.
-- Replace mocked dashboard/AI surfaces with real live data.
-- Expand automated testing around money, state transitions, and webhooks.
-
-## Next Tasks
-- If you want, the next execution step should be authoring the actual SQL migration set from `/app/memory/TRADELIFE_V3_MIGRATION_SPEC_PACK.md`.
+### P2 - Medium
+7. Implement call recording transcription
+8. Secure /api/auth/me endpoint
+9. Add minimum/target revenue calculations
