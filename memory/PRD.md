@@ -133,3 +133,10 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] Added `-webkit-text-fill-color: #fff` and `caret-color: #fff` to `.login-input`
 - [x] Added `:-webkit-autofill` override to prevent browser autofill from making text invisible
 - [x] No layout/structure changes
+
+## Navigation Fix (Jan 2026)
+- [x] TopBar: hamburger button now has `useState(open)` + `onClick` toggle
+- [x] Mobile menu renders when open with all nav links (Dashboard, Quotes, Jobs, Invoices, Clients, Finance, Settings)
+- [x] Desktop inline nav added (visible on lg+)
+- [x] /quotes/page.tsx: server component fetching real quotes from Supabase, displaying list with status/amount/profit
+- [x] AppShell: now wraps children with TopBar + main container
