@@ -107,3 +107,9 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] Displays: status (OK/WARNING/DANGEROUS), required margin %, actual margin %
 - [x] WARNING/DANGEROUS: shows "This job is below your required margin" + recommended price
 - [x] No layout changes, no new components, no chart/visuals — simple text block in existing sidebar
+
+## Removed Duplicate Calculations from UI (Jan 2026)
+- [x] Replaced 5 individual function calls (calculateRequiredMargin, evaluateQuote, projectQuoteOutcome, getRecommendedPrice, getFinanceDashboardData) with single `recalculateQuote()` call
+- [x] outcomeLayer sourced from `result.outcomeLayer` — single source of truth
+- [x] UI display unchanged — sidebar still receives outcomeLayer prop
+- [x] Backend logic untouched
