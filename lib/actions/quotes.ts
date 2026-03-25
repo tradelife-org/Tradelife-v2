@@ -12,7 +12,6 @@
 // ============================================================================
 
 import type { QuoteSection, Quote } from '../types/database';
-import { getFinanceDashboardData } from './finance';
 
 // ============================================================================
 // SECTION-LEVEL CALCULATIONS
@@ -288,22 +287,13 @@ export interface FullQuoteRecalcResult {
   outcomeLayer: QuoteOutcomeLayer;
 }
 
-export async function recalculateQuote(input: FullQuoteRecalcInput): Promise<FullQuoteRecalcResult> {
+export function recalculateQuote(input: FullQuoteRecalcInput, financialContext: RequiredMarginInput): FullQuoteRecalcResult {
   const sections = input.sections.map(calculateSection);
 
   const totals = calculateQuoteTotals({
     sections,
     vat_rate: input.vat_rate,
   });
-
-  // Fetch real financial data from ledger
-  const finance = await getFinanceDashboardData();
-
-  const financialContext: RequiredMarginInput = {
-    monthlyBurn: finance.burnRate,
-    targetRevenue: finance.burnRate * 1.3,
-    jobsPerMonth: 20,
-  };
 
   const requiredMargin = calculateRequiredMargin(financialContext);
 

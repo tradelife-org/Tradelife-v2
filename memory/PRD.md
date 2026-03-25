@@ -117,3 +117,9 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 ## Quote Accept Enum Fix (Jan 2026)
 - [x] Fixed `status: 'accepted'` → `status: 'ACCEPTED'` in `/api/quotes/accept/route.ts`
 - [x] Matches DB ENUM (DRAFT/SENT/ACCEPTED/DECLINED)
+
+## Decouple Finance from Quote Calculation (Jan 2026)
+- [x] Removed `getFinanceDashboardData` import from quotes.ts
+- [x] `recalculateQuote` now sync: `(input, financialContext) => FullQuoteRecalcResult`
+- [x] Finance fetching moved to caller (page.tsx) — passed as explicit parameter
+- [x] quotes.ts is pure again — no side effects, no async, no DB calls
