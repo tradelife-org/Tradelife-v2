@@ -143,6 +143,135 @@ export function percentageToStored(percentage: number): number {
 }
 
 // ============================================================================
+// MARGIN ENGINE — STEP 1: REQUIRED MARGIN
+// Derives the margin a quote MUST hit based on financial state.
+// ============================================================================
+
+export interface RequiredMarginInput {
+  monthlyBurn: number;       // pence — monthly expenses from ledger
+  targetRevenue?: number;    // pence — explicit revenue goal (optional)
+  jobsPerMonth: number;      // avg jobs completed per month
+}
+
+export function calculateRequiredMargin(input: RequiredMarginInput): number {
+  const { monthlyBurn, targetRevenue, jobsPerMonth } = input;
+
+  const jobs = Math.max(jobsPerMonth, 1);
+  const requiredRevenue = (targetRevenue && targetRevenue > 0)
+    ? targetRevenue
+    : monthlyBurn;
+
+  const avgRevenuePerJob = requiredRevenue / jobs;
+
+  // Assume avg cost ≈ revenue minus burn-derived profit need.
+  // Simplification: avgCost = monthlyBurn / jobs (the expense each job must cover).
+  const avgCostPerJob = monthlyBurn / jobs;
+
+  if (avgRevenuePerJob <= 0) return 0;
+
+  const margin = (avgRevenuePerJob - avgCostPerJob) / avgRevenuePerJob;
+
+  // Clamp to [0, 1] — negative margin means burn exceeds target, return 0.
+  return Math.max(0, Math.min(margin, 1));
+}
+
+// ============================================================================
+// MARGIN ENGINE — STEP 2: OUTCOME EVALUATION
+// Grades a quote as OK / WARNING / DANGEROUS against required margin.
+// ============================================================================
+
+export type QuoteOutcomeStatus = 'OK' | 'WARNING' | 'DANGEROUS';
+
+export interface QuoteEvaluationInput {
+  price: number;            // pence — quote_amount_net
+  cost: number;             // pence — quote_total_cost
+  requiredMargin: number;   // decimal 0-1
+}
+
+export interface QuoteEvaluation {
+  profit: number;           // pence
+  margin: number;           // decimal 0-1
+  requiredMargin: number;   // decimal 0-1
+  status: QuoteOutcomeStatus;
+}
+
+export function evaluateQuote(input: QuoteEvaluationInput): QuoteEvaluation {
+  const { price, cost, requiredMargin } = input;
+
+  const profit = price - cost;
+  const margin = price > 0 ? profit / price : 0;
+
+  let status: QuoteOutcomeStatus;
+
+  if (margin >= requiredMargin) {
+    status = 'OK';
+  } else if (margin >= requiredMargin - 0.05) {
+    status = 'WARNING';
+  } else {
+    status = 'DANGEROUS';
+  }
+
+  return { profit, margin, requiredMargin, status };
+}
+
+// ============================================================================
+// MARGIN ENGINE — STEP 3: PROJECTION
+// Projects financial outcome across N jobs at current quote metrics.
+// ============================================================================
+
+export interface ProjectionInput {
+  price: number;    // pence — quote_amount_net
+  cost: number;     // pence — quote_total_cost
+  jobs?: number;    // number of projected jobs (default 10)
+}
+
+export interface QuoteProjection {
+  totalRevenue: number;     // pence
+  totalProfit: number;      // pence
+  avgProfitPerJob: number;  // pence
+}
+
+export function projectQuoteOutcome(input: ProjectionInput): QuoteProjection {
+  const jobs = Math.max(input.jobs ?? 10, 1);
+  const profitPerJob = input.price - input.cost;
+
+  return {
+    totalRevenue: input.price * jobs,
+    totalProfit: profitPerJob * jobs,
+    avgProfitPerJob: profitPerJob,
+  };
+}
+
+// ============================================================================
+// MARGIN ENGINE — STEP 4: RECOMMENDED PRICE
+// Calculates the minimum price to hit required margin.
+// ============================================================================
+
+export function getRecommendedPrice(cost: number, requiredMargin: number): number {
+  // price = cost / (1 - requiredMargin)
+  // Guard: if requiredMargin >= 1, return cost * 2 as sane ceiling.
+  if (requiredMargin >= 1) return cost * 2;
+  return Math.round(cost / (1 - requiredMargin));
+}
+
+// ============================================================================
+// MARGIN ENGINE — COMPOSITE OUTPUT
+// ============================================================================
+
+export interface QuoteOutcomeLayer {
+  outcome: {
+    status: QuoteOutcomeStatus;
+    requiredMargin: number;    // decimal 0-1
+    actualMargin: number;      // decimal 0-1
+    profit: number;            // pence
+  };
+  projection: QuoteProjection;
+  recommendation: {
+    price: number;             // pence — minimum price to hit required margin
+  };
+}
+
+// ============================================================================
 // FULL QUOTE RECALCULATION
 // Orchestrates the complete recalculation of a quote from raw section inputs.
 // ============================================================================
@@ -150,11 +279,14 @@ export function percentageToStored(percentage: number): number {
 export interface FullQuoteRecalcInput {
   vat_rate: number;  // x100
   sections: SectionInput[];
+  // Optional financial context — when provided, the outcome layer is computed.
+  financialContext?: RequiredMarginInput;
 }
 
 export interface FullQuoteRecalcResult {
   sections: SectionCalculation[];
   totals: QuoteTotalCalculation;
+  outcomeLayer?: QuoteOutcomeLayer;
 }
 
 export function recalculateQuote(input: FullQuoteRecalcInput): FullQuoteRecalcResult {
@@ -165,5 +297,41 @@ export function recalculateQuote(input: FullQuoteRecalcInput): FullQuoteRecalcRe
     vat_rate: input.vat_rate,
   });
 
-  return { sections, totals };
+  // --- STEP 5: Integrate Margin Engine into existing flow ---
+  let outcomeLayer: QuoteOutcomeLayer | undefined;
+
+  if (input.financialContext) {
+    const requiredMargin = calculateRequiredMargin(input.financialContext);
+
+    const evaluation = evaluateQuote({
+      price: totals.quote_amount_net,
+      cost: totals.quote_total_cost,
+      requiredMargin,
+    });
+
+    const projection = projectQuoteOutcome({
+      price: totals.quote_amount_net,
+      cost: totals.quote_total_cost,
+    });
+
+    const recommendedPrice = getRecommendedPrice(
+      totals.quote_total_cost,
+      requiredMargin,
+    );
+
+    outcomeLayer = {
+      outcome: {
+        status: evaluation.status,
+        requiredMargin: evaluation.requiredMargin,
+        actualMargin: evaluation.margin,
+        profit: evaluation.profit,
+      },
+      projection,
+      recommendation: {
+        price: recommendedPrice,
+      },
+    };
+  }
+
+  return { sections, totals, outcomeLayer };
 }

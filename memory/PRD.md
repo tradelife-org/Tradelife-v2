@@ -46,3 +46,16 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 7. Implement call recording transcription
 8. Secure /api/auth/me endpoint
 9. Add minimum/target revenue calculations
+
+## Margin Engine Extension (Jan 2026)
+- [x] `calculateRequiredMargin()` — burn/target/jobs → decimal margin
+- [x] `evaluateQuote()` — OK/WARNING/DANGEROUS grading
+- [x] `projectQuoteOutcome()` — N-job financial projection
+- [x] `getRecommendedPrice()` — cost / (1 - margin)
+- [x] `recalculateQuote()` extended with optional `financialContext` → `outcomeLayer`
+- [x] 57/57 tests pass, zero regressions
+
+### Next Steps
+- P1: Wire financialContext from getDashboardMetrics() into quote creation
+- P1: Surface outcomeLayer (status badge, recommended price) in quote builder UI
+- P2: Add per-section outcome evaluation
