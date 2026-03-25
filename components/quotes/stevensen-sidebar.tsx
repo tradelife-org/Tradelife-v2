@@ -1,5 +1,11 @@
 import { GlassPanel } from '@/components/ui/glass-panel'
-import { AlertTriangle, TrendingUp, AlertCircle, ShieldCheck } from 'lucide-react'
+import { AlertTriangle, TrendingUp, AlertCircle, ShieldCheck, Target } from 'lucide-react'
+
+interface OutcomeLayer {
+  outcome: { status: 'OK' | 'WARNING' | 'DANGEROUS'; requiredMargin: number; actualMargin: number; profit: number }
+  projection: { totalRevenue: number; totalProfit: number; avgProfitPerJob: number }
+  recommendation: { price: number }
+}
 
 interface ProfitSidebarProps {
   sections: any[]
@@ -8,6 +14,7 @@ interface ProfitSidebarProps {
   quoteAmountNet: number
   marginPercentage: number
   marginFloor: number // 2000 = 20%
+  outcomeLayer?: OutcomeLayer | null
 }
 
 export default function StevensenProfitSidebar({
@@ -16,7 +23,8 @@ export default function StevensenProfitSidebar({
   quoteTotalCost,
   quoteAmountNet,
   marginPercentage,
-  marginFloor
+  marginFloor,
+  outcomeLayer
 }: ProfitSidebarProps) {
   
   const formatPence = (p: number) => (p / 100).toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })
@@ -98,6 +106,45 @@ export default function StevensenProfitSidebar({
         <BreakdownRow label="Subcontract" amount={breakdown.subcontract} total={totalCost} color="bg-purple-500" />
         <BreakdownRow label="Other / Upsells" amount={breakdown.other} total={totalCost} color="bg-slate-500" />
       </div>
+
+      {/* Quote Outcome Assessment */}
+      {outcomeLayer && (
+        <div className="space-y-3" data-testid="quote-outcome-block">
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-700 pb-2">
+            Quote Outcome
+          </p>
+          <div className="flex items-center gap-2">
+            <Target className="w-4 h-4 text-slate-400" />
+            <span className={`text-sm font-bold ${
+              outcomeLayer.outcome.status === 'OK' ? 'text-emerald-400' :
+              outcomeLayer.outcome.status === 'WARNING' ? 'text-amber-400' :
+              'text-red-400'
+            }`} data-testid="outcome-status">
+              {outcomeLayer.outcome.status}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+            <span className="text-slate-400">Required Margin</span>
+            <span className="text-right font-mono text-slate-300" data-testid="required-margin">
+              {(outcomeLayer.outcome.requiredMargin * 100).toFixed(2)}%
+            </span>
+            <span className="text-slate-400">Actual Margin</span>
+            <span className="text-right font-mono text-slate-300" data-testid="actual-margin">
+              {(outcomeLayer.outcome.actualMargin * 100).toFixed(2)}%
+            </span>
+          </div>
+          {outcomeLayer.outcome.status !== 'OK' && (
+            <div className="space-y-1.5">
+              <p className="text-xs text-amber-300/90" data-testid="outcome-warning-message">
+                This job is below your required margin
+              </p>
+              <p className="text-xs text-slate-400" data-testid="recommended-price">
+                Recommended price: <span className="font-mono text-white font-medium">{formatPence(outcomeLayer.recommendation.price)}</span>
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="mt-auto pt-6 border-t border-slate-700">
         <div className="flex justify-between items-end mb-2">

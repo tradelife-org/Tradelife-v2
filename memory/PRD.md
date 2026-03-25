@@ -100,3 +100,10 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] outcomeLayer ALWAYS computed (no conditional, non-optional in return type)
 - [x] Return includes: outcome (status/requiredMargin/actualMargin/profit), projection, recommendation
 - [x] All pure calculation functions unchanged
+
+## Quote Outcome UI (Jan 2026)
+- [x] Server page computes outcomeLayer from real finance data (try/catch, graceful fallback)
+- [x] Passed to StevensenProfitSidebar via new `outcomeLayer` prop
+- [x] Displays: status (OK/WARNING/DANGEROUS), required margin %, actual margin %
+- [x] WARNING/DANGEROUS: shows "This job is below your required margin" + recommended price
+- [x] No layout changes, no new components, no chart/visuals — simple text block in existing sidebar

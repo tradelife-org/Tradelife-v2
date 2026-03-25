@@ -1,6 +1,8 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { GlassPanel } from '@/components/ui/glass-panel'
 import { sendQuote } from '@/lib/actions/quote-lifecycle'
+import { getFinanceDashboardData } from '@/lib/actions/finance'
+import { calculateRequiredMargin, evaluateQuote, projectQuoteOutcome, getRecommendedPrice } from '@/lib/actions/quotes'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { ArrowLeft, Send, ExternalLink, RefreshCw } from 'lucide-react'
@@ -46,6 +48,35 @@ export default async function QuoteDetail({ params }: { params: { id: string } }
 
   const isDraft = quote.status === 'DRAFT'
   const marginFloor = quote.organisations?.margin_floor_percentage || 2000
+
+  // Compute outcome layer from real finance data
+  let outcomeLayer = null
+  try {
+    const finance = await getFinanceDashboardData()
+    const financialContext = {
+      monthlyBurn: finance.burnRate,
+      targetRevenue: finance.burnRate * 1.3,
+      jobsPerMonth: 20,
+    }
+    const requiredMargin = calculateRequiredMargin(financialContext)
+    const evaluation = evaluateQuote({
+      price: quote.quote_amount_net,
+      cost: quote.quote_total_cost,
+      requiredMargin,
+    })
+    const projection = projectQuoteOutcome({
+      price: quote.quote_amount_net,
+      cost: quote.quote_total_cost,
+    })
+    const recommendedPrice = getRecommendedPrice(quote.quote_total_cost, requiredMargin)
+    outcomeLayer = {
+      outcome: { status: evaluation.status, requiredMargin: evaluation.requiredMargin, actualMargin: evaluation.margin, profit: evaluation.profit },
+      projection,
+      recommendation: { price: recommendedPrice },
+    }
+  } catch (e) {
+    // Finance data unavailable — sidebar renders without outcome
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 pb-12">
@@ -148,6 +179,7 @@ export default async function QuoteDetail({ params }: { params: { id: string } }
             quoteAmountNet={quote.quote_amount_net}
             marginPercentage={quote.quote_margin_percentage}
             marginFloor={marginFloor}
+            outcomeLayer={outcomeLayer}
           />
         </div>
 
