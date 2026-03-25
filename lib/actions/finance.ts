@@ -125,20 +125,38 @@ export async function getFinanceDashboardData() {
   // Calculate Totals
   let totalRevenue = 0
   let totalExpenses = 0
-  
+  let monthlyBurn = 0
+
   const now = new Date()
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+
+  if (ledger) {
+    for (const entry of ledger) {
+      if (entry.transaction_type === 'CREDIT') {
+        totalRevenue += entry.amount
+      } else if (entry.transaction_type === 'DEBIT') {
+        totalExpenses += entry.amount
+        if (new Date(entry.created_at) >= thirtyDaysAgo) {
+          monthlyBurn += entry.amount
+        }
+      }
+    }
+  }
+
+  const cash = totalRevenue - totalExpenses
+  const runway = monthlyBurn > 0 ? Math.floor(cash / monthlyBurn) : 0
 
   // Calculate Pot Values
   const potAllocations = pots?.map(pot => ({
     ...pot,
-    value: Math.round(0 * (pot.allocation_percentage / 10000))
+    value: Math.round(totalRevenue * (pot.allocation_percentage / 10000))
   })) || []
 
   return {
     totalRevenue,
     totalExpenses,
-    burnRate: 0,
-    runway: 0,
+    burnRate: monthlyBurn,
+    runway,
     pots: potAllocations
   }
 }

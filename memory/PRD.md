@@ -83,3 +83,13 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] No session → HTTP 401 `{ error: "Unauthorized" }`
 - [x] Authenticated path unchanged: session → profile lookup → return user with org_id
 - [x] No other auth files modified
+
+## Finance Dashboard Real Calculations (Jan 2026)
+- [x] `getFinanceDashboardData()` now computes from `job_wallet_ledger`
+- [x] totalRevenue = sum(CREDIT amounts)
+- [x] totalExpenses = sum(DEBIT amounts)
+- [x] monthlyBurn = sum(DEBIT amounts where created_at >= 30 days ago)
+- [x] cash = totalRevenue - totalExpenses
+- [x] runway = cash / monthlyBurn (months, floored) or 0
+- [x] Pot values = totalRevenue * allocation_percentage / 10000
+- [x] All hardcoded zeros removed
