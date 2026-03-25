@@ -495,11 +495,22 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   color: #fff;
+  -webkit-text-fill-color: #fff;
+  caret-color: #fff;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .login-input::placeholder {
   color: rgba(255, 255, 255, 0.28);
+}
+
+.login-input:-webkit-autofill,
+.login-input:-webkit-autofill:hover,
+.login-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff;
+  caret-color: #fff;
+  -webkit-box-shadow: 0 0 0px 1000px rgba(8, 10, 18, 0.9) inset;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 .login-input:focus {

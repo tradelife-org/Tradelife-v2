@@ -128,3 +128,8 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] WARNING/DANGEROUS quotes now show projection: Revenue, Profit, Avg profit/job (10 jobs)
 - [x] Low profit warning: "You are working below your target level" when avgProfitPerJob < quote profit
 - [x] Plain text only, no charts, no new components, no layout changes
+
+## Login Input Text Visibility Fix (Jan 2026)
+- [x] Added `-webkit-text-fill-color: #fff` and `caret-color: #fff` to `.login-input`
+- [x] Added `:-webkit-autofill` override to prevent browser autofill from making text invisible
+- [x] No layout/structure changes
