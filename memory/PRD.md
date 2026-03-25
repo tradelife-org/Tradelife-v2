@@ -77,3 +77,9 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] API routes excluded from matcher (`api/`) — webhooks, crons, public endpoints unaffected
 - [x] All unauthenticated non-public requests → redirect to `/login`
 - [x] Backup file untouched
+
+## Auth /me Fallback Removed (Jan 2026)
+- [x] Removed dev/preview fallback that returned first available profile/org without session
+- [x] No session → HTTP 401 `{ error: "Unauthorized" }`
+- [x] Authenticated path unchanged: session → profile lookup → return user with org_id
+- [x] No other auth files modified

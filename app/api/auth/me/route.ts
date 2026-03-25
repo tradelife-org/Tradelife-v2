@@ -25,52 +25,35 @@ export async function GET() {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    if (session?.user) {
-      const { data: profile } = await admin
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
-
-      let org_id = profile?.org_id || profile?.active_org_id || null
-
-      if (!org_id) {
-        const { data: org } = await admin
-          .from('organisations')
-          .select('id')
-          .limit(1)
-          .single()
-        org_id = org?.id || null
-      }
-
-      return NextResponse.json({
-        user: {
-          id: session.user.id,
-          email: session.user.email,
-          org_id,
-          onboarding_complete: profile?.onboarding_complete || false,
-        },
-      })
+    if (!session?.user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401 }
+      )
     }
 
-    // No session: return first available org for development/preview
     const { data: profile } = await admin
       .from('profiles')
       .select('*')
-      .limit(1)
+      .eq('id', session.user.id)
       .single()
 
-    const { data: org } = await admin
-      .from('organisations')
-      .select('id')
-      .limit(1)
-      .single()
+    let org_id = profile?.org_id || profile?.active_org_id || null
+
+    if (!org_id) {
+      const { data: org } = await admin
+        .from('organisations')
+        .select('id')
+        .limit(1)
+        .single()
+      org_id = org?.id || null
+    }
 
     return NextResponse.json({
       user: {
-        id: profile?.id || null,
-        email: profile?.email || null,
-        org_id: profile?.org_id || profile?.active_org_id || org?.id || null,
+        id: session.user.id,
+        email: session.user.email,
+        org_id,
         onboarding_complete: profile?.onboarding_complete || false,
       },
     })
