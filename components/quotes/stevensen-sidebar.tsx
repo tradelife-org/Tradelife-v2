@@ -120,14 +120,55 @@ export default function StevensenProfitSidebar({
               {(outcomeLayer.outcome.actualMargin * 100).toFixed(2)}%
             </span>
           </div>
-          {outcomeLayer.outcome.status !== 'OK' && (
-            <div className="space-y-1.5">
-              <p className="text-xs text-amber-600" data-testid="outcome-warning-message">
-                This job is below your required margin
-              </p>
+          {outcomeLayer.outcome.status !== 'OK' && (() => {
+            const isWarning = outcomeLayer.outcome.status === 'WARNING'
+            const isDangerous = outcomeLayer.outcome.status === 'DANGEROUS'
+            const priceDiff = outcomeLayer.recommendation.price - quoteAmountNet
+            return (
+            <div className="space-y-3">
+              {/* Status-specific message */}
+              {isWarning && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3" data-testid="warning-message-block">
+                  <p className="text-xs font-semibold text-amber-700 mb-1">Below target margin</p>
+                  <p className="text-xs text-amber-600 leading-relaxed">
+                    You&apos;re below your target margin. This may reduce your long-term income.
+                  </p>
+                </div>
+              )}
+              {isDangerous && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3" data-testid="dangerous-message-block">
+                  <p className="text-xs font-semibold text-red-700 mb-1">Unsustainable pricing</p>
+                  <p className="text-xs text-red-600 leading-relaxed">
+                    This job will hurt your business if repeated. You are operating below a sustainable level.
+                  </p>
+                </div>
+              )}
+
+              {/* Comparison line */}
+              {priceDiff > 0 && (
+                <p className="text-xs text-gray-600" data-testid="price-difference">
+                  You are <span className="font-mono font-bold text-red-600">{formatPence(priceDiff)}</span> below recommended pricing
+                </p>
+              )}
+
+              {/* Recommended price */}
               <p className="text-xs text-gray-500" data-testid="recommended-price">
                 Recommended price: <span className="font-mono text-gray-900 font-medium">{formatPence(outcomeLayer.recommendation.price)}</span>
               </p>
+
+              {/* Confirmation block — DANGEROUS only */}
+              {isDangerous && (
+                <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4 mt-2" data-testid="confirmation-block">
+                  <p className="text-sm font-bold text-red-800">
+                    Are you sure you want to proceed at this price?
+                  </p>
+                  <p className="text-xs text-red-600 mt-1">
+                    Continuing at this rate will erode your margins and reduce your runway.
+                  </p>
+                </div>
+              )}
+
+              {/* Projection */}
               <div className="mt-3 pt-3 border-t border-gray-200 space-y-1.5" data-testid="projection-block">
                 <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">If repeated (10 jobs):</p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
@@ -145,7 +186,8 @@ export default function StevensenProfitSidebar({
                 )}
               </div>
             </div>
-          )}
+            )
+          })()}
         </div>
       )}
 

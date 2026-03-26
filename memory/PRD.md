@@ -205,3 +205,11 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] Query: count COMPLETED jobs in last 90 days, divide by 3
 - [x] Fallback: if < 3 completed jobs → default to 5
 - [x] Margin engine, projections, UI untouched
+
+## Decision Pressure UI (Jan 2026)
+- [x] WARNING: amber box — "You're below your target margin. This may reduce your long-term income."
+- [x] DANGEROUS: red box — "This job will hurt your business if repeated. You are operating below a sustainable level."
+- [x] Comparison line: "You are £X below recommended pricing"
+- [x] Confirmation block (DANGEROUS only): "Are you sure you want to proceed at this price?"
+- [x] No modals, no popups, no animations — plain text only
+- [x] Calculations untouched
