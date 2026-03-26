@@ -1,5 +1,4 @@
-import { GlassPanel } from '@/components/ui/glass-panel'
-import { AlertTriangle, TrendingUp, AlertCircle, ShieldCheck, Target } from 'lucide-react'
+import { AlertTriangle, AlertCircle, ShieldCheck, Target } from 'lucide-react'
 
 interface OutcomeLayer {
   outcome: { status: 'OK' | 'WARNING' | 'DANGEROUS'; requiredMargin: number; actualMargin: number; profit: number }
@@ -31,7 +30,6 @@ export default function StevensenProfitSidebar({
   const marginPercent = marginPercentage / 100
   const isLowMargin = marginPercentage < marginFloor
 
-  // Breakdown Calculation
   const breakdown = sections.reduce((acc, section) => {
     if (section.is_subcontract) {
       acc.subcontract += section.subcontract_cost
@@ -42,7 +40,6 @@ export default function StevensenProfitSidebar({
     return acc
   }, { materials: 0, labour: 0, subcontract: 0, other: 0 })
 
-  // Add upsell costs if any (assuming they are material/other mix, putting in Other for now)
   const upsellCost = upsells.reduce((sum, u) => sum + (u.cost_total || 0), 0)
   breakdown.other += upsellCost
 
@@ -50,109 +47,99 @@ export default function StevensenProfitSidebar({
   const profit = quoteAmountNet - totalCost
 
   return (
-    <GlassPanel className="h-full bg-slate-900 text-white border-slate-700 shadow-2xl backdrop-blur-xl p-6 flex flex-col gap-6 sticky top-8">
+    <div className="bg-white border border-gray-200 rounded-lg p-6 flex flex-col gap-6 sticky top-20 shadow-sm">
       
-      {/* Header & Orb */}
+      {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Profit Engine</h3>
-          <p className="font-heading font-bold text-xl">Stevensen View</p>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Profit Engine</h3>
+          <p className="font-bold text-lg text-gray-900">Stevensen View</p>
         </div>
-        
-        {/* T-Pulse Orb */}
-        <div className="relative">
-          <div className={`w-4 h-4 rounded-full transition-all duration-500 
-            ${isLowMargin ? 'bg-safety animate-pulse shadow-[0_0_15px_rgba(255,95,0,0.6)]' : 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]'}`} 
-          />
-          {isLowMargin && (
-            <div className="absolute top-0 right-0 w-4 h-4 rounded-full bg-safety animate-ping opacity-75" />
-          )}
-        </div>
+        <div className={`w-3 h-3 rounded-full ${isLowMargin ? 'bg-orange-500' : 'bg-emerald-500'}`} />
       </div>
 
-      {/* Margin Guardrail Alert */}
+      {/* Margin Alert */}
       {isLowMargin && (
-        <div className="bg-safety/10 border border-safety/30 rounded-lg p-3 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-safety shrink-0 mt-0.5" />
+        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-bold text-safety mb-0.5">Margin Alert</p>
-            <p className="text-xs text-white/80">
+            <p className="text-sm font-bold text-orange-700 mb-0.5">Margin Alert</p>
+            <p className="text-xs text-orange-600">
               Projected margin {marginPercent.toFixed(2)}% is below floor {(marginFloor/100).toFixed(0)}%.
             </p>
           </div>
         </div>
       )}
 
-      {/* Financial Big Numbers */}
+      {/* Big Numbers */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-          <p className="text-xs text-slate-400 uppercase">Net Revenue</p>
-          <p className="text-lg font-mono font-bold text-white">{formatPence(quoteAmountNet)}</p>
+        <div className="p-4 rounded-lg bg-gray-50 border border-gray-200">
+          <p className="text-xs text-gray-500 uppercase">Net Revenue</p>
+          <p className="text-lg font-mono font-bold text-gray-900">{formatPence(quoteAmountNet)}</p>
         </div>
-        <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-          <p className="text-xs text-slate-400 uppercase">Est. Cost</p>
-          <p className="text-lg font-mono font-bold text-slate-300">{formatPence(totalCost)}</p>
+        <div className="p-4 rounded-lg bg-gray-50 border border-gray-200">
+          <p className="text-xs text-gray-500 uppercase">Est. Cost</p>
+          <p className="text-lg font-mono font-bold text-gray-700">{formatPence(totalCost)}</p>
         </div>
       </div>
 
-      {/* The Breakdown */}
+      {/* Cost Breakdown */}
       <div className="space-y-4">
-        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-700 pb-2">
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-200 pb-2">
           Cost Breakdown
         </p>
-        
         <BreakdownRow label="Materials" amount={breakdown.materials} total={totalCost} color="bg-blue-500" />
         <BreakdownRow label="Labour" amount={breakdown.labour} total={totalCost} color="bg-amber-500" />
         <BreakdownRow label="Subcontract" amount={breakdown.subcontract} total={totalCost} color="bg-purple-500" />
-        <BreakdownRow label="Other / Upsells" amount={breakdown.other} total={totalCost} color="bg-slate-500" />
+        <BreakdownRow label="Other / Upsells" amount={breakdown.other} total={totalCost} color="bg-gray-400" />
       </div>
 
-      {/* Quote Outcome Assessment */}
+      {/* Quote Outcome */}
       {outcomeLayer && (
         <div className="space-y-3" data-testid="quote-outcome-block">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-700 pb-2">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-200 pb-2">
             Quote Outcome
           </p>
           <div className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-slate-400" />
+            <Target className="w-4 h-4 text-gray-400" />
             <span className={`text-sm font-bold ${
-              outcomeLayer.outcome.status === 'OK' ? 'text-emerald-400' :
-              outcomeLayer.outcome.status === 'WARNING' ? 'text-amber-400' :
-              'text-red-400'
+              outcomeLayer.outcome.status === 'OK' ? 'text-emerald-600' :
+              outcomeLayer.outcome.status === 'WARNING' ? 'text-amber-600' :
+              'text-red-600'
             }`} data-testid="outcome-status">
               {outcomeLayer.outcome.status}
             </span>
           </div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-            <span className="text-slate-400">Required Margin</span>
-            <span className="text-right font-mono text-slate-300" data-testid="required-margin">
+            <span className="text-gray-500">Required Margin</span>
+            <span className="text-right font-mono text-gray-700" data-testid="required-margin">
               {(outcomeLayer.outcome.requiredMargin * 100).toFixed(2)}%
             </span>
-            <span className="text-slate-400">Actual Margin</span>
-            <span className="text-right font-mono text-slate-300" data-testid="actual-margin">
+            <span className="text-gray-500">Actual Margin</span>
+            <span className="text-right font-mono text-gray-700" data-testid="actual-margin">
               {(outcomeLayer.outcome.actualMargin * 100).toFixed(2)}%
             </span>
           </div>
           {outcomeLayer.outcome.status !== 'OK' && (
             <div className="space-y-1.5">
-              <p className="text-xs text-amber-300/90" data-testid="outcome-warning-message">
+              <p className="text-xs text-amber-600" data-testid="outcome-warning-message">
                 This job is below your required margin
               </p>
-              <p className="text-xs text-slate-400" data-testid="recommended-price">
-                Recommended price: <span className="font-mono text-white font-medium">{formatPence(outcomeLayer.recommendation.price)}</span>
+              <p className="text-xs text-gray-500" data-testid="recommended-price">
+                Recommended price: <span className="font-mono text-gray-900 font-medium">{formatPence(outcomeLayer.recommendation.price)}</span>
               </p>
-              <div className="mt-3 pt-3 border-t border-slate-700/50 space-y-1.5" data-testid="projection-block">
-                <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">If repeated (10 jobs):</p>
+              <div className="mt-3 pt-3 border-t border-gray-200 space-y-1.5" data-testid="projection-block">
+                <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">If repeated (10 jobs):</p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                  <span className="text-slate-400">Revenue</span>
-                  <span className="text-right font-mono text-slate-300" data-testid="projection-revenue">{formatPence(outcomeLayer.projection.totalRevenue)}</span>
-                  <span className="text-slate-400">Profit</span>
-                  <span className="text-right font-mono text-slate-300" data-testid="projection-profit">{formatPence(outcomeLayer.projection.totalProfit)}</span>
-                  <span className="text-slate-400">Avg profit/job</span>
-                  <span className="text-right font-mono text-slate-300" data-testid="projection-avg-profit">{formatPence(outcomeLayer.projection.avgProfitPerJob)}</span>
+                  <span className="text-gray-500">Revenue</span>
+                  <span className="text-right font-mono text-gray-700" data-testid="projection-revenue">{formatPence(outcomeLayer.projection.totalRevenue)}</span>
+                  <span className="text-gray-500">Profit</span>
+                  <span className="text-right font-mono text-gray-700" data-testid="projection-profit">{formatPence(outcomeLayer.projection.totalProfit)}</span>
+                  <span className="text-gray-500">Avg profit/job</span>
+                  <span className="text-right font-mono text-gray-700" data-testid="projection-avg-profit">{formatPence(outcomeLayer.projection.avgProfitPerJob)}</span>
                 </div>
                 {outcomeLayer.projection.avgProfitPerJob < outcomeLayer.outcome.profit && (
-                  <p className="text-xs text-red-400/90 pt-1" data-testid="low-profit-warning">
+                  <p className="text-xs text-red-600 pt-1" data-testid="low-profit-warning">
                     You are working below your target level
                   </p>
                 )}
@@ -162,20 +149,20 @@ export default function StevensenProfitSidebar({
         </div>
       )}
 
-      <div className="mt-auto pt-6 border-t border-slate-700">
+      {/* Net Profit Footer */}
+      <div className="mt-auto pt-6 border-t border-gray-200">
         <div className="flex justify-between items-end mb-2">
-          <p className="text-sm font-medium text-slate-400">Net Profit</p>
-          <p className={`text-2xl font-mono font-bold ${profit > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+          <p className="text-sm font-medium text-gray-500">Net Profit</p>
+          <p className={`text-2xl font-mono font-bold ${profit > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
             {formatPence(profit)}
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-slate-500">
+        <div className="flex items-center gap-2 text-xs text-gray-500">
           {profit > 0 ? <ShieldCheck className="w-4 h-4 text-emerald-500" /> : <AlertCircle className="w-4 h-4 text-red-500" />}
           <span>{marginPercent.toFixed(2)}% Margin calculated on Sell Price</span>
         </div>
       </div>
-
-    </GlassPanel>
+    </div>
   )
 }
 
@@ -187,10 +174,10 @@ function BreakdownRow({ label, amount, total, color }: { label: string, amount: 
   return (
     <div>
       <div className="flex justify-between text-xs mb-1">
-        <span className="text-slate-300">{label}</span>
-        <span className="text-slate-400">£{formatPence(amount)}</span>
+        <span className="text-gray-700">{label}</span>
+        <span className="text-gray-500">{'\u00A3'}{formatPence(amount)}</span>
       </div>
-      <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+      <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
         <div className={`h-full ${color} rounded-full`} style={{ width: `${percent}%` }} />
       </div>
     </div>

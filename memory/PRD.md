@@ -145,3 +145,16 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] `/` (page.tsx): Server component — auth check, redirects to /login if unauthenticated, shows dashboard with nav cards (Quotes, Jobs, Finance, Invoices)
 - [x] `/quotes` (page.tsx): Already functional — fetches quotes from Supabase, links to /quotes/[id]
 - [x] Full flow: Login → Dashboard → Quotes → Quote Detail (with outcome system)
+
+## UI Stabilisation Pass (Jan 2026)
+- [x] tokens.css: All CSS variables swapped from dark (#0b0f14) to light (#f9fafb) theme
+- [x] layout.tsx: Removed background image, gradients, blur overlays. Plain `bg-gray-50 text-gray-900`
+- [x] login/page.tsx: Stripped glass panels, glow effects, absolute positioning. Clean white card, centered. Inputs: `border border-gray-300 text-black bg-white`. Buttons: `bg-blue-600 text-white`
+- [x] signup/page.tsx: Same treatment — removed framer-motion, radial gradients, glass-panel. Clean white card
+- [x] page.tsx (dashboard): Replaced CSS variable references with plain Tailwind gray colors
+- [x] TopBar.tsx: Replaced dark theme with `bg-white border-b border-gray-200`, plain gray text
+- [x] AppShell: Added `bg-gray-50`
+- [x] stevensen-sidebar.tsx: Removed GlassPanel import, dark bg-slate-900. Now plain white card with gray borders
+- [x] GlassPanel component: Stripped backdrop-blur, noise, gradient layers. Now plain `bg-white border-gray-200 shadow-sm`
+- [x] quotes/page.tsx: Replaced CSS variable references with gray/white Tailwind classes
+- NOT TOUCHED: auth logic, routing, API calls, quote system, finance system, calculation logic

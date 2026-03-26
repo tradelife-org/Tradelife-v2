@@ -9,16 +9,13 @@ export function GlassPanel({ children, className, variant = "default", ...props 
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-xl border border-white/20 shadow-xl",
-        "bg-white/10 backdrop-blur-[14px]", // The 14px blur requirement
-        "before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:pointer-events-none", // Layer 2: Gradient
-        "after:absolute after:inset-0 after:bg-noise after:opacity-5 after:pointer-events-none", // Layer 3: Noise (optional, inferred from 'material')
-        variant === "high-contrast" && "bg-slate-900/80 border-slate-700/50 text-white",
+        "relative overflow-hidden rounded-lg border border-gray-200 shadow-sm bg-white",
+        variant === "high-contrast" && "bg-gray-50 border-gray-300",
         className
       )}
       {...props}
     >
-      <div className="relative z-10">{children}</div>
+      {children}
     </div>
   )
 }

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
-import { motion } from 'framer-motion'
+import Link from 'next/link'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -36,58 +36,62 @@ export default function SignupPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
-      style={{ background: 'var(--bg-base)' }}>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.07] pointer-events-none"
-        style={{ background: `radial-gradient(circle, var(--glow-primary), transparent 70%)` }} />
-
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-        className="w-full max-w-[400px] relative z-10">
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2.5 mb-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center edge-glow"
-              style={{ background: 'var(--glow-primary)' }}>
-              <span className="text-white font-bold text-sm">T</span>
-            </div>
-            <span className="text-lg font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>TradeLife</span>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4" data-testid="signup-page">
+      <div className="w-full max-w-md space-y-6 bg-white p-8 rounded-lg shadow">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600 mb-4">
+            <span className="text-white font-bold text-lg">T</span>
           </div>
-          <h1 className="text-2xl font-bold mt-4" style={{ color: 'var(--text-primary)' }} data-testid="signup-title">
-            Create your account
-          </h1>
-          <p className="text-sm mt-1.5" style={{ color: 'var(--text-secondary)' }}>
-            Start managing your trade finances
-          </p>
+          <h1 className="text-2xl font-bold text-gray-900" data-testid="signup-title">Create your account</h1>
+          <p className="text-sm text-gray-500 mt-1">Start managing your trade finances</p>
         </div>
 
-        <div className="glass-panel-elevated p-6">
-          <form onSubmit={handleSignup} className="space-y-5">
-            {error && (
-              <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
-                className="text-sm px-4 py-3 rounded-lg"
-                style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#fca5a5' }}
-                data-testid="signup-error">{error}</motion.div>
-            )}
-            <div>
-              <label className="block text-xs font-medium uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com" className="glass-input w-full px-4 py-3 text-sm" data-testid="signup-email-input" />
+        <form onSubmit={handleSignup} className="space-y-4">
+          {error && (
+            <div className="text-sm px-4 py-3 rounded-md bg-red-50 border border-red-200 text-red-700" data-testid="signup-error">
+              {error}
             </div>
-            <div>
-              <label className="block text-xs font-medium uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Password</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                placeholder="At least 6 characters" className="glass-input w-full px-4 py-3 text-sm" data-testid="signup-password-input" />
-            </div>
-            <button type="submit" disabled={loading} className="btn-glow w-full py-3 text-sm mt-2" data-testid="signup-submit-button">
-              {loading ? 'Creating account...' : 'Create account'}
-            </button>
-          </form>
-        </div>
+          )}
 
-        <p className="text-center text-sm mt-6" style={{ color: 'var(--text-muted)' }}>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="border border-gray-300 rounded-md px-3 py-2 text-black bg-white w-full text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              data-testid="signup-email-input"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="At least 6 characters"
+              className="border border-gray-300 rounded-md px-3 py-2 text-black bg-white w-full text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              data-testid="signup-password-input"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md w-full font-medium text-sm hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            data-testid="signup-submit-button"
+          >
+            {loading ? 'Creating account...' : 'Create account'}
+          </button>
+        </form>
+
+        <p className="text-center text-sm text-gray-500">
           Already have an account?{' '}
-          <a href="/login" className="font-medium hover:underline" style={{ color: 'var(--glow-primary)' }} data-testid="signup-login-link">Sign in</a>
+          <Link href="/login" className="text-blue-600 hover:text-blue-500 font-medium" data-testid="signup-login-link">Sign in</Link>
         </p>
-      </motion.div>
-    </main>
+      </div>
+    </div>
   )
 }

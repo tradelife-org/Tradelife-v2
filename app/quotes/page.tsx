@@ -28,11 +28,11 @@ export default async function QuotesPage() {
   return (
     <div className="max-w-5xl mx-auto" data-testid="quotes-page">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)]" data-testid="quotes-heading">Quotes</h1>
+        <h1 className="text-2xl font-bold text-gray-900" data-testid="quotes-heading">Quotes</h1>
         <Link
           href="/quotes/create"
           data-testid="create-quote-button"
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--accent)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
+          className="flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
           New Quote
@@ -40,7 +40,7 @@ export default async function QuotesPage() {
       </div>
 
       {!quotes || quotes.length === 0 ? (
-        <p className="text-[var(--text-muted)] text-sm" data-testid="no-quotes-message">No quotes yet. Create your first quote.</p>
+        <p className="text-gray-500 text-sm" data-testid="no-quotes-message">No quotes yet. Create your first quote.</p>
       ) : (
         <div className="space-y-2" data-testid="quotes-list">
           {quotes.map((q: any) => (
@@ -48,22 +48,22 @@ export default async function QuotesPage() {
               key={q.id}
               href={`/quotes/${q.id}`}
               data-testid={`quote-row-${q.id}`}
-              className="flex items-center justify-between p-4 rounded-lg bg-[var(--bg-card)] border border-[var(--border)] hover:border-[var(--border-strong)] transition-colors"
+              className="flex items-center justify-between p-4 rounded-lg bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all"
             >
               <div className="flex items-center gap-4">
                 <div>
-                  <p className="text-sm font-medium text-[var(--text-primary)]">
+                  <p className="text-sm font-medium text-gray-900">
                     {q.reference || `Quote #${q.id.slice(0, 8)}`}
                   </p>
-                  <p className="text-xs text-[var(--text-muted)]">{(q as any).clients?.name || 'No client'}</p>
+                  <p className="text-xs text-gray-500">{(q as any).clients?.name || 'No client'}</p>
                 </div>
                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusColor[q.status] || 'bg-slate-100 text-slate-500'}`}>
                   {q.status}
                 </span>
               </div>
               <div className="text-right">
-                <p className="text-sm font-mono font-medium text-[var(--text-primary)]">{formatPence(q.quote_amount_net)}</p>
-                <p className="text-xs font-mono text-[var(--text-muted)]">Profit: {formatPence(q.quote_profit)}</p>
+                <p className="text-sm font-mono font-medium text-gray-900">{formatPence(q.quote_amount_net)}</p>
+                <p className="text-xs font-mono text-gray-500">Profit: {formatPence(q.quote_profit)}</p>
               </div>
             </Link>
           ))}
