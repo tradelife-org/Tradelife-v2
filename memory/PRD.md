@@ -180,3 +180,14 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] Summary: "created from accepted quote" or "created manually"
 - [x] Error: notFound() if job missing
 - [x] NOT built: editing, timeline, materials, payments
+
+## Stripe Webhook Processing (Jan 2026)
+- [x] Handles `checkout.session.completed` only — all other events acknowledged but ignored
+- [x] Extracts `invoice_id`, `org_id`, `source_job_id`, `amount`, `payment_intent` from session metadata
+- [x] Idempotent: checks `payment_records.provider_ref` before processing — skips duplicates
+- [x] Updates invoice status → PAID
+- [x] Inserts `payment_records` (org_id, invoice_id, amount, provider: stripe, status: succeeded)
+- [x] Writes CREDIT / RECOGNIZED_REVENUE to `job_wallet_ledger`
+- [x] Updates `job_wallets.balance` if wallet exists
+- [x] Signature verification when STRIPE_WEBHOOK_SECRET is configured
+- [x] Finance dashboard (burn rate, runway) now updates automatically via ledger
