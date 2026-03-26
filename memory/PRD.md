@@ -191,3 +191,11 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] Updates `job_wallets.balance` if wallet exists
 - [x] Signature verification when STRIPE_WEBHOOK_SECRET is configured
 - [x] Finance dashboard (burn rate, runway) now updates automatically via ledger
+
+## Job Financial Summary (Jan 2026)
+- [x] Fetches job_wallet_ledger entries by job_id
+- [x] Calculates: revenue (CREDIT sum), expenses (DEBIT sum), profit (revenue - expenses)
+- [x] Displays 3-column grid: Revenue / Costs / Profit
+- [x] Status message: "Payment received" (green) or "No payments yet" (gray)
+- [x] Profit color: green if positive, red if negative
+- [x] No charts, no graphs, plain text only

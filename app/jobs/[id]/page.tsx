@@ -44,6 +44,22 @@ export default async function JobDetailPage({ params }: { params: { id: string }
     quote = data
   }
 
+  // Fetch job ledger entries
+  const { data: ledger } = await supabase
+    .from('job_wallet_ledger')
+    .select('amount, transaction_type')
+    .eq('job_id', job.id)
+
+  let jobRevenue = 0
+  let jobExpenses = 0
+  if (ledger) {
+    for (const entry of ledger) {
+      if (entry.transaction_type === 'CREDIT') jobRevenue += entry.amount
+      else if (entry.transaction_type === 'DEBIT') jobExpenses += entry.amount
+    }
+  }
+  const jobProfit = jobRevenue - jobExpenses
+
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-6" data-testid="job-detail-page">
       {/* Back link */}
@@ -114,6 +130,30 @@ export default async function JobDetailPage({ params }: { params: { id: string }
           </Link>
         </div>
       )}
+
+      {/* Job Financial Summary */}
+      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm" data-testid="job-financial-summary">
+        <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Job Financial Summary</h2>
+
+        <p className={`text-xs font-medium mb-4 ${jobRevenue > 0 ? 'text-emerald-600' : 'text-gray-400'}`} data-testid="payment-status-message">
+          {jobRevenue > 0 ? 'Payment received' : 'No payments yet'}
+        </p>
+
+        <div className="grid grid-cols-3 gap-4">
+          <div className="p-3 rounded-lg bg-gray-50 border border-gray-200" data-testid="job-revenue-box">
+            <p className="text-xs text-gray-500 mb-1">Revenue</p>
+            <p className="text-lg font-mono font-bold text-gray-900">{formatPence(jobRevenue)}</p>
+          </div>
+          <div className="p-3 rounded-lg bg-gray-50 border border-gray-200" data-testid="job-costs-box">
+            <p className="text-xs text-gray-500 mb-1">Costs</p>
+            <p className="text-lg font-mono font-bold text-gray-700">{formatPence(jobExpenses)}</p>
+          </div>
+          <div className="p-3 rounded-lg bg-gray-50 border border-gray-200" data-testid="job-profit-box">
+            <p className="text-xs text-gray-500 mb-1">Profit</p>
+            <p className={`text-lg font-mono font-bold ${jobProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>{formatPence(jobProfit)}</p>
+          </div>
+        </div>
+      </div>
 
       {/* Summary */}
       <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm" data-testid="job-summary">
