@@ -53,10 +53,21 @@ export default async function QuoteDetail({ params }: { params: { id: string } }
   let outcomeLayer = null
   try {
     const finance = await getFinanceDashboardData()
+
+    // Calculate real jobsPerMonth from completed jobs in last 90 days
+    const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString()
+    const { count } = await supabase
+      .from('jobs')
+      .select('id', { count: 'exact', head: true })
+      .eq('org_id', quote.org_id)
+      .eq('status', 'COMPLETED')
+      .gte('updated_at', ninetyDaysAgo)
+    const jobsPerMonth = (count && count >= 3) ? Math.round(count / 3) : 5
+
     const financialContext = {
       monthlyBurn: finance.burnRate,
       targetRevenue: finance.burnRate * 1.3,
-      jobsPerMonth: 20,
+      jobsPerMonth,
     }
     const sections = (quote.quote_sections || []).map((s: any) => ({
       is_subcontract: s.is_subcontract,

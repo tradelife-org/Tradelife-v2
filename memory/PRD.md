@@ -199,3 +199,9 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] Status message: "Payment received" (green) or "No payments yet" (gray)
 - [x] Profit color: green if positive, red if negative
 - [x] No charts, no graphs, plain text only
+
+## Dynamic jobsPerMonth (Jan 2026)
+- [x] Replaced hardcoded `jobsPerMonth: 20` with real job throughput
+- [x] Query: count COMPLETED jobs in last 90 days, divide by 3
+- [x] Fallback: if < 3 completed jobs → default to 5
+- [x] Margin engine, projections, UI untouched
