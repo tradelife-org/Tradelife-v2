@@ -158,3 +158,9 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] GlassPanel component: Stripped backdrop-blur, noise, gradient layers. Now plain `bg-white border-gray-200 shadow-sm`
 - [x] quotes/page.tsx: Replaced CSS variable references with gray/white Tailwind classes
 - NOT TOUCHED: auth logic, routing, API calls, quote system, finance system, calculation logic
+
+## API Routes Implemented (Jan 2026)
+- [x] GET /api/quotes: Auth check → profile → org_id → real Supabase query (quotes + clients join)
+- [x] GET /api/jobs: Auth check → profile → org_id → real Supabase query (jobs + clients join)
+- [x] Both return 401 if unauthenticated, 404 if no org, 500 on query error
+- [x] Zero placeholders remaining
