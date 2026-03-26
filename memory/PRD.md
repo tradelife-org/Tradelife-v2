@@ -220,3 +220,12 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] Reality line: "You are effectively earning £X per day on this job" (uses section labour_days)
 - [x] jobsPerMonth now passed as prop from page (real throughput data)
 - [x] No calculations changed, no backend modified
+
+## Functional UX Pass (Jan 2026)
+- [x] Dashboard: added Clients nav card (5 cards total: Quotes, Jobs, Finance, Invoices, Clients)
+- [x] Quotes page: empty state now shows centered "Create your first quote" CTA button
+- [x] Quote detail: full rewrite — 4-column summary (Net/Cost/Profit/Margin), scope of work sections with labour/materials/profit breakdown + line items table, sidebar with outcome system
+- [x] Create quote: working form with client select, title, labour days/rate, materials, margin %, VAT — saves via saveQuoteDraft and redirects to detail
+- [x] save-quote.ts: extended SaveQuoteInput to accept optional client_id and reference
+- [x] All inputs: border border-gray-300 text-black bg-white, standardised
+- [x] All pages: max-w container, vertical spacing, clear headings

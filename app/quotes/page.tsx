@@ -40,7 +40,17 @@ export default async function QuotesPage() {
       </div>
 
       {!quotes || quotes.length === 0 ? (
-        <p className="text-gray-500 text-sm" data-testid="no-quotes-message">No quotes yet. Create your first quote.</p>
+        <div className="text-center py-12" data-testid="no-quotes-message">
+          <p className="text-gray-500 text-sm mb-4">No quotes yet</p>
+          <Link
+            href="/quotes/create"
+            data-testid="create-first-quote-button"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Create your first quote
+          </Link>
+        </div>
       ) : (
         <div className="space-y-2" data-testid="quotes-list">
           {quotes.map((q: any) => (

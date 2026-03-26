@@ -20,6 +20,8 @@ interface SaveSectionInput {
 }
 
 interface SaveQuoteInput {
+  client_id?: string | null
+  reference?: string | null
   vat_rate: number              // x100 (2000 = 20%)
   sections: SaveSectionInput[]
 }
@@ -86,6 +88,8 @@ export async function saveQuoteDraft(input: SaveQuoteInput): Promise<SaveQuoteRe
         org_id,
         status: 'DRAFT',
         vat_rate: input.vat_rate,
+        ...(input.client_id ? { client_id: input.client_id } : {}),
+        ...(input.reference ? { reference: input.reference } : {}),
         quote_amount_net: quoteTotals.quote_amount_net,
         quote_amount_gross: quoteTotals.quote_amount_gross,
         quote_total_cost: quoteTotals.quote_total_cost,
