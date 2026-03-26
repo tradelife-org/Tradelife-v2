@@ -172,3 +172,11 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] Error state: "Failed to load jobs"
 - [x] Empty state: "No jobs yet"
 - [x] Removed broken XeroSyncButton import, cleaned to match stabilised UI
+
+## Job Detail Page (Jan 2026)
+- [x] /app/jobs/[id]/page.tsx: Server component, direct Supabase fetch
+- [x] Header: title, client, status badge (color-mapped), address, dates
+- [x] Linked Quote: if source_quote_id exists, fetches and displays reference, value, profit with link to /quotes/[id]
+- [x] Summary: "created from accepted quote" or "created manually"
+- [x] Error: notFound() if job missing
+- [x] NOT built: editing, timeline, materials, payments
