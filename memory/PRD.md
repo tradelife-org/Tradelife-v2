@@ -164,3 +164,11 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] GET /api/jobs: Auth check → profile → org_id → real Supabase query (jobs + clients join)
 - [x] Both return 401 if unauthenticated, 404 if no org, 500 on query error
 - [x] Zero placeholders remaining
+
+## Jobs Page (Jan 2026)
+- [x] /app/jobs/page.tsx: Server component, direct Supabase query (jobs + clients join)
+- [x] Displays: title, client name, status badge (color-mapped), start/end dates
+- [x] Each row links to /jobs/[id]
+- [x] Error state: "Failed to load jobs"
+- [x] Empty state: "No jobs yet"
+- [x] Removed broken XeroSyncButton import, cleaned to match stabilised UI

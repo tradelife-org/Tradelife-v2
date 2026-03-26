@@ -1,102 +1,97 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server'
-import { GlassPanel } from '@/components/ui/glass-panel'
 import Link from 'next/link'
-import { Calendar, CheckCircle, Clock, AlertCircle } from 'lucide-react'
-import XeroSyncButton from '@/components/jobs/xero-sync-button' // New
+import { Calendar } from 'lucide-react'
 
+const statusColor: Record<string, string> = {
+  ENQUIRY: 'bg-slate-100 text-slate-600',
+  BOOKED: 'bg-blue-100 text-blue-700',
+  ON_SITE: 'bg-yellow-100 text-yellow-700',
+  IN_PROGRESS: 'bg-yellow-100 text-yellow-700',
+  COMPLETED: 'bg-emerald-100 text-emerald-700',
+  SIGNED_OFF: 'bg-emerald-100 text-emerald-700',
+  SNAGGING: 'bg-orange-100 text-orange-700',
+  CANCELLED: 'bg-red-100 text-red-700',
+}
 
-export default async function JobsDashboard() {
+export default async function JobsPage() {
   const supabase = await createServerSupabaseClient()
-  
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-  const { data: profile } = await supabase.from('profiles').select('org_id').eq('id', user.id).single()
 
-  // Fetch jobs with client names
-  const { data: jobs } = await supabase
+  if (!user) return null
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('org_id')
+    .eq('id', user.id)
+    .single()
+
+  const { data: jobs, error } = await supabase
     .from('jobs')
-    .select('*, clients(name)')
+    .select('id, title, status, target_start_date, target_end_date, clients(name)')
     .eq('org_id', profile?.org_id)
     .order('created_at', { ascending: false })
 
-  // Kanban Columns
-  const columns = {
-    PLANNED: jobs?.filter(j => ['ENQUIRY', 'BOOKED'].includes(j.status)) || [],
-    LIVE: jobs?.filter(j => ['ON_SITE', 'IN_PROGRESS'].includes(j.status)) || [],
-    BLOCKED: jobs?.filter(j => ['SNAGGING', 'PAUSED'].includes(j.status)) || [],
-    COMPLETE: jobs?.filter(j => ['COMPLETED', 'SIGNED_OFF', 'CANCELLED'].includes(j.status)) || []
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto p-4" data-testid="jobs-error">
+        <p className="text-red-600 text-sm">Failed to load jobs</p>
+      </div>
+    )
   }
 
-  return (
-    
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-heading font-bold text-slate-900">Job Board</h1>
-          <div className="flex items-center gap-3">
-            <XeroSyncButton />
-            <Link 
-              href="/jobs/create" 
-              className="inline-flex items-center gap-2 h-10 px-4 bg-blueprint text-white text-sm font-semibold rounded-lg hover:bg-blueprint-700 transition-colors shadow-sm"
-            >
-              New Job
-            </Link>
-          </div>
-        </div>
+  const fmtDate = (d: string | null) =>
+    d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : null
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 h-[calc(100vh-160px)]">
-          <KanbanColumn title="Planned" jobs={columns.PLANNED} color="bg-slate-100" />
-          <KanbanColumn title="Live" jobs={columns.LIVE} color="bg-blue-50" />
-          <KanbanColumn title="Blocked / Snagging" jobs={columns.BLOCKED} color="bg-orange-50" />
-          <KanbanColumn title="Complete" jobs={columns.COMPLETE} color="bg-green-50" />
-        </div>
+  return (
+    <div className="max-w-4xl mx-auto p-4 space-y-4" data-testid="jobs-page">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900" data-testid="jobs-heading">Jobs</h1>
+        <Link
+          href="/jobs/create"
+          data-testid="create-job-button"
+          className="flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+        >
+          New Job
+        </Link>
       </div>
-    
-  )
-}
 
-function KanbanColumn({ title, jobs, color }: { title: string, jobs: any[], color: string }) {
-  return (
-    <div className={`flex flex-col h-full rounded-2xl ${color} p-4`}>
-      <h3 className="font-bold text-slate-500 uppercase text-xs tracking-wider mb-4 px-2 flex justify-between">
-        {title} 
-        <span className="bg-white/50 px-2 py-0.5 rounded text-slate-600">{jobs.length}</span>
-      </h3>
-      
-      <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-        {jobs.map(job => (
-          <Link key={job.id} href={`/jobs/${job.id}`} className="block">
-            <GlassPanel className="p-4 bg-white hover:shadow-md transition-all border-white/50 hover:scale-[1.02] duration-200">
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500 uppercase">
+      {!jobs || jobs.length === 0 ? (
+        <p className="text-gray-500 text-sm" data-testid="no-jobs-message">No jobs yet</p>
+      ) : (
+        <div className="space-y-2" data-testid="jobs-list">
+          {jobs.map((job: any) => (
+            <Link
+              key={job.id}
+              href={`/jobs/${job.id}`}
+              data-testid={`job-row-${job.id}`}
+              className="flex items-center justify-between p-4 rounded-lg bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all"
+            >
+              <div className="flex items-center gap-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{job.title}</p>
+                  <p className="text-xs text-gray-500">{(job as any).clients?.name || 'No client'}</p>
+                </div>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusColor[job.status] || 'bg-slate-100 text-slate-500'}`}>
                   {job.status.replace('_', ' ')}
                 </span>
-                {/* Status Pulse */}
-                <div className={`w-2 h-2 rounded-full ${
-                  ['ON_SITE', 'IN_PROGRESS'].includes(job.status) ? 'bg-green-500 animate-pulse' :
-                  ['SNAGGING', 'PAUSED'].includes(job.status) ? 'bg-red-500' :
-                  'bg-slate-300'
-                }`} />
               </div>
-              
-              <h4 className="font-bold text-slate-800 leading-tight mb-1">{job.title}</h4>
-              <p className="text-xs text-slate-500 mb-3">{job.clients?.name}</p>
-              
-              {job.target_start_date && (
-                <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                  <Calendar className="w-3 h-3" />
-                  {new Date(job.target_start_date).toLocaleDateString()}
-                </div>
-              )}
-            </GlassPanel>
-          </Link>
-        ))}
-        
-        {jobs.length === 0 && (
-          <div className="text-center py-12 border-2 border-dashed border-slate-300/20 rounded-xl">
-            <p className="text-xs text-slate-400 font-medium">No jobs</p>
-          </div>
-        )}
-      </div>
+              <div className="flex items-center gap-4 text-xs text-gray-500">
+                {job.target_start_date && (
+                  <span className="flex items-center gap-1" data-testid={`job-start-${job.id}`}>
+                    <Calendar className="w-3 h-3" />
+                    {fmtDate(job.target_start_date)}
+                  </span>
+                )}
+                {job.target_end_date && (
+                  <span className="text-gray-400" data-testid={`job-end-${job.id}`}>
+                    — {fmtDate(job.target_end_date)}
+                  </span>
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
