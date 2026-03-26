@@ -51,6 +51,7 @@ export default async function QuoteDetail({ params }: { params: { id: string } }
 
   // Get outcome layer — finance fetched here, passed into pure calculation
   let outcomeLayer = null
+  let financialContext: { monthlyBurn: number; targetRevenue: number; jobsPerMonth: number } | null = null
   try {
     const finance = await getFinanceDashboardData()
 
@@ -64,7 +65,7 @@ export default async function QuoteDetail({ params }: { params: { id: string } }
       .gte('updated_at', ninetyDaysAgo)
     const jobsPerMonth = (count && count >= 3) ? Math.round(count / 3) : 5
 
-    const financialContext = {
+    financialContext = {
       monthlyBurn: finance.burnRate,
       targetRevenue: finance.burnRate * 1.3,
       jobsPerMonth,
@@ -185,6 +186,7 @@ export default async function QuoteDetail({ params }: { params: { id: string } }
             marginPercentage={quote.quote_margin_percentage}
             marginFloor={marginFloor}
             outcomeLayer={outcomeLayer}
+            jobsPerMonth={financialContext?.jobsPerMonth ?? null}
           />
         </div>
 

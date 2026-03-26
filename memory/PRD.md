@@ -213,3 +213,10 @@ Full forensic audit of the TradeLife repository — inspect entire codebase and 
 - [x] Confirmation block (DANGEROUS only): "Are you sure you want to proceed at this price?"
 - [x] No modals, no popups, no animations — plain text only
 - [x] Calculations untouched
+
+## Consequence Amplification UI (Jan 2026)
+- [x] DANGEROUS: personalised projection — "Over your next {jobsPerMonth} jobs: You will generate £X / But only keep £Y / That's £Z per job"
+- [x] Gap message: "You are £X below what your business needs per job"
+- [x] Reality line: "You are effectively earning £X per day on this job" (uses section labour_days)
+- [x] jobsPerMonth now passed as prop from page (real throughput data)
+- [x] No calculations changed, no backend modified

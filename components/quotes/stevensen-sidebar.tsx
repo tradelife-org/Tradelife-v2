@@ -14,6 +14,7 @@ interface ProfitSidebarProps {
   marginPercentage: number
   marginFloor: number // 2000 = 20%
   outcomeLayer?: OutcomeLayer | null
+  jobsPerMonth?: number | null
 }
 
 export default function StevensenProfitSidebar({
@@ -23,7 +24,8 @@ export default function StevensenProfitSidebar({
   quoteAmountNet,
   marginPercentage,
   marginFloor,
-  outcomeLayer
+  outcomeLayer,
+  jobsPerMonth
 }: ProfitSidebarProps) {
   
   const formatPence = (p: number) => (p / 100).toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })
@@ -137,10 +139,18 @@ export default function StevensenProfitSidebar({
               )}
               {isDangerous && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3" data-testid="dangerous-message-block">
-                  <p className="text-xs font-semibold text-red-700 mb-1">Unsustainable pricing</p>
+                  <p className="text-xs font-semibold text-red-700 mb-2">Unsustainable pricing</p>
                   <p className="text-xs text-red-600 leading-relaxed">
-                    This job will hurt your business if repeated. You are operating below a sustainable level.
+                    If you continue pricing like this:
                   </p>
+                  <div className="mt-2 space-y-1 text-xs text-red-700">
+                    <p data-testid="consequence-jobs">Over your next <span className="font-mono font-bold">{jobsPerMonth || 10}</span> jobs:</p>
+                    <p data-testid="consequence-revenue">You will generate <span className="font-mono font-bold">{formatPence(outcomeLayer.projection.totalRevenue)}</span></p>
+                    <p data-testid="consequence-profit">But only keep <span className="font-mono font-bold">{formatPence(outcomeLayer.projection.totalProfit)}</span></p>
+                    <p className="pt-1 font-semibold" data-testid="consequence-per-job">
+                      That&apos;s {formatPence(outcomeLayer.projection.avgProfitPerJob)} per job.
+                    </p>
+                  </div>
                 </div>
               )}
 
@@ -167,6 +177,31 @@ export default function StevensenProfitSidebar({
                   </p>
                 </div>
               )}
+
+              {/* Gap message */}
+              {(() => {
+                const requiredProfitPerJob = outcomeLayer.recommendation.price - quoteTotalCost
+                const actualProfitPerJob = outcomeLayer.projection.avgProfitPerJob
+                const gap = requiredProfitPerJob - actualProfitPerJob
+                return gap > 0 ? (
+                  <p className="text-xs text-gray-600" data-testid="gap-message">
+                    You are <span className="font-mono font-bold text-red-600">{formatPence(gap)}</span> below what your business needs per job.
+                  </p>
+                ) : null
+              })()}
+
+              {/* Reality line — profit per day (assume 5-day job) */}
+              {(() => {
+                const avgProfit = outcomeLayer.projection.avgProfitPerJob
+                const labourDays = sections.reduce((sum: number, s: any) => sum + (s.labour_days || 0), 0)
+                const days = labourDays > 0 ? labourDays : 5
+                const perDay = Math.round(avgProfit / days)
+                return avgProfit > 0 && avgProfit < outcomeLayer.recommendation.price - quoteTotalCost ? (
+                  <p className="text-xs text-gray-500" data-testid="reality-line">
+                    You are effectively earning <span className="font-mono font-bold text-gray-900">{formatPence(perDay)}</span> per day on this job.
+                  </p>
+                ) : null
+              })()}
 
               {/* Projection */}
               <div className="mt-3 pt-3 border-t border-gray-200 space-y-1.5" data-testid="projection-block">
