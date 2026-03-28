@@ -36,3 +36,9 @@ Later scope extension: replace mock Quotes logic with real Supabase persistence 
 1. Provide the real frontend Supabase public env values locally and restart the frontend.
 2. Log in with a valid user and create a quote to verify the full save → redirect → detail flow against Supabase.
 3. If needed, add a lightweight reference generator for newly created quotes.
+
+
+## Client UUID bug fix
+- Hardened quote client resolution to use trimmed, case-insensitive matching.
+- If no matching client exists, the save flow now creates the client and validates the returned UUID before quote insert.
+- Quote creation now fails with a controlled error if a valid client UUID cannot be resolved, preventing the `invalid input syntax for type uuid: 'null'` failure.
