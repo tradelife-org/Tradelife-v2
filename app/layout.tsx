@@ -1,18 +1,23 @@
-import './globals.css'
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="relative min-h-screen text-white">
+      <body>
+        <div style={{ padding: 10 }}>
+          <div>
+            <a href="/dashboard">Dashboard</a>{" "}
+            <a href="/quotes">Quotes</a>{" "}
+            <a href="/jobs">Jobs</a>{" "}
+            <a href="/invoices">Invoices</a>{" "}
+            <a href="/clients">Clients</a>{" "}
+            <a href="/finance">Finance</a>{" "}
+            <a href="/settings">Settings</a>
+          </div>
 
-        <div className="fixed inset-0 -z-10">
-          <div className="absolute inset-0 bg-black/30" />
-          <div className="absolute left-0 top-1/2 w-[600px] h-[600px] bg-blue-600/20 blur-[120px]" />
-          <div className="absolute right-0 bottom-0 w-[600px] h-[600px] bg-orange-500/20 blur-[120px]" />
+          <hr />
+
+          {/* THIS IS THE CRITICAL PART */}
+          {children}
         </div>
-
-        {children}
-
       </body>
     </html>
   )
