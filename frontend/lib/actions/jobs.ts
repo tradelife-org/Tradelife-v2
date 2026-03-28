@@ -110,6 +110,22 @@ export async function createJobFromQuoteAction(quoteId: string): Promise<JobResu
     return { success: false, error: 'Failed to fetch quote' }
   }
 
+  // Check for existing job from this quote
+  try {
+    const { data: existingJob } = await supabase
+      .from('jobs')
+      .select('id')
+      .eq('source_quote_id', quoteId)
+      .eq('org_id', orgId)
+      .single()
+
+    if (existingJob) {
+      return { success: false, error: 'Job already exists for this quote' }
+    }
+  } catch {
+    // No existing job found - continue with creation
+  }
+
   // Create job from quote
   try {
     const { data, error: insertError } = await supabase
