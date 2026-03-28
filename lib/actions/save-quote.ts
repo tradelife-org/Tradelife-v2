@@ -1,5 +1,7 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
+
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { calculateSection, calculateQuoteTotals } from '@/lib/actions/quotes'
 
@@ -20,6 +22,7 @@ interface SaveSectionInput {
 }
 
 interface SaveQuoteInput {
+  clientName: string
   vat_rate: number              // x100 (2000 = 20%)
   sections: SaveSectionInput[]
 }
@@ -62,6 +65,43 @@ export async function saveQuoteDraft(input: SaveQuoteInput): Promise<SaveQuoteRe
 
     const org_id = profile.org_id
 
+    const normalizedClientName = input.clientName.trim()
+    if (!normalizedClientName) {
+      return { success: false, error: 'Client name is required.' }
+    }
+
+    let clientId: string | null = null
+
+    const { data: existingClient, error: existingClientError } = await supabase
+      .from('clients')
+      .select('id')
+      .eq('org_id', org_id)
+      .eq('name', normalizedClientName)
+      .maybeSingle()
+
+    if (existingClientError) {
+      return { success: false, error: `Failed to find client: ${existingClientError.message}` }
+    }
+
+    if (existingClient) {
+      clientId = existingClient.id
+    } else {
+      const { data: newClient, error: newClientError } = await supabase
+        .from('clients')
+        .insert({
+          org_id,
+          name: normalizedClientName,
+        })
+        .select('id')
+        .single()
+
+      if (newClientError || !newClient) {
+        return { success: false, error: `Failed to create client: ${newClientError?.message}` }
+      }
+
+      clientId = newClient.id
+    }
+
     // Step 3: Server-side recalculation (source of truth)
     const sectionCalcs = input.sections.map((s) =>
       calculateSection({
@@ -84,6 +124,7 @@ export async function saveQuoteDraft(input: SaveQuoteInput): Promise<SaveQuoteRe
       .from('quotes')
       .insert({
         org_id,
+        client_id: clientId,
         status: 'DRAFT',
         vat_rate: input.vat_rate,
         quote_amount_net: quoteTotals.quote_amount_net,
@@ -149,6 +190,9 @@ export async function saveQuoteDraft(input: SaveQuoteInput): Promise<SaveQuoteRe
         return { success: false, error: `Failed to create line item: ${lineError.message}` }
       }
     }
+
+    revalidatePath('/quotes')
+    revalidatePath(`/quotes/${quote.id}`)
 
     return { success: true, quoteId: quote.id }
   } catch (err: any) {
