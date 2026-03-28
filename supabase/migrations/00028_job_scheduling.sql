@@ -1,7 +1,0 @@
--- Add calendar and mapping columns to jobs
-ALTER TABLE public.jobs 
-ADD COLUMN IF NOT EXISTS scheduled_start TIMESTAMPTZ,
-ADD COLUMN IF NOT EXISTS scheduled_end TIMESTAMPTZ,
-ADD COLUMN IF NOT EXISTS assigned_staff UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
-ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION,
-ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;
