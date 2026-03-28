@@ -30,14 +30,25 @@ function QuotesHeader() {
 }
 
 export default async function QuotesPage() {
+  const hasSupabaseEnv = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+
+  if (!hasSupabaseEnv) {
+    return (
+      <section className="mx-auto max-w-4xl space-y-6" data-testid="quotes-page">
+        <QuotesHeader />
+        <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6" data-testid="quotes-error-state">
+          <h2 className="text-lg font-medium text-white">Quotes</h2>
+          <p className="mt-2 text-sm text-red-200">We couldn&apos;t load quotes right now.</p>
+        </div>
+      </section>
+    )
+  }
+
   const supabase = createClient()
   const { data, error } = await supabase
     .from('quotes')
     .select(`
-      id,
-      status,
-      reference,
-      quote_amount_net,
+      *,
       clients ( name ),
       quote_sections ( title, sort_order )
     `)

@@ -30,6 +30,16 @@ interface SaveQuoteInput {
 interface SaveQuoteResult {
   success: boolean
   quoteId?: string
+  quote?: {
+    id: string
+    client_id: string | null
+    status: string
+    quote_amount_net: number
+    quote_amount_gross: number
+    quote_total_cost: number
+    quote_profit: number
+    quote_margin_percentage: number
+  }
   error?: string
 }
 
@@ -133,7 +143,7 @@ export async function saveQuoteDraft(input: SaveQuoteInput): Promise<SaveQuoteRe
         quote_profit: quoteTotals.quote_profit,
         quote_margin_percentage: quoteTotals.quote_margin_percentage,
       })
-      .select('id')
+      .select('id, client_id, status, quote_amount_net, quote_amount_gross, quote_total_cost, quote_profit, quote_margin_percentage')
       .single()
 
     if (quoteError || !quote) {
@@ -194,7 +204,7 @@ export async function saveQuoteDraft(input: SaveQuoteInput): Promise<SaveQuoteRe
     revalidatePath('/quotes')
     revalidatePath(`/quotes/${quote.id}`)
 
-    return { success: true, quoteId: quote.id }
+    return { success: true, quoteId: quote.id, quote }
   } catch (err: any) {
     return { success: false, error: err.message || 'Unknown error' }
   }

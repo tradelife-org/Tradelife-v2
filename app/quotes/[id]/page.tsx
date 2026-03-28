@@ -10,9 +10,34 @@ import StevensenProfitSidebar from '@/components/quotes/stevensen-sidebar'
 import UpsellManager from '@/components/quotes/upsell-manager'
 
 export default async function QuoteDetail({ params }: { params: { id: string } }) {
+  const hasSupabaseEnv = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+
+  if (!hasSupabaseEnv) {
+    return (
+      <div className="min-h-screen bg-slate-50 pb-12">
+        <div className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
+          <div className="max-w-[1600px] mx-auto px-4 h-16 flex items-center">
+            <Link href="/quotes" className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors" data-testid="quote-detail-back-link">
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+          </div>
+        </div>
+
+        <div className="max-w-[1600px] mx-auto px-4 py-8">
+          <GlassPanel className="p-8 bg-white border-slate-200" data-testid="quote-detail-error-state">
+            <h1 className="text-2xl font-heading font-bold text-slate-900">Quote unavailable</h1>
+            <p className="mt-3 text-sm text-slate-500">We couldn&apos;t load this quote right now.</p>
+          </GlassPanel>
+        </div>
+      </div>
+    )
+  }
+
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  if (!user) {
+    redirect('/login')
+  }
   const { data: profile } = await supabase.from('profiles').select('org_id').eq('id', user.id).single()
   
   // Fetch Quote, Sections, Upsells, Org Settings

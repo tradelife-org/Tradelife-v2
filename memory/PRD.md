@@ -1,38 +1,38 @@
-# PRD — Next.js UI Recovery
+# PRD — Next.js UI Recovery + Quotes Supabase Integration
 
 ## Original Problem Statement
 Rebuild the broken UI layer in a Next.js App Router project using Tailwind only. Fix the root layout, restore global Tailwind styling, provide a dark SaaS app shell with working navigation, make the Quotes page usable, remove debug output, and preserve existing routes plus Supabase logic.
 
+Later scope extension: replace mock Quotes logic with real Supabase persistence for the Quotes list, create flow, and quote detail flow without redesigning the UI.
+
 ## Architecture Decisions
-- Kept all work inside the App Router layer and existing component structure.
-- Added a route-aware app frame in `app/app-frame.tsx` so the new shell appears on main app routes without breaking auth/fullscreen screens.
-- Preserved Supabase clients and API routes; added UI-level fallbacks on route pages when required frontend Supabase env values are absent.
-- Reused Tailwind and existing design tokens; no new dependencies added.
+- Kept all work inside the existing App Router and component structure.
+- Preserved the existing Supabase client setup and extended the pre-existing `saveQuoteDraft` server action instead of introducing a new data layer.
+- Reused the existing quote pricing helpers for labour/material/margin calculations and persisted quote + section + line-item records through the current schema.
+- Added route-level env guards on Quotes pages so missing frontend Supabase env values no longer crash the pages during server render.
 
 ## What’s Implemented
-- Replaced `app/layout.tsx` with a proper HTML/body shell and imported `app/globals.css`.
-- Restored global Tailwind styling and shared theme tokens in `app/globals.css`.
-- Added a dark top navigation for Dashboard, Quotes, Jobs, Invoices, Clients, Finance, and Settings.
-- Rebuilt `quotes/page.tsx` with a real page title, Create Quote button, empty/error states, and styled quote cards.
-- Removed raw JSON/debug-style outputs from invoices, clients, and finance pages.
-- Added safe, usable fallback UIs for quotes/jobs/invoices/clients/finance when project Supabase public env values are missing.
-- Updated settings styling to match the new dark SaaS shell.
-- Redirected `/` to `/dashboard` when the required frontend Supabase env is unavailable, preventing the old runtime crash.
+- Root shell and dark navigation remain in place from the earlier UI recovery work.
+- `app/quotes/page.tsx` now fetches real quotes from Supabase, ordered by `created_at DESC`, and renders linked quote cards using related client + section data.
+- `app/quotes/create/page.tsx` now submits real data through the existing server action, creates/fetches the client, inserts the quote, inserts its section + line item, and redirects to the new quote detail page.
+- `lib/actions/save-quote.ts` now returns the inserted quote record summary (including `id`) and revalidates Quotes routes after save.
+- `app/quotes/[id]/page.tsx` continues to fetch the real quote by ID, keeps the existing detail UI, redirects unauthenticated users to login, and handles not-found states via `notFound()`.
+- Quotes list/detail pages now render safe visible error states instead of crashing when frontend Supabase env values are temporarily missing.
 
 ## Prioritized Backlog
 ### P0
-- Add real project runtime env values for `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` so live Supabase data can render instead of fallback empty states.
-- Re-test authenticated flows once public Supabase env is restored.
+- Add the real local/frontend Supabase public env values so the live Quotes pages can query Supabase in this runtime.
+- Validate the authenticated end-to-end quote creation flow with a real user session.
 
 ### P1
-- Bring Jobs/Invoices/Clients/Finance data views to the same visual depth as the new Quotes screen.
-- Replace alert-based settings feedback with inline toast/error messaging.
+- Populate quote references during draft creation so list/detail headers show a business-friendly identifier.
+- Surface inline success toasts for quote creation and send actions.
 
 ### P2
-- Add active-route breadcrumbs and secondary actions for detail screens.
-- Refine dashboard hydration warning in drag/drop widgets.
+- Extend the same persistence pattern into quote editing and section management.
+- Add richer filtering/search on the Quotes list.
 
 ## Next Tasks
-1. Restore the missing public Supabase env values in the Next runtime.
-2. Verify live data appears across Quotes, Jobs, Invoices, Clients, and Finance.
-3. Extend the polished list/card design language into create/detail pages.
+1. Provide the real frontend Supabase public env values locally and restart the frontend.
+2. Log in with a valid user and create a quote to verify the full save → redirect → detail flow against Supabase.
+3. If needed, add a lightweight reference generator for newly created quotes.
