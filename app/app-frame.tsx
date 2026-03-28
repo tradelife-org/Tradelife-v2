@@ -1,7 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+
+import { createClient } from '@/lib/supabase/client'
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Dashboard' },
@@ -21,9 +24,25 @@ function isShelledRoute(pathname: string) {
 
 export function AppFrame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const [isSigningOut, setIsSigningOut] = useState(false)
 
   if (!isShelledRoute(pathname)) {
     return <>{children}</>
+  }
+
+  async function handleLogout() {
+    setIsSigningOut(true)
+
+    try {
+      const supabase = createClient()
+      await supabase.auth.signOut()
+      router.push('/login')
+      router.refresh()
+    } catch (error) {
+      console.error('Logout failed', error)
+      setIsSigningOut(false)
+    }
   }
 
   return (
@@ -46,27 +65,39 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
             </span>
           </div>
 
-          <nav className="flex flex-wrap items-center gap-2" data-testid="primary-navigation-links">
-            {NAV_ITEMS.map(item => {
-              const active = pathname === item.href || pathname.startsWith(`${item.href}/`)
+          <div className="flex flex-wrap items-center gap-2">
+            <nav className="flex flex-wrap items-center gap-2" data-testid="primary-navigation-links">
+              {NAV_ITEMS.map(item => {
+                const active = pathname === item.href || pathname.startsWith(`${item.href}/`)
 
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={active ? 'page' : undefined}
-                  className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
-                    active
-                      ? 'border-blue-500/60 bg-blue-500/15 text-white'
-                      : 'border-neutral-800 bg-neutral-900/70 text-neutral-300 hover:border-neutral-700 hover:bg-neutral-800 hover:text-white'
-                  }`}
-                  data-testid={`nav-link-${item.label.toLowerCase()}`}
-                >
-                  {item.label}
-                </Link>
-              )
-            })}
-          </nav>
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? 'page' : undefined}
+                    className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                      active
+                        ? 'border-blue-500/60 bg-blue-500/15 text-white'
+                        : 'border-neutral-800 bg-neutral-900/70 text-neutral-300 hover:border-neutral-700 hover:bg-neutral-800 hover:text-white'
+                    }`}
+                    data-testid={`nav-link-${item.label.toLowerCase()}`}
+                  >
+                    {item.label}
+                  </Link>
+                )
+              })}
+            </nav>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={isSigningOut}
+              className="rounded-full border border-neutral-800 bg-neutral-900/70 px-4 py-2 text-sm font-medium text-neutral-300 transition-colors hover:border-neutral-700 hover:bg-neutral-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-70"
+              data-testid="logout-button"
+            >
+              {isSigningOut ? 'Logging out...' : 'Logout'}
+            </button>
+          </div>
         </div>
       </header>
 

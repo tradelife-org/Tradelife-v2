@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/quotes/create'
+  const next = searchParams.get('next') ?? '/quotes'
 
   if (code) {
     const cookieStore = cookies()

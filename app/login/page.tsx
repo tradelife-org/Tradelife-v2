@@ -1,17 +1,49 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createBrowserClient } from '@supabase/ssr'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Eye, EyeOff, ArrowRight, ShieldCheck, Mail, Lock } from 'lucide-react'
+
+import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const nextTarget = (() => {
+    const next = searchParams.get('next')
+    return next && next.startsWith('/') ? next : '/quotes'
+  })()
+
+  useEffect(() => {
+    let active = true
+
+    async function checkSession() {
+      try {
+        const supabase = createClient()
+        const { data } = await supabase.auth.getSession()
+
+        if (active && data.session) {
+          router.replace(nextTarget)
+          router.refresh()
+        }
+      } catch (sessionError) {
+        console.error('Session check failed', sessionError)
+      }
+    }
+
+    checkSession()
+
+    return () => {
+      active = false
+    }
+  }, [nextTarget, router])
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -22,10 +54,7 @@ export default function LoginPage() {
     }
     setLoading(true)
     try {
-      const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      )
+      const supabase = createClient()
       const { error: authError } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
@@ -36,7 +65,8 @@ export default function LoginPage() {
         setLoading(false)
         return
       }
-      router.push('/quotes/create')
+      router.replace(nextTarget)
+      router.refresh()
     } catch (err) {
       console.error('Login error:', err)
       setError('Something went wrong. Please try again.')
@@ -179,13 +209,13 @@ export default function LoginPage() {
                     <label className="block text-xs font-medium text-white/60 tracking-wide" data-testid="password-label">
                       Password
                     </label>
-                    <a
+                    <Link
                       href="/forgot-password"
                       className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
                       data-testid="forgot-password-link"
                     >
                       Forgot password?
-                    </a>
+                    </Link>
                   </div>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
@@ -234,15 +264,15 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={async () => {
-                    const supabase = createBrowserClient(
-                      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-                    )
+                    const supabase = createClient()
                     const { error: oauthErr } = await supabase.auth.signInWithOAuth({
                       provider: 'google',
-                      options: { redirectTo: `${window.location.origin}/auth/callback?next=/quotes/create` },
+                      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextTarget)}` },
                     })
-                    if (oauthErr) console.error('Google OAuth error:', oauthErr.message)
+                    if (oauthErr) {
+                      console.error('Google OAuth error:', oauthErr.message)
+                      setError(oauthErr.message)
+                    }
                   }}
                   className="login-btn-google w-full text-white font-medium py-3 flex items-center justify-center gap-2.5"
                   data-testid="google-sign-in-button"
@@ -261,13 +291,13 @@ export default function LoginPage() {
               {/* Footer text */}
               <p className="text-center text-sm text-white/35 mt-6" data-testid="signup-text">
                 Don&apos;t have an account?{' '}
-                <a
-                  href="/signup"
+                <Link
+                  href={`/signup${nextTarget !== '/quotes' ? `?next=${encodeURIComponent(nextTarget)}` : ''}`}
                   className="text-blue-400 hover:text-blue-300 transition-colors"
                   data-testid="signup-link"
                 >
                   Sign up
-                </a>
+                </Link>
               </p>
             </div>
           </div>

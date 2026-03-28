@@ -1,0 +1,97 @@
+{
+  "summary": "Frontend auth regression testing completed on public preview URL. Login/signup UIs render and local validations work, but real Supabase auth operations fail due missing client env vars; protected route redirect and logout redirect are not functioning in this environment.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "AppFrame logout",
+        "issue": "Logout button is visible but click does not redirect to /login; user remains on /dashboard.",
+        "selector": "[data-testid='logout-button']",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Login signInWithPassword",
+        "issue": "Submission always falls into generic error state ('Something went wrong. Please try again.') because Supabase browser client throws missing env vars.",
+        "affected_selectors": [
+          "[data-testid='email-input']",
+          "[data-testid='password-input']",
+          "[data-testid='sign-in-button']",
+          "[data-testid='login-error']"
+        ]
+      },
+      {
+        "flow": "Signup signUp",
+        "issue": "Signup shows generic error state instead of real Supabase response due missing env vars in browser client initialization.",
+        "affected_selectors": [
+          "[data-testid='signup-email-input']",
+          "[data-testid='signup-password-input']",
+          "[data-testid='signup-submit-button']",
+          "[data-testid='signup-error']"
+        ]
+      },
+      {
+        "flow": "Protected routes",
+        "issue": "Unauthenticated visit to /quotes/create does not redirect to /login?next=... and returns 200; route protection is bypassed when Supabase env is missing.",
+        "affected_selectors": [
+          "[data-testid='create-quote-page']"
+        ]
+      },
+      {
+        "flow": "Authenticated redirect guard for /login and /signup",
+        "issue": "Could not validate because no valid auth session could be created in this environment.",
+        "affected_selectors": [
+          "[data-testid='login-page']",
+          "[data-testid='signup-title']"
+        ]
+      },
+      {
+        "flow": "Quotes create under authenticated session",
+        "issue": "Could not validate authenticated create flow end-to-end due blocked sign-in; only unauthenticated access was observed (unexpectedly allowed).",
+        "affected_selectors": [
+          "[data-testid='create-quote-form']",
+          "[data-testid='save-quote-button']"
+        ]
+      }
+    ],
+    "design_issues": [
+      {
+        "screen": "Login and Dashboard",
+        "issues": [
+          "No blocking spacing/alignment/contrast issue found during this run."
+        ]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/root/.emergent/automation_output/20260328_094419/console_20260328_094419.log"
+  ],
+  "action_items": [
+    "Set preview/runtime env vars for Next app: NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY (and keep server-side Supabase keys aligned).",
+    "After env fix, retest middleware protected-route redirects and authenticated redirects for /login and /signup using valid credentials.",
+    "After env fix, retest logout flow to ensure successful signOut and redirect to /login.",
+    "Re-verify Quotes create flow under a real authenticated session."
+  ],
+  "critical_code_review_comments": [
+    "RCA: /app/lib/supabase/client.ts throws 'Missing Supabase environment variables'; this breaks login/signup session checks and submit flows in browser.",
+    "RCA: /app/middleware.ts has early return when hasSupabaseEnv() is false, which disables route protection entirely in misconfigured environments.",
+    "Code-level behavior matches observed failures: console log shows 'Session check failed' and 'Logout failed' from createClient() throw paths."
+  ],
+  "updated_files": [
+    "/app/test_reports/iteration_37.json"
+  ],
+  "success_rate": {
+    "backend": "N/A (frontend-only scope)",
+    "frontend": "35%"
+  },
+  "test_credentials": "MISSING/EMPTY for auth execution: /app/memory/test_credentials.md contains no usable login credentials.",
+  "seed_data_creation": "None",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Public URL tested: https://layout-overhaul-15.preview.emergentagent.com. Login/signup render and client validations pass. Integration auth flows fail because createClient() throws missing env vars. /quotes/create remains publicly accessible (no middleware redirect). Logout button exists but signOut fails and no redirect occurs.",
+  "rca of the issue": "Repro: open /login?next=%2Fquotes%2Fcreate and submit credentials -> generic error. Console: Missing Supabase environment variables from lib/supabase/client.ts. Open /quotes/create unauthenticated -> stays on route (200), no redirect. Click logout on /dashboard -> stays on /dashboard; console shows Logout failed due same missing env error. Root cause: missing NEXT_PUBLIC_SUPABASE_URL/NEXT_PUBLIC_SUPABASE_ANON_KEY at runtime, plus middleware fallback that skips protection when env absent. Mitigation: provision env vars in preview deployment, then rerun auth flow tests with valid credentials."
+}

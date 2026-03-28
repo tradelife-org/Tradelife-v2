@@ -1,38 +1,80 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createBrowserClient } from '@supabase/ssr'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
+
+import { createClient } from '@/lib/supabase/client'
 
 export default function SignupPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const nextTarget = (() => {
+    const next = searchParams.get('next')
+    return next && next.startsWith('/') ? next : '/quotes'
+  })()
+
+  useEffect(() => {
+    let active = true
+
+    async function checkSession() {
+      try {
+        const supabase = createClient()
+        const { data } = await supabase.auth.getSession()
+
+        if (active && data.session) {
+          router.replace(nextTarget)
+          router.refresh()
+        }
+      } catch (sessionError) {
+        console.error('Session check failed', sessionError)
+      }
+    }
+
+    checkSession()
+
+    return () => {
+      active = false
+    }
+  }, [nextTarget, router])
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+    setSuccess('')
     if (!email.trim() || !password.trim()) { setError('Please enter both email and password.'); return }
     if (password.length < 6) { setError('Password must be at least 6 characters.'); return }
     setLoading(true)
     try {
-      const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      )
-      const { data: signUpData, error: authError } = await supabase.auth.signUp({ email: email.trim(), password })
+      const supabase = createClient()
+      const { data: signUpData, error: authError } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextTarget)}`,
+        },
+      })
       if (authError) { setError(authError.message); setLoading(false); return }
-      if (signUpData.user) {
-        await fetch('/api/auth/ensure-profile', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: signUpData.user.id, email: email.trim() }),
-        })
+
+      if (signUpData.session) {
+        router.replace(nextTarget)
+        router.refresh()
+        return
       }
-      router.push('/onboarding')
-    } catch { setError('Something went wrong. Please try again.'); setLoading(false) }
+
+      setSuccess('Account created. Check your email to confirm your account, then sign in.')
+      setLoading(false)
+    } catch {
+      setError('Something went wrong. Please try again.')
+      setLoading(false)
+    }
   }
 
   return (
@@ -67,6 +109,12 @@ export default function SignupPage() {
                 style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#fca5a5' }}
                 data-testid="signup-error">{error}</motion.div>
             )}
+            {success && (
+              <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+                className="text-sm px-4 py-3 rounded-lg"
+                style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.24)', color: '#bbf7d0' }}
+                data-testid="signup-success">{success}</motion.div>
+            )}
             <div>
               <label className="block text-xs font-medium uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Email</label>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
@@ -85,7 +133,7 @@ export default function SignupPage() {
 
         <p className="text-center text-sm mt-6" style={{ color: 'var(--text-muted)' }}>
           Already have an account?{' '}
-          <a href="/login" className="font-medium hover:underline" style={{ color: 'var(--glow-primary)' }} data-testid="signup-login-link">Sign in</a>
+          <Link href={`/login${nextTarget !== '/quotes' ? `?next=${encodeURIComponent(nextTarget)}` : ''}`} className="font-medium hover:underline" style={{ color: 'var(--glow-primary)' }} data-testid="signup-login-link">Sign in</Link>
         </p>
       </motion.div>
     </main>
