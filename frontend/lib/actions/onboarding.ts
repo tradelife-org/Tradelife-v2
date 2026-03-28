@@ -9,63 +9,102 @@ export type OnboardingResult = {
 }
 
 export async function completeOnboardingAction(formData: FormData): Promise<OnboardingResult> {
-  const businessName = formData.get('business_name') as string
-  const tradeType = formData.get('trade_type') as string
+  const businessName = formData.get('business_name') as string | null
+  const tradeType = formData.get('trade_type') as string | null
 
-  if (!businessName || !tradeType) {
-    return { success: false, error: 'Business name and trade type are required' }
+  // Validate required fields
+  if (!businessName || typeof businessName !== 'string' || businessName.trim() === '') {
+    return { success: false, error: 'Business name is required' }
   }
 
-  const supabase = await createClient()
+  if (!tradeType || typeof tradeType !== 'string' || tradeType.trim() === '') {
+    return { success: false, error: 'Trade type is required' }
+  }
+
+  let supabase
+  try {
+    supabase = await createClient()
+  } catch {
+    return { success: false, error: 'Failed to initialize service' }
+  }
 
   if (!supabase) {
     return { success: false, error: 'Service unavailable' }
   }
 
   // Get current user
-  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  let user
+  try {
+    const { data, error: userError } = await supabase.auth.getUser()
+    if (userError) {
+      return { success: false, error: `Authentication failed: ${userError.message}` }
+    }
+    user = data?.user
+  } catch {
+    return { success: false, error: 'Failed to verify authentication' }
+  }
 
-  if (userError || !user) {
+  if (!user || !user.id) {
     return { success: false, error: 'Not authenticated' }
   }
 
   // Fetch user profile to get org_id
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('id, org_id')
-    .eq('id', user.id)
-    .single()
+  let profile
+  try {
+    const { data, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, org_id')
+      .eq('id', user.id)
+      .single()
 
-  if (profileError || !profile) {
+    if (profileError) {
+      return { success: false, error: `Profile lookup failed: ${profileError.message}` }
+    }
+    profile = data
+  } catch {
+    return { success: false, error: 'Failed to fetch profile' }
+  }
+
+  // Null checks for profile
+  if (!profile) {
     return { success: false, error: 'Profile not found' }
+  }
+
+  if (typeof profile.org_id === 'undefined') {
+    return { success: false, error: 'Profile missing organisation reference' }
   }
 
   const orgId = profile.org_id
 
   if (!orgId) {
-    return { success: false, error: 'Organisation not found' }
+    return { success: false, error: 'Organisation not assigned to profile' }
   }
 
-  // Update organisation name and trade_type
-  const { error: orgUpdateError } = await supabase
-    .from('organisations')
-    .update({ 
-      name: businessName,
-      trade_type: tradeType
-    })
-    .eq('id', orgId)
+  // Update organisation name only (trade_type removed - schema not confirmed)
+  try {
+    const { error: orgUpdateError } = await supabase
+      .from('organisations')
+      .update({ name: businessName.trim() })
+      .eq('id', orgId)
 
-  if (orgUpdateError) {
+    if (orgUpdateError) {
+      return { success: false, error: `Organisation update failed: ${orgUpdateError.message}` }
+    }
+  } catch {
     return { success: false, error: 'Failed to update organisation' }
   }
 
   // Mark onboarding as completed
-  const { error: profileUpdateError } = await supabase
-    .from('profiles')
-    .update({ onboarding_completed: true })
-    .eq('id', user.id)
+  try {
+    const { error: profileUpdateError } = await supabase
+      .from('profiles')
+      .update({ onboarding_completed: true })
+      .eq('id', user.id)
 
-  if (profileUpdateError) {
+    if (profileUpdateError) {
+      return { success: false, error: `Profile update failed: ${profileUpdateError.message}` }
+    }
+  } catch {
     return { success: false, error: 'Failed to complete onboarding' }
   }
 
@@ -75,24 +114,49 @@ export async function completeOnboardingAction(formData: FormData): Promise<Onbo
 export async function checkOnboardingStatus(): Promise<{
   authenticated: boolean
   onboardingCompleted: boolean | null
+  error?: string
 }> {
-  const supabase = await createClient()
+  let supabase
+  try {
+    supabase = await createClient()
+  } catch {
+    return { authenticated: false, onboardingCompleted: null, error: 'Failed to initialize service' }
+  }
 
   if (!supabase) {
+    return { authenticated: false, onboardingCompleted: null, error: 'Service unavailable' }
+  }
+
+  let user
+  try {
+    const { data, error: userError } = await supabase.auth.getUser()
+    if (userError) {
+      return { authenticated: false, onboardingCompleted: null, error: userError.message }
+    }
+    user = data?.user
+  } catch {
+    return { authenticated: false, onboardingCompleted: null, error: 'Failed to verify authentication' }
+  }
+
+  if (!user || !user.id) {
     return { authenticated: false, onboardingCompleted: null }
   }
 
-  const { data: { user } } = await supabase.auth.getUser()
+  let profile
+  try {
+    const { data, error: profileError } = await supabase
+      .from('profiles')
+      .select('onboarding_completed')
+      .eq('id', user.id)
+      .single()
 
-  if (!user) {
-    return { authenticated: false, onboardingCompleted: null }
+    if (profileError) {
+      return { authenticated: true, onboardingCompleted: null, error: profileError.message }
+    }
+    profile = data
+  } catch {
+    return { authenticated: true, onboardingCompleted: null, error: 'Failed to fetch profile' }
   }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('onboarding_completed')
-    .eq('id', user.id)
-    .single()
 
   return {
     authenticated: true,
