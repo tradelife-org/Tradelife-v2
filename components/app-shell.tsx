@@ -1,12 +1,3 @@
-import { TopBar } from './layout/TopBar'
-
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-screen">
-      <TopBar />
-      <main className="px-4 py-5 sm:px-6 sm:py-6">
-        {children}
-      </main>
-    </div>
-  )
+  return <div className="w-full" data-testid="app-shell-content">{children}</div>
 }
