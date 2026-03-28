@@ -71,8 +71,8 @@ export default function SignupPage() {
 
       setSuccess('Account created. Check your email to confirm your account, then sign in.')
       setLoading(false)
-    } catch {
-      setError('Something went wrong. Please try again.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
       setLoading(false)
     }
   }

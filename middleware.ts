@@ -26,15 +26,28 @@ function sanitizeNext(nextValue: string | null) {
 }
 
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+
+  if (!hasSupabaseEnv()) {
+    if (isProtectedRoute(pathname) && !isPublicRoute(pathname)) {
+      const loginUrl = new URL('/login', request.url)
+      const nextPath = `${pathname}${request.nextUrl.search}`
+      loginUrl.searchParams.set('next', nextPath)
+      return NextResponse.redirect(loginUrl)
+    }
+
+    return NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    })
+  }
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,
     },
   })
-
-  if (!hasSupabaseEnv()) {
-    return response
-  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -62,8 +75,6 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
-  const pathname = request.nextUrl.pathname
 
   if (!user && isProtectedRoute(pathname) && !isPublicRoute(pathname)) {
     const loginUrl = new URL('/login', request.url)

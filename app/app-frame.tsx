@@ -37,10 +37,11 @@ export function AppFrame({ children }: { children: React.ReactNode }) {
     try {
       const supabase = createClient()
       await supabase.auth.signOut()
-      router.push('/login')
-      router.refresh()
     } catch (error) {
       console.error('Logout failed', error)
+    } finally {
+      router.push('/login')
+      router.refresh()
       setIsSigningOut(false)
     }
   }

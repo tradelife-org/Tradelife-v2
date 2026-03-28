@@ -42,3 +42,11 @@ Later scope extension: replace mock Quotes logic with real Supabase persistence 
 - Hardened quote client resolution to use trimmed, case-insensitive matching.
 - If no matching client exists, the save flow now creates the client and validates the returned UUID before quote insert.
 - Quote creation now fails with a controlled error if a valid client UUID cannot be resolved, preventing the `invalid input syntax for type uuid: 'null'` failure.
+
+
+## Auth layer implementation
+- Added route protection in `middleware.ts` for dashboard and core app routes, with `next` param preservation back to the intended destination.
+- Updated `/login` to use the shared Supabase browser client, preserve `next`, auto-redirect existing sessions, and show visible auth errors.
+- Updated `/signup` to use real Supabase sign up, auto-redirect when a session is returned, and show a success message when email confirmation is required.
+- Added a working logout control in the existing app shell and aligned OAuth callback default redirects to `/quotes`.
+- Kept the existing Quotes implementation intact; auth now supplies the session layer those pages/server actions require.
