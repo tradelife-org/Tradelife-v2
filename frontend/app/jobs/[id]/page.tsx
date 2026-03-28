@@ -1,14 +1,13 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { getQuoteByIdAction } from '@/lib/actions/quotes'
+import { getJobByIdAction } from '@/lib/actions/jobs'
 import Link from 'next/link'
-import ConvertToJobButton from './ConvertToJobButton'
 
 type Props = {
   params: Promise<{ id: string }>
 }
 
-export default async function QuoteDetailPage({ params }: Props) {
+export default async function JobDetailPage({ params }: Props) {
   const { id } = await params
 
   // Check authentication
@@ -16,17 +15,17 @@ export default async function QuoteDetailPage({ params }: Props) {
   try {
     supabase = await createClient()
   } catch {
-    redirect(`/login?next=/quotes/${id}`)
+    redirect(`/login?next=/jobs/${id}`)
   }
 
   if (!supabase) {
-    redirect(`/login?next=/quotes/${id}`)
+    redirect(`/login?next=/jobs/${id}`)
   }
 
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
-    redirect(`/login?next=/quotes/${id}`)
+    redirect(`/login?next=/jobs/${id}`)
   }
 
   // Fetch profile for guards
@@ -40,12 +39,12 @@ export default async function QuoteDetailPage({ params }: Props) {
     return (
       <main className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-lg mx-auto">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4" data-testid="quote-error">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4" data-testid="job-error">
             <p className="text-red-700">Profile not found</p>
           </div>
           <div className="mt-6">
-            <Link href="/quotes" className="text-gray-600 hover:text-gray-900">
-              ← Back to Quotes
+            <Link href="/jobs" className="text-gray-600 hover:text-gray-900">
+              ← Back to Jobs
             </Link>
           </div>
         </div>
@@ -61,12 +60,12 @@ export default async function QuoteDetailPage({ params }: Props) {
     return (
       <main className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-lg mx-auto">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4" data-testid="quote-error">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4" data-testid="job-error">
             <p className="text-red-700">Organisation not assigned</p>
           </div>
           <div className="mt-6">
-            <Link href="/quotes" className="text-gray-600 hover:text-gray-900">
-              ← Back to Quotes
+            <Link href="/jobs" className="text-gray-600 hover:text-gray-900">
+              ← Back to Jobs
             </Link>
           </div>
         </div>
@@ -74,19 +73,19 @@ export default async function QuoteDetailPage({ params }: Props) {
     )
   }
 
-  // Fetch quote
-  const result = await getQuoteByIdAction(id)
+  // Fetch job
+  const result = await getJobByIdAction(id)
 
   if (!result.success || !result.data) {
     return (
       <main className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-lg mx-auto">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4" data-testid="quote-error">
-            <p className="text-red-700">{result.error || 'Quote not found'}</p>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4" data-testid="job-error">
+            <p className="text-red-700">{result.error || 'Job not found'}</p>
           </div>
           <div className="mt-6">
-            <Link href="/quotes" className="text-gray-600 hover:text-gray-900">
-              ← Back to Quotes
+            <Link href="/jobs" className="text-gray-600 hover:text-gray-900">
+              ← Back to Jobs
             </Link>
           </div>
         </div>
@@ -94,51 +93,59 @@ export default async function QuoteDetailPage({ params }: Props) {
     )
   }
 
-  const quote = result.data
+  const job = result.data
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6" data-testid="quote-detail-page">
+    <main className="min-h-screen bg-gray-50 p-6" data-testid="job-detail-page">
       <div className="max-w-lg mx-auto">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900" data-testid="quote-title">
-            {quote.title}
+          <h1 className="text-3xl font-bold text-gray-900" data-testid="job-title">
+            {job.title}
           </h1>
         </header>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quote Details</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Job Details</h2>
           
           <dl className="space-y-4">
             <div className="flex justify-between border-b border-gray-100 pb-3">
               <dt className="text-gray-600">Title</dt>
-              <dd className="text-gray-900 font-medium" data-testid="quote-detail-title">
-                {quote.title}
+              <dd className="text-gray-900 font-medium" data-testid="job-detail-title">
+                {job.title}
               </dd>
             </div>
 
             <div className="flex justify-between border-b border-gray-100 pb-3">
               <dt className="text-gray-600">Client</dt>
-              <dd className="text-gray-900" data-testid="quote-detail-client">
-                {quote.client?.name || '—'}
+              <dd className="text-gray-900" data-testid="job-detail-client">
+                {job.client?.name || '—'}
+              </dd>
+            </div>
+
+            <div className="flex justify-between border-b border-gray-100 pb-3">
+              <dt className="text-gray-600">Source Quote</dt>
+              <dd data-testid="job-detail-quote">
+                <Link
+                  href={`/quotes/${job.source_quote_id}`}
+                  className="text-blue-600 hover:underline"
+                >
+                  {job.source_quote?.title || 'View Quote'}
+                </Link>
               </dd>
             </div>
 
             <div className="flex justify-between">
               <dt className="text-gray-600">Created</dt>
-              <dd className="text-gray-900" data-testid="quote-detail-created">
-                {new Date(quote.created_at).toLocaleDateString()}
+              <dd className="text-gray-900" data-testid="job-detail-created">
+                {new Date(job.created_at).toLocaleDateString()}
               </dd>
             </div>
           </dl>
         </div>
 
         <div className="mt-6">
-          <ConvertToJobButton quoteId={quote.id} />
-        </div>
-
-        <div className="mt-6">
-          <Link href="/quotes" className="text-gray-600 hover:text-gray-900">
-            ← Back to Quotes
+          <Link href="/jobs" className="text-gray-600 hover:text-gray-900">
+            ← Back to Jobs
           </Link>
         </div>
       </div>
