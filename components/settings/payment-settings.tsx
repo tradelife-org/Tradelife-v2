@@ -20,26 +20,27 @@ export default function PaymentSettings() {
   }
 
   return (
-    <GlassPanel className="p-8 bg-white border-slate-200 max-w-xl mx-auto">
-      <div className="flex items-center gap-4 mb-6">
-        <div className="p-3 bg-blue-50 rounded-xl text-blue-600">
-          <CreditCard className="w-8 h-8" />
+    <GlassPanel className="mx-auto max-w-xl border-white/10 bg-neutral-900/70 p-8" data-testid="payment-settings-panel">
+      <div className="mb-6 flex items-center gap-4">
+        <div className="rounded-xl bg-blue-500/15 p-3 text-blue-400">
+          <CreditCard className="h-8 w-8" />
         </div>
         <div>
-          <h2 className="text-xl font-heading font-bold text-slate-900">Payout Settings</h2>
-          <p className="text-sm text-slate-500">Connect Stripe to receive payments.</p>
+          <h2 className="text-xl font-semibold text-white" data-testid="payment-settings-title">Payout Settings</h2>
+          <p className="text-sm text-neutral-400" data-testid="payment-settings-description">Connect Stripe to receive payments.</p>
         </div>
       </div>
 
       <button 
         onClick={handleConnect}
         disabled={loading}
-        className="w-full py-4 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+        className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-4 font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+        data-testid="payment-settings-connect-button"
       >
-        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
           <>
             Setup Payouts
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className="h-5 w-5" />
           </>
         )}
       </button>
