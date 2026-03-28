@@ -1,12 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 import { Eye, EyeOff, ArrowRight, ShieldCheck, Mail, Lock } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -36,7 +37,8 @@ export default function LoginPage() {
         setLoading(false)
         return
       }
-      router.push('/quotes/create')
+      const next = searchParams.get('next') || '/dashboard'
+      router.push(next)
     } catch (err) {
       console.error('Login error:', err)
       setError('Something went wrong. Please try again.')

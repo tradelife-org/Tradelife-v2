@@ -11,6 +11,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [confirmEmail, setConfirmEmail] = useState(false)
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault()
@@ -25,13 +26,18 @@ export default function SignupPage() {
       )
       const { data: signUpData, error: authError } = await supabase.auth.signUp({ email: email.trim(), password })
       if (authError) { setError(authError.message); setLoading(false); return }
-      if (signUpData.user) {
-        await fetch('/api/auth/ensure-profile', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: signUpData.user.id, email: email.trim() }),
-        })
+      if (signUpData.session) {
+        if (signUpData.user) {
+          await fetch('/api/auth/ensure-profile', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: signUpData.user.id, email: email.trim() }),
+          })
+        }
+        router.push('/onboarding')
+      } else {
+        setConfirmEmail(true)
+        setLoading(false)
       }
-      router.push('/onboarding')
     } catch { setError('Something went wrong. Please try again.'); setLoading(false) }
   }
 
@@ -60,6 +66,15 @@ export default function SignupPage() {
         </div>
 
         <div className="glass-panel-elevated p-6">
+          {confirmEmail ? (
+            <div
+              className="text-sm px-4 py-5 rounded-lg text-center"
+              style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)', color: '#93c5fd' }}
+              data-testid="signup-confirm-email"
+            >
+              Check your email to confirm your account before signing in.
+            </div>
+          ) : (
           <form onSubmit={handleSignup} className="space-y-5">
             {error && (
               <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
@@ -81,6 +96,7 @@ export default function SignupPage() {
               {loading ? 'Creating account...' : 'Create account'}
             </button>
           </form>
+          )}
         </div>
 
         <p className="text-center text-sm mt-6" style={{ color: 'var(--text-muted)' }}>

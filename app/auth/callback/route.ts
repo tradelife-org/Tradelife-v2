@@ -1,37 +1,22 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createClient } from '@/lib/supabase/server'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/quotes/create'
+  const next = searchParams.get('next') ?? '/'
 
   if (code) {
-    const cookieStore = cookies()
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.exchangeCodeForSession(code)
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll()
-          },
-          setAll(cookiesToSet: any[]) {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
-          },
-        },
+      if (!error) {
+        const target = next.startsWith('/') ? next : `/${next}`
+        return NextResponse.redirect(new URL(target, request.url))
       }
-    )
-
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-
-    if (!error) {
-      const target = next.startsWith('/') ? next : `/${next}`
-      return NextResponse.redirect(new URL(target, request.url))
+    } catch {
+      // env missing or client null — fall through to /login
     }
   }
 
