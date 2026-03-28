@@ -32,7 +32,7 @@ interface SaveQuoteResult {
   quoteId?: string
   quote?: {
     id: string
-    client_id: string | null
+    client_id: string
     status: string
     quote_amount_net: number
     quote_amount_gross: number
@@ -41,6 +41,16 @@ interface SaveQuoteResult {
     quote_margin_percentage: number
   }
   error?: string
+}
+
+function normalizeClientName(value: string) {
+  return value.trim().replace(/\s+/g, ' ')
+}
+
+function isUuid(value: string | null | undefined) {
+  if (!value) return false
+
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
 }
 
 // --------------------------------------------------------------------------
@@ -75,25 +85,27 @@ export async function saveQuoteDraft(input: SaveQuoteInput): Promise<SaveQuoteRe
 
     const org_id = profile.org_id
 
-    const normalizedClientName = input.clientName.trim()
+    const normalizedClientName = normalizeClientName(input.clientName)
     if (!normalizedClientName) {
       return { success: false, error: 'Client name is required.' }
     }
 
-    let clientId: string | null = null
+    let clientId = ''
 
-    const { data: existingClient, error: existingClientError } = await supabase
+    const { data: existingClients, error: existingClientError } = await supabase
       .from('clients')
-      .select('id')
+      .select('id, name')
       .eq('org_id', org_id)
-      .eq('name', normalizedClientName)
-      .maybeSingle()
+      .ilike('name', normalizedClientName)
+      .limit(10)
 
     if (existingClientError) {
       return { success: false, error: `Failed to find client: ${existingClientError.message}` }
     }
 
-    if (existingClient) {
+    const existingClient = (existingClients || []).find((client) => normalizeClientName(client.name).toLowerCase() === normalizedClientName.toLowerCase())
+
+    if (existingClient?.id && isUuid(existingClient.id)) {
       clientId = existingClient.id
     } else {
       const { data: newClient, error: newClientError } = await supabase
@@ -105,11 +117,15 @@ export async function saveQuoteDraft(input: SaveQuoteInput): Promise<SaveQuoteRe
         .select('id')
         .single()
 
-      if (newClientError || !newClient) {
+      if (newClientError || !newClient?.id || !isUuid(newClient.id)) {
         return { success: false, error: `Failed to create client: ${newClientError?.message}` }
       }
 
       clientId = newClient.id
+    }
+
+    if (!isUuid(clientId)) {
+      return { success: false, error: 'Failed to resolve a valid client record for this quote.' }
     }
 
     // Step 3: Server-side recalculation (source of truth)
